@@ -3,12 +3,6 @@
   "providers": {
     "clerk": {
       "name": "Clerk"
-    },
-    "openrouter": {
-      "name": "OpenRouter"
-    },
-    "upstash": {
-      "name": "Upstash"
     }
   },
   "resources": {
@@ -21,21 +15,6 @@
       "name": "Contents Not Dead",
       "providerName": "Clerk",
       "serviceId": "auth"
-    },
-    "openrouter-api": {
-      "name": "openrouter-api",
-      "providerName": "OpenRouter",
-      "serviceId": "api"
-    },
-    "openrouter-plan": {
-      "name": "openrouter-plan",
-      "providerName": "OpenRouter",
-      "serviceId": "free"
-    },
-    "upstash-redis": {
-      "name": "upstash-redis",
-      "providerName": "Upstash",
-      "serviceId": "redis"
     }
   },
   "environments": {
@@ -47,15 +26,6 @@
         },
         {
           "resourceName": "clerk-plan"
-        },
-        {
-          "resourceName": "openrouter-api"
-        },
-        {
-          "resourceName": "openrouter-plan"
-        },
-        {
-          "resourceName": "upstash-redis"
         }
       ],
       "variables": [

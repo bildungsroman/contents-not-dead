@@ -11,11 +11,12 @@ wireframe.png
 # Projects
 .vercel
 
+.projects/state.local.json
+
 .projects/cache
 .projects/vault
 .projects/state.test.json
 .projects/state.local.test.json
-.projects/state.local.json
 .env
 .env.*
 !.env.example

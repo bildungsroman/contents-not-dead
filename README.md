@@ -16,14 +16,11 @@ pay for — with full parity between them.
 - **File-based content** — drop Markdown into `content/`.
 
 It's built to be **cloned and personalized**: bring your own content, keys, and
-theme and you have a working paid content site. A separate, optional
-open-source [`@bildungsroman/content-generator`](https://www.npmjs.com/package/@bildungsroman/content-generator)
-library powers on-demand AI content, but only on the official demo
-deployment — clones run without it.
+theme and you have a working paid content site.
 
 ## Quick start
 
-This project provisions its third-party services (auth, caching) with
+This project provisions its third-party services (auth) with
 [Stripe Projects](https://projects.dev) — the Stripe CLI is the source of truth
 for credentials and writes them straight into a git-ignored `.env`. No manual
 key copying.
@@ -34,9 +31,9 @@ npm install
 # Stripe CLI + Projects plugin (see https://docs.stripe.com/stripe-cli/install)
 stripe plugin install projects
 
-# Create the project and provision the full stack (Clerk auth, OpenRouter,
-# Upstash Redis) from the shared stack link, syncing keys into a git-ignored .env:
-stripe projects init --from "https://projects.dev/s/v1:Clerk~auth,Upstash~redis"
+# Create the project and provision the full stack (Clerk auth) from the shared
+# stack link, syncing keys into a git-ignored .env:
+stripe projects init --from "https://projects.dev/s/v1:Clerk~auth"
 ```
 
 That single `--from` import provisions every provider this app needs.
@@ -81,9 +78,8 @@ stripe projects env --json      # env var names (never values)
 | --- | --- |
 | `STRIPE_SECRET_KEY`, `STRIPE_PRICE_MONTHLY`, `STRIPE_PRICE_ANNUAL` | Stripe / project variables |
 | `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY` | `stripe projects add clerk/auth` |
-| `UPSTASH_*` | `stripe projects add upstash/redis` |
-| `OPENROUTER_*`, `CONTENT_GENERATOR_*` | `stripe projects add openrouter/api` (demo only) |
-| `MPP_SECRET_KEY`, `CONTENT_ASSET_SECRET`, `NEXT_PUBLIC_APP_URL`, `NEXT_PUBLIC_IS_DEMO`, `DEMO_HOST` | project variables |
+| `MPP_SECRET_KEY`, `CONTENT_ASSET_SECRET`, `NEXT_PUBLIC_APP_URL` | project variables |
+| `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` | optional self-managed env vars (rate limiting; in-memory fallback if unset) |
 
 Forward Stripe webhooks while developing and store the signing secret:
 
@@ -104,7 +100,6 @@ stripe projects variables set stripe-webhook-secret --env-key STRIPE_WEBHOOK_SEC
 | Agent payments | `mppx` (`mppx/server`) with the Stripe SPT method. `GET /api/content/{id}` returns a `402` challenge, then the full markdown + a `Payment-Receipt` on success. |
 | Paid images | Full assets live in `content/assets/` (outside `public/`) and are served via `/api/content/{id}/asset` only to subscribers or with a short-lived HMAC-signed URL. |
 | Themes | CSS variables keyed on `data-theme`; light/dark via `prefers-color-scheme`. |
-| Demo generation | `POST /api/generate`, gated to demo mode + the canonical host, with signed-session and Redis/IP rate limits; content is browser-session-only. |
 
 ## Routes
 
