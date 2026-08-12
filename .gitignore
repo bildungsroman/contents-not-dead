@@ -15,6 +15,7 @@ wireframe.png
 .projects/vault
 .projects/state.test.json
 .projects/state.local.test.json
+.projects/state.local.json
 .env
 .env.*
 !.env.example
