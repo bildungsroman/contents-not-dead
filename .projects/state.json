@@ -1,5 +1,171 @@
 {
   "version": 1,
-  "providers": {},
-  "resources": {}
+  "providers": {
+    "clerk": {
+      "name": "Clerk"
+    },
+    "openrouter": {
+      "name": "OpenRouter"
+    },
+    "upstash": {
+      "name": "Upstash"
+    }
+  },
+  "resources": {
+    "clerk-plan": {
+      "name": "clerk-plan",
+      "providerName": "Clerk",
+      "serviceId": "hobby"
+    },
+    "Contents Not Dead": {
+      "name": "Contents Not Dead",
+      "providerName": "Clerk",
+      "serviceId": "auth"
+    },
+    "openrouter-api": {
+      "name": "openrouter-api",
+      "providerName": "OpenRouter",
+      "serviceId": "api"
+    },
+    "openrouter-plan": {
+      "name": "openrouter-plan",
+      "providerName": "OpenRouter",
+      "serviceId": "free"
+    },
+    "upstash-redis": {
+      "name": "upstash-redis",
+      "providerName": "Upstash",
+      "serviceId": "redis"
+    }
+  },
+  "environments": {
+    "default": {
+      "output": ".env",
+      "resources": [
+        {
+          "resourceName": "Contents Not Dead"
+        },
+        {
+          "resourceName": "clerk-plan"
+        },
+        {
+          "resourceName": "openrouter-api"
+        },
+        {
+          "resourceName": "openrouter-plan"
+        },
+        {
+          "resourceName": "upstash-redis"
+        }
+      ],
+      "variables": [
+        {
+          "variableName": "app-url",
+          "envKey": "NEXT_PUBLIC_APP_URL"
+        },
+        {
+          "variableName": "clerk-encryption-key",
+          "envKey": "CLERK_ENCRYPTION_KEY"
+        },
+        {
+          "variableName": "clerk-publishable-key",
+          "envKey": "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY"
+        },
+        {
+          "variableName": "clerk-secret-key",
+          "envKey": "CLERK_SECRET_KEY"
+        },
+        {
+          "variableName": "content-asset-secret",
+          "envKey": "CONTENT_ASSET_SECRET"
+        },
+        {
+          "variableName": "demo-host",
+          "envKey": "DEMO_HOST"
+        },
+        {
+          "variableName": "gen-image-models",
+          "envKey": "CONTENT_GENERATOR_IMAGE_MODELS"
+        },
+        {
+          "variableName": "gen-text-models",
+          "envKey": "CONTENT_GENERATOR_TEXT_MODELS"
+        },
+        {
+          "variableName": "is-demo",
+          "envKey": "NEXT_PUBLIC_IS_DEMO"
+        },
+        {
+          "variableName": "mpp-secret-key",
+          "envKey": "MPP_SECRET_KEY"
+        },
+        {
+          "variableName": "stripe-price-annual",
+          "envKey": "STRIPE_PRICE_ANNUAL"
+        },
+        {
+          "variableName": "stripe-price-monthly",
+          "envKey": "STRIPE_PRICE_MONTHLY"
+        },
+        {
+          "variableName": "stripe-secret-key",
+          "envKey": "STRIPE_SECRET_KEY"
+        }
+      ]
+    }
+  },
+  "variables": {
+    "app-url": {
+      "name": "app-url",
+      "backendId": "fprjvar_61V45sOpiU8yWxlkk16UnJFA1ASQPm3cWejUZAGYqSga"
+    },
+    "clerk-encryption-key": {
+      "name": "clerk-encryption-key",
+      "backendId": "fprjvar_61V48KFEXPaIl1DYC16UnJFA1ASQPm3cWejUZAGYqAwy"
+    },
+    "clerk-publishable-key": {
+      "name": "clerk-publishable-key",
+      "backendId": "fprjvar_61V48KBgU4pxZGtWE16UnJFA1ASQPm3cWejUZAGYqGzY"
+    },
+    "clerk-secret-key": {
+      "name": "clerk-secret-key",
+      "backendId": "fprjvar_61V48KDkNkduwd3MB16UnJFA1ASQPm3cWejUZAGYqQG8"
+    },
+    "content-asset-secret": {
+      "name": "content-asset-secret",
+      "backendId": "fprjvar_61V45sM2C5C6mxCIc16UnJFA1ASQPm3cWejUZAGYqHtA"
+    },
+    "demo-host": {
+      "name": "demo-host",
+      "backendId": "fprjvar_61V45sS8nxMq159GD16UnJFA1ASQPm3cWejUZAGYqCki"
+    },
+    "gen-image-models": {
+      "name": "gen-image-models",
+      "backendId": "fprjvar_61V45sWc5ZSDO7J9X16UnJFA1ASQPm3cWejUZAGYqRGS"
+    },
+    "gen-text-models": {
+      "name": "gen-text-models",
+      "backendId": "fprjvar_61V45sUyKu2rOFdbQ16UnJFA1ASQPm3cWejUZAGYqFEO"
+    },
+    "is-demo": {
+      "name": "is-demo",
+      "backendId": "fprjvar_61V45sQg2HDVzkWkW16UnJFA1ASQPm3cWejUZAGYqC0u"
+    },
+    "mpp-secret-key": {
+      "name": "mpp-secret-key",
+      "backendId": "fprjvar_61V45sKEevyXIutJs16UnJFA1ASQPm3cWejUZAGYqJbk"
+    },
+    "stripe-price-annual": {
+      "name": "stripe-price-annual",
+      "backendId": "fprjvar_61V4N1SDsATyXsxfQ16UnJFA1ASQPm3cWejUZAGYq8dc"
+    },
+    "stripe-price-monthly": {
+      "name": "stripe-price-monthly",
+      "backendId": "fprjvar_61V4N1Q2qnEzsselT16UnJFA1ASQPm3cWejUZAGYqQkq"
+    },
+    "stripe-secret-key": {
+      "name": "stripe-secret-key",
+      "backendId": "fprjvar_61V45skGMtXKDfeaG16UnJFA1ASQPm3cWejUZAGYqTGy"
+    }
+  }
 }

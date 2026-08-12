@@ -1,3 +1,15 @@
+# Dependencies
+node_modules
+.next
+.DS_STORE
+
+# Local planning docs and tooling
+instructions.md
+wireframe.png
+.cursor/
+
+# Projects
+.vercel
 .projects/cache
 .projects/vault
 .projects/state.test.json
