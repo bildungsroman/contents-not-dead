@@ -10,6 +10,7 @@ wireframe.png
 
 # Projects
 .vercel
+
 .projects/cache
 .projects/vault
 .projects/state.test.json

@@ -23,9 +23,49 @@ deployment — clones run without it.
 
 ## Quick start
 
+This project provisions its third-party services (auth, caching, LLM) with
+[Stripe Projects](https://projects.dev) — the Stripe CLI is the source of truth
+for credentials and writes them straight into a git-ignored `.env`. No manual
+key copying.
+
 ```bash
 npm install
-cp .env.example .env.local   # fill in your keys (see below)
+
+# Stripe CLI + Projects plugin (see https://docs.stripe.com/stripe-cli/install)
+stripe plugin install projects
+stripe projects init --accept-tos --yes   # creates the project and generates .env
+```
+
+Add the services the app depends on. Each `add` provisions the resource and
+writes its keys into `.env` for you:
+
+```bash
+stripe projects add @auth    # Clerk — user auth (CLERK_* + NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY)
+stripe projects add @cache   # Upstash Redis — demo-generation rate limiting (UPSTASH_*)
+stripe projects add @ai      # OpenRouter — demo content generation (optional)
+```
+
+Store the self-managed secrets and app config as project variables (these
+aren't tied to a provisioned provider). Regenerate the MPP secrets with
+`node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"`:
+
+```bash
+stripe projects variables set mpp-secret-key      --env-key MPP_SECRET_KEY      --value <32-byte-base64>
+stripe projects variables set content-asset-secret --env-key CONTENT_ASSET_SECRET --value <32-byte-base64>
+stripe projects variables set app-url             --env-key NEXT_PUBLIC_APP_URL --value http://localhost:3000
+```
+
+Create the subscription Product + Prices once, then store the IDs as variables:
+
+```bash
+node --env-file=.env scripts/setup-stripe.mjs
+stripe projects variables set stripe-price-monthly --env-key STRIPE_PRICE_MONTHLY --value price_...
+stripe projects variables set stripe-price-annual  --env-key STRIPE_PRICE_ANNUAL  --value price_...
+```
+
+Then start the app:
+
+```bash
 npm run dev
 ```
 
@@ -33,22 +73,27 @@ Then open http://localhost:3000.
 
 ### Environment
 
-See [`.env.example`](./.env.example) for the full list. At minimum you need
-Stripe (`STRIPE_SECRET_KEY`), Clerk (`NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`,
-`CLERK_SECRET_KEY`), and MPP secrets (`MPP_SECRET_KEY`, `CONTENT_ASSET_SECRET`).
-
-Create the subscription prices once:
+`stripe projects init` and the `add` commands above generate a git-ignored
+`.env` — don't hand-edit it. Inspect what's wired up with:
 
 ```bash
-node --env-file=.env.local scripts/setup-stripe.mjs
-# copy STRIPE_PRICE_MONTHLY / STRIPE_PRICE_ANNUAL into your env
+stripe projects status --json   # provisioned resources
+stripe projects env --json      # env var names (never values)
 ```
 
-Forward webhooks while developing:
+| Env var | Managed by |
+| --- | --- |
+| `STRIPE_SECRET_KEY`, `STRIPE_PRICE_MONTHLY`, `STRIPE_PRICE_ANNUAL` | Stripe / project variables |
+| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY` | `stripe projects add @auth` (Clerk) |
+| `UPSTASH_*` | `stripe projects add @cache` (Upstash Redis) |
+| `OPENROUTER_*`, `CONTENT_GENERATOR_*` | `stripe projects add @ai` (OpenRouter, demo only) |
+| `MPP_SECRET_KEY`, `CONTENT_ASSET_SECRET`, `NEXT_PUBLIC_APP_URL`, `NEXT_PUBLIC_IS_DEMO`, `DEMO_HOST` | project variables |
+
+Forward Stripe webhooks while developing and store the signing secret:
 
 ```bash
 stripe listen --forward-to localhost:3000/api/stripe/webhook
-# set STRIPE_WEBHOOK_SECRET to the printed value
+stripe projects variables set stripe-webhook-secret --env-key STRIPE_WEBHOOK_SECRET --value whsec_...
 ```
 
 > The Stripe restricted key needs write access to Products, Prices, Checkout
@@ -80,9 +125,20 @@ See [`/docs`](http://localhost:3000/docs) for the full guide.
 
 ## Deploy
 
-Deploy to Vercel, set the env vars, point `NEXT_PUBLIC_APP_URL` at your domain,
-and add a Stripe webhook endpoint at `/api/stripe/webhook`. Web Analytics and
-Speed Insights are already wired in.
+Deploy to Vercel. Use a separate Stripe Projects environment for production so
+credentials stay isolated from local dev:
+
+```bash
+stripe projects env create production --output .env.production
+stripe projects env use production
+# re-run the `add` / `variables set` steps for production, then point
+# NEXT_PUBLIC_APP_URL at your domain
+stripe projects variables set app-url --env-key NEXT_PUBLIC_APP_URL --value https://your-domain.com
+```
+
+Sync the generated values into your host's env (Vercel, etc.) and add a Stripe
+webhook endpoint at `/api/stripe/webhook`. Web Analytics and Speed Insights are
+already wired in.
 
 ## License
 

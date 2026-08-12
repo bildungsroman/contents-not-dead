@@ -2,6 +2,7 @@
   "name": "contents-not-dead",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "description": "An open-source, themeable, agent-native content platform monetized with Stripe subscriptions and MPP per-content payments.",
   "license": "MIT",
   "scripts": {
