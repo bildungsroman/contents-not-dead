@@ -23,7 +23,7 @@ deployment — clones run without it.
 
 ## Quick start
 
-This project provisions its third-party services (auth, caching, LLM) with
+This project provisions its third-party services (auth, caching) with
 [Stripe Projects](https://projects.dev) — the Stripe CLI is the source of truth
 for credentials and writes them straight into a git-ignored `.env`. No manual
 key copying.
@@ -33,17 +33,13 @@ npm install
 
 # Stripe CLI + Projects plugin (see https://docs.stripe.com/stripe-cli/install)
 stripe plugin install projects
-stripe projects init --accept-tos --yes   # creates the project and generates .env
+
+# Create the project and provision the full stack (Clerk auth, OpenRouter,
+# Upstash Redis) from the shared stack link, syncing keys into a git-ignored .env:
+stripe projects init --from "https://projects.dev/s/v1:Clerk~auth,Upstash~redis"
 ```
 
-Add the services the app depends on. Each `add` provisions the resource and
-writes its keys into `.env` for you:
-
-```bash
-stripe projects add @auth    # Clerk — user auth (CLERK_* + NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY)
-stripe projects add @cache   # Upstash Redis — demo-generation rate limiting (UPSTASH_*)
-stripe projects add @ai      # OpenRouter — demo content generation (optional)
-```
+That single `--from` import provisions every provider this app needs.
 
 Store the self-managed secrets and app config as project variables (these
 aren't tied to a provisioned provider). Regenerate the MPP secrets with
@@ -84,9 +80,9 @@ stripe projects env --json      # env var names (never values)
 | Env var | Managed by |
 | --- | --- |
 | `STRIPE_SECRET_KEY`, `STRIPE_PRICE_MONTHLY`, `STRIPE_PRICE_ANNUAL` | Stripe / project variables |
-| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY` | `stripe projects add @auth` (Clerk) |
-| `UPSTASH_*` | `stripe projects add @cache` (Upstash Redis) |
-| `OPENROUTER_*`, `CONTENT_GENERATOR_*` | `stripe projects add @ai` (OpenRouter, demo only) |
+| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY` | `stripe projects add clerk/auth` |
+| `UPSTASH_*` | `stripe projects add upstash/redis` |
+| `OPENROUTER_*`, `CONTENT_GENERATOR_*` | `stripe projects add openrouter/api` (demo only) |
 | `MPP_SECRET_KEY`, `CONTENT_ASSET_SECRET`, `NEXT_PUBLIC_APP_URL`, `NEXT_PUBLIC_IS_DEMO`, `DEMO_HOST` | project variables |
 
 Forward Stripe webhooks while developing and store the signing secret:
