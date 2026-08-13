@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { SITE } from "@/lib/config";
+import { CodeBlock } from "@/components/CodeBlock";
 
 export const metadata: Metadata = {
   title: "Docs",
@@ -19,12 +20,12 @@ export default function DocsPage() {
         </p>
 
         <h2>1. Clone &amp; install</h2>
-        <pre>
-          <code>{`git clone <your-fork> my-content-site
+        <CodeBlock
+          code={`git clone <your-fork> my-content-site
 cd my-content-site
 npm install
-cp .env.example .env.local`}</code>
-        </pre>
+cp .env.example .env.local`}
+        />
 
         <h2>2. Configure environment</h2>
         <p>Fill in <code>.env.local</code>:</p>
@@ -67,8 +68,8 @@ cp .env.example .env.local`}</code>
         <p>
           Drop Markdown files in <code>content/</code> with frontmatter:
         </p>
-        <pre>
-          <code>{`---
+        <CodeBlock
+          code={`---
 title: My Post
 summary: A one-line teaser shown on the home grid.
 authors: [Your Name]
@@ -80,8 +81,8 @@ type: article        # or: image
 # preview: /previews/my-art.png  # low-detail preview in public/
 ---
 
-Your Markdown body here.`}</code>
-        </pre>
+Your Markdown body here.`}
+        />
         <p>
           Full-resolution images live in <code>content/assets/</code> (outside{" "}
           <code>public/</code>) and are served only after payment or a
@@ -113,8 +114,8 @@ Your Markdown body here.`}</code>
             <Link href="/agents">/agents</Link> — markdown directory
           </li>
           <li>
-            <code>/api/content/&#123;id&#125;</code> — paid endpoint (HTTP 402 →
-            pay → full markdown)
+            <code>/api/content/&#123;id&#125;</code> — paid endpoint (<code>HTTP 402 →
+            pay → full markdown</code>)
           </li>
         </ul>
 
@@ -126,7 +127,7 @@ Your Markdown body here.`}</code>
           Analytics and Speed Insights are already wired up.
         </p>
         <p className="meta">
-          The demo (<code>IS_DEMO</code>) and its AI content generator are only
+          This demo and its AI content generator are only
           enabled on the official <code>contentsnotdead.com</code> deployment;
           clones run as a normal content platform without them.
         </p>

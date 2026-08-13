@@ -3,6 +3,9 @@ node_modules
 .next
 .DS_STORE
 
+# TypeScript
+*.tsbuildinfo
+
 # Local planning docs and tooling
 instructions.md
 wireframe.png

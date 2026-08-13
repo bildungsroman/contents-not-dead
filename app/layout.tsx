@@ -4,12 +4,12 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Rubik_Glitch, Space_Mono, Doto } from "next/font/google";
-import "./globals.css";
 import { DEFAULT_THEME, IS_DEMO, SITE, THEMES, type Theme } from "@/lib/config";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
-import { THEME_COOKIE } from "@/lib/theme-shared";
+import { THEME_COOKIE, SCHEME_COOKIE, type Scheme } from "@/lib/theme-shared";
 import { getClerkKeys } from "@/lib/clerk-keys";
+import "./globals.css";
 
 const rubikGlitch = Rubik_Glitch({
   weight: "400",
@@ -53,6 +53,12 @@ export default async function RootLayout({
       ? cookieTheme
       : DEFAULT_THEME;
 
+  const cookieScheme = cookieStore.get(SCHEME_COOKIE)?.value;
+  const scheme: Scheme | undefined =
+    cookieScheme === "light" || cookieScheme === "dark"
+      ? cookieScheme
+      : undefined;
+
   const fontVars = IS_DEMO
     ? `${rubikGlitch.variable} ${spaceMono.variable} ${doto.variable}`
     : "";
@@ -61,7 +67,12 @@ export default async function RootLayout({
 
   return (
     <ClerkProvider publishableKey={clerkKeys.publishableKey}>
-      <html lang="en" data-theme={theme} className={fontVars}>
+      <html
+        lang="en"
+        data-theme={theme}
+        data-scheme={scheme}
+        className={fontVars}
+      >
         <body>
           <SiteHeader />
           {children}
