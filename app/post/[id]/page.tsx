@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getPost } from "@/lib/content";
-import { currentUserHasActiveSubscription } from "@/lib/subscription";
-import { signedAssetPath } from "@/lib/assets";
+import { hasContentAccess } from "@/lib/access";
+import { resolveInlineAssets, signedAssetPath } from "@/lib/assets";
 import { Markdown } from "@/components/Markdown";
 import { Paywall } from "@/components/Paywall";
 import { SessionPostView } from "@/components/SessionPostView";
@@ -38,9 +38,9 @@ export default async function PostPage({
     );
   }
 
-  const subscribed = await currentUserHasActiveSubscription();
+  const unlocked = await hasContentAccess();
 
-  if (!subscribed) {
+  if (!unlocked) {
     return (
       <main className="container">
         <Paywall postId={post.id} postTitle={post.title} />
@@ -61,7 +61,7 @@ export default async function PostPage({
           // eslint-disable-next-line @next/next/no-img-element
           <img src={signedAssetPath(post.id)} alt={post.title} />
         ) : null}
-        <Markdown>{post.contents}</Markdown>
+        <Markdown>{resolveInlineAssets(post.id, post.contents)}</Markdown>
       </article>
     </main>
   );

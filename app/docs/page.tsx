@@ -87,7 +87,10 @@ Your Markdown body here.`}
           Full-resolution images live in <code>content/assets/</code> (outside{" "}
           <code>public/</code>) and are served only after payment or a
           subscription via a short-lived signed URL. Put a low-detail preview in{" "}
-          <code>public/previews/</code>.
+          <code>public/previews/</code>. To place an image inside a post body,
+          link it as{" "}
+          <code>![alt](/content/assets/my-diagram.png)</code> — that path is
+          rewritten to the same signed, access-checked URL when the post renders.
         </p>
 
         <h2>4. Theming</h2>

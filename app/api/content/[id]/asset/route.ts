@@ -1,8 +1,8 @@
 import fs from "node:fs";
 import path from "node:path";
-import { getPost, ASSETS_DIR } from "@/lib/content";
+import { getPost, ASSETS_DIR, type Post } from "@/lib/content";
 import { verifyAssetToken } from "@/lib/assets";
-import { currentUserHasActiveSubscription } from "@/lib/subscription";
+import { hasContentAccess } from "@/lib/access";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -16,6 +16,16 @@ const MIME: Record<string, string> = {
   ".gif": "image/gif",
 };
 
+/**
+ * Only an asset the post itself claims may be served: its frontmatter `image`,
+ * or a file its markdown body links to. This keeps one post's token from
+ * enumerating the whole assets directory.
+ */
+function postOwnsAsset(post: Post, file: string): boolean {
+  if (file === post.image) return true;
+  return post.contents.includes(file);
+}
+
 /** Serves full-resolution paid image assets held outside `public/`. */
 export async function GET(
   request: Request,
@@ -23,21 +33,29 @@ export async function GET(
 ) {
   const { id } = await params;
   const post = getPost(id);
-  if (!post || post.type !== "image" || !post.image) {
+  if (!post) {
     return new Response("Not found", { status: 404 });
   }
 
-  const token = new URL(request.url).searchParams.get("token") || "";
-  const authorized =
-    verifyAssetToken(id, token) || (await currentUserHasActiveSubscription());
+  const search = new URL(request.url).searchParams;
+  // `file` requests an inline asset; without it, the post's own image.
+  const file = search.get("file") || (post.type === "image" ? post.image : null);
+  if (!file || !postOwnsAsset(post, file)) {
+    return new Response("Not found", { status: 404 });
+  }
+
+  const token = search.get("token") || "";
+  const authorized = verifyAssetToken(id, token) || (await hasContentAccess());
   if (!authorized) {
     return new Response("Payment or subscription required", { status: 402 });
   }
 
   // Guard against path traversal — only serve files inside ASSETS_DIR.
-  const filePath = path.join(ASSETS_DIR, post.image);
-  const normalized = path.normalize(filePath);
-  if (!normalized.startsWith(ASSETS_DIR) || !fs.existsSync(normalized)) {
+  const normalized = path.normalize(path.join(ASSETS_DIR, file));
+  if (
+    !normalized.startsWith(ASSETS_DIR + path.sep) ||
+    !fs.existsSync(normalized)
+  ) {
     return new Response("Not found", { status: 404 });
   }
 

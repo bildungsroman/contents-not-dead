@@ -2,7 +2,7 @@ import "server-only";
 
 import type { Post, PostPreview } from "./content";
 import { appUrl, PER_CONTENT_PRICE_USD } from "./config";
-import { signedAssetPath } from "./assets";
+import { resolveInlineAssets, signedAssetPath } from "./assets";
 
 function frontmatter(post: Post | PostPreview): string {
   const fm = [
@@ -21,7 +21,8 @@ function frontmatter(post: Post | PostPreview): string {
 
 /** Full paid representation for a post — only returned after payment/subscription. */
 export function renderPaidMarkdown(post: Post): string {
-  let body = `${frontmatter(post)}\n\n# ${post.title}\n\n${post.contents}\n`;
+  const contents = resolveInlineAssets(post.id, post.contents, appUrl());
+  let body = `${frontmatter(post)}\n\n# ${post.title}\n\n${contents}\n`;
   if (post.type === "image" && post.image) {
     const url = `${appUrl()}${signedAssetPath(post.id)}`;
     body += `\n![${post.title}](${url})\n\n> Full-resolution asset (signed, expires shortly): ${url}\n`;
