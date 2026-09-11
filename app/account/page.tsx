@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { auth } from "@clerk/nextjs/server";
 import { SignInButton } from "@clerk/nextjs";
 import { getSubscriptionState, isActive } from "@/lib/subscription";
 import { ManageSubscription } from "@/components/ManageSubscription";
+import { Button, ButtonLink } from "@/components/Button";
+import { Panel } from "@/components/Panel";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Account" };
@@ -23,13 +24,13 @@ export default async function AccountPage() {
   if (!userId) {
     return (
       <main className="container">
-        <div className="panel prose">
+        <Panel>
           <h1 style={{ marginTop: 0 }}>Your account</h1>
           <p>Sign in to view your subscription and manage billing.</p>
           <SignInButton mode="modal" forceRedirectUrl="/account">
-            <button className="btn">Sign in</button>
+            <Button>Sign in</Button>
           </SignInButton>
-        </div>
+        </Panel>
       </main>
     );
   }
@@ -44,7 +45,7 @@ export default async function AccountPage() {
         <h1>Your account</h1>
       </div>
 
-      <div className="panel prose" style={{ marginTop: 12 }}>
+      <Panel style={{ marginTop: 12 }}>
         {active ? (
           <>
             <h2 style={{ marginTop: 0 }}>Subscription active</h2>
@@ -70,12 +71,10 @@ export default async function AccountPage() {
               You don&rsquo;t have an active subscription. Subscribe for
               unlimited access to all content.
             </p>
-            <Link className="btn" href="/subscribe">
-              See plans
-            </Link>
+            <ButtonLink href="/subscribe">See plans</ButtonLink>
           </>
         )}
-      </div>
+      </Panel>
     </main>
   );
 }

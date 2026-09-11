@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import styles from "./PostCard.module.css";
 
 export interface CardData {
   id: string;
@@ -24,13 +25,13 @@ export function PostCard({ post }: { post: CardData }) {
 
   return (
     <button
-      className="post-card"
+      className={styles.postCard}
       onClick={open}
       aria-label={`Open ${post.title}`}
     >
       {post.type === "image" ? (
         <>
-          <span className="post-image-frame">
+          <span className={styles.postImageFrame}>
             {post.preview ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={post.preview} alt={`${post.title} preview`} />
@@ -47,9 +48,9 @@ export function PostCard({ post }: { post: CardData }) {
         </>
       )}
       {post.tags.length > 0 ? (
-        <span className="tag-row">
+        <span className={styles.tagRow}>
           {post.tags.slice(0, 4).map((t) => (
-            <span className="tag" key={t}>
+            <span className={styles.tag} key={t}>
               #{t}
             </span>
           ))}

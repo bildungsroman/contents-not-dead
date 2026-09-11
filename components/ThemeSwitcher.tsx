@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { AVAILABLE_THEMES, DEFAULT_THEME, type Theme } from "@/lib/config";
 import { THEME_COOKIE } from "@/lib/theme-shared";
+import styles from "./ThemeSwitcher.module.css";
 
 /** Demo-only control that switches the active theme and persists it. */
 export function ThemeSwitcher() {
@@ -23,7 +24,7 @@ export function ThemeSwitcher() {
   }
 
   return (
-    <label className="theme-switcher">
+    <label className={styles.themeSwitcher}>
       <span className="hidden">Theme</span>
       <select
         aria-label="Theme"

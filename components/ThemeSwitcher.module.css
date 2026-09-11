@@ -1,0 +1,15 @@
+.themeSwitcher {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+}
+.themeSwitcher select {
+  font: inherit;
+  height: 36px;
+  line-height: 1.4;
+  padding: 0 8px;
+  border-radius: var(--radius);
+  border: 1px solid currentColor;
+  background: transparent;
+  color: inherit;
+}

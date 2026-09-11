@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getSubscriptionState, isActive } from "@/lib/subscription";
 import { SubscribeOptions } from "@/components/SubscribeOptions";
+import { Panel } from "@/components/Panel";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Subscribe" };
@@ -22,13 +23,13 @@ export default async function SubscribePage() {
       </div>
 
       {active ? (
-        <div className="panel prose" style={{ marginTop: 20 }}>
+        <Panel style={{ marginTop: 20 }}>
           <h2 style={{ marginTop: 0 }}>You&rsquo;re subscribed</h2>
           <p>
             Your {state.plan ?? ""} subscription is active. Manage it from your{" "}
             <Link href="/account">account</Link>.
           </p>
-        </div>
+        </Panel>
       ) : (
         <SubscribeOptions />
       )}

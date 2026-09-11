@@ -3,6 +3,9 @@
 import { useState } from "react";
 import { SignedIn, SignedOut, SignInButton } from "@clerk/nextjs";
 import { SUBSCRIPTION } from "@/lib/config";
+import { Button } from "./Button";
+import { Spinner } from "./Spinner";
+import styles from "./SubscribeOptions.module.css";
 
 function PlanCard({
   plan,
@@ -15,8 +18,8 @@ function PlanCard({
 }) {
   const info = SUBSCRIPTION[plan];
   return (
-    <div className="price-card">
-      <div className="amount">${info.amount}</div>
+    <div className={styles.priceCard}>
+      <div className={styles.amount}>${info.amount}</div>
       <p className="meta">per {info.interval}</p>
       <p>
         {plan === "annual"
@@ -24,17 +27,17 @@ function PlanCard({
           : "Cancel anytime."}
       </p>
       <SignedIn>
-        <button
-          className="btn block"
+        <Button
+          block
           disabled={loading !== null}
           onClick={() => onSelect(plan)}
         >
-          {loading === plan ? <span className="spinner" /> : `Choose ${plan}`}
-        </button>
+          {loading === plan ? <Spinner /> : `Choose ${plan}`}
+        </Button>
       </SignedIn>
       <SignedOut>
         <SignInButton mode="modal" forceRedirectUrl="/subscribe">
-          <button className="btn block">Sign in to subscribe</button>
+          <Button block>Sign in to subscribe</Button>
         </SignInButton>
       </SignedOut>
     </div>
@@ -70,7 +73,7 @@ export function SubscribeOptions() {
   return (
     <>
       {error ? <p className="warn">{error}</p> : null}
-      <div className="pricing">
+      <div className={styles.pricing}>
         <PlanCard plan="monthly" onSelect={select} loading={loading} />
         <PlanCard plan="annual" onSelect={select} loading={loading} />
       </div>

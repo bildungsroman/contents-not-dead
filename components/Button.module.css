@@ -1,0 +1,37 @@
+.btn {
+  font: inherit;
+  font-family: var(--font-accent);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: var(--accent-contrast);
+  border-radius: var(--radius);
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: opacity 0.1s ease;
+}
+.btn:hover {
+  opacity: 0.9;
+  text-decoration: none;
+}
+.secondary {
+  background: transparent;
+  color: var(--text);
+  border-color: var(--border);
+}
+/* Minimalist: primary buttons use the footer color with adaptive text. */
+[data-theme="minimalist"] .btn:not(.secondary) {
+  background: var(--overlay);
+  color: var(--text);
+  border-color: var(--border);
+}
+.block {
+  width: 100%;
+  justify-content: center;
+}
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

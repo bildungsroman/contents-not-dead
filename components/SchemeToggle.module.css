@@ -1,0 +1,21 @@
+.schemeToggle {
+  flex: 0 0 auto;
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid var(--text-header);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--text-header);
+  cursor: pointer;
+  opacity: 0.85;
+  transition: opacity 0.1s ease, background 0.1s ease;
+}
+.schemeToggle:hover {
+  opacity: 1;
+  background: color-mix(in srgb, var(--text-header) 12%, transparent);
+}

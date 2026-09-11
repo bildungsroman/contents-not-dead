@@ -1,6 +1,6 @@
 ---
 title: Can MPP Save Content Creators?
-summary: 'What is MPP, and how can it be used to monetize access to content?'
+summary: "For 30 years we paid for content with our attention, and the ads only got more intrusive. The Machine Payments Protocol revives HTTP's forgotten 402 status code so creators get paid in money instead."
 authors: [The Editors]
 date: '2026-09-30'
 tags: [mpp, content]

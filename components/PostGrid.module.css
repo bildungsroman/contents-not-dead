@@ -1,0 +1,9 @@
+.postGrid {
+  columns: 2;
+  column-gap: var(--gap);
+}
+@media (max-width: 720px) {
+  .postGrid {
+    columns: 1;
+  }
+}

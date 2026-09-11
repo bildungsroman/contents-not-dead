@@ -95,12 +95,133 @@ Your Markdown body here.`}
 
         <h2>4. Theming</h2>
         <p>
-          Three themes ship in <code>app/globals.css</code> as CSS variables:{" "}
-          <code>minimalist</code>, <code>bookworm</code>, and{" "}
-          <code>maximalist</code>. Light/dark follows the browser automatically.
-          Set the default with <code>NEXT_PUBLIC_DEFAULT_THEME</code>. To add a
-          theme, add a <code>[data-theme=&quot;yours&quot;]</code> block of
-          variables. The in-app theme switcher appears only in demo mode.
+          A theme is a block of CSS variables keyed on a{" "}
+          <code>data-theme</code> attribute set on <code>&lt;html&gt;</code>.
+          Three ship in <code>app/globals.css</code>: <code>minimalist</code>,{" "}
+          <code>bookworm</code>, and <code>maximalist</code>. Light and dark
+          follow the browser automatically, and a <code>data-scheme</code>{" "}
+          attribute can force one. Set the starting theme with{" "}
+          <code>NEXT_PUBLIC_DEFAULT_THEME</code>; the in-app theme switcher
+          appears only in demo mode.
+        </p>
+        <p>
+          Styles live in two places. <code>app/globals.css</code> holds the
+          theme variables, base element styles, the page{" "}
+          <code>.container</code>, and the <code>.prose</code> block that styles
+          rendered Markdown, plus the shared <code>.meta</code>,{" "}
+          <code>.center</code>, <code>.warn</code>, and <code>.hidden</code>{" "}
+          utilities. Component-specific rules live in CSS Modules next to the
+          components that own them, like{" "}
+          <code>components/PostCard.module.css</code>.
+        </p>
+
+        <h3>Register the name</h3>
+        <p>
+          <code>THEMES</code> in <code>lib/config.ts</code> drives the{" "}
+          <code>Theme</code> type and the switcher, so start there:
+        </p>
+        <CodeBlock
+          code={`export const THEMES = [
+  "minimalist",
+  "bookworm",
+  "maximalist",
+  "newsprint",
+] as const;`}
+        />
+
+        <h3>Define the variables</h3>
+        <p>
+          Add the block to <code>app/globals.css</code>. These are every
+          variable the components read — miss one and it falls back to the{" "}
+          <code>:root</code> default:
+        </p>
+        <CodeBlock
+          code={`[data-theme="newsprint"] {
+  --font-body: "Iowan Old Style", Georgia, serif;
+  --font-header: var(--font-body);
+  --font-accent: var(--font-body);
+
+  --bg: #fffdf7;             /* page background */
+  --text: #1a1a1a;           /* body copy */
+  --muted: #5f5f5f;          /* .meta secondary text */
+  --border: #e0ddd3;
+
+  --bg-header: #1a1a1a;      /* header bar */
+  --text-header: #fffdf7;
+
+  --accent: #9b1d20;         /* links + primary buttons */
+  --accent-contrast: #ffffff;
+  --overlay: #f2efe4;        /* panels + footer */
+
+  --card-bg: #f7f5ed;        /* post cards */
+  --card-text: #1a1a1a;
+  --card-border: #e0ddd3;
+
+  /* Optional: --radius, --maxw, --gap, --header-skew */
+  --radius: 2px;
+}`}
+        />
+
+        <h3>Add the dark variant</h3>
+        <p>
+          Two blocks, because dark mode can arrive two ways. The first follows
+          the operating system; the second handles the user explicitly choosing
+          dark with the toggle. Override only the variables that actually
+          change:
+        </p>
+        <CodeBlock
+          code={`@media (prefers-color-scheme: dark) {
+  [data-theme="newsprint"]:not([data-scheme="light"]) {
+    --bg: #14130f;
+    --text: #f2efe4;
+    --card-bg: #1d1b16;
+  }
+}
+[data-theme="newsprint"][data-scheme="dark"] {
+  --bg: #14130f;
+  --text: #f2efe4;
+  --card-bg: #1d1b16;
+}`}
+        />
+
+        <h3>Per-component tweaks (optional)</h3>
+        <p>
+          Most themes need nothing beyond variables. If yours has to change a
+          specific component, put that rule in <em>that component&rsquo;s</em>{" "}
+          module rather than in <code>app/globals.css</code>. The{" "}
+          <code>data-theme</code> attribute is global and the class is scoped
+          locally, so the two combine normally:
+        </p>
+        <CodeBlock
+          code={`/* components/PostCard.module.css */
+[data-theme="newsprint"] .postCard {
+  border-width: 2px;
+  box-shadow: 4px 4px 0 var(--border);
+}`}
+        />
+        <p>
+          Watch out for one case in particular. The secondary{" "}
+          <code>Button</code> variant is colored with <code>--text</code>, which
+          assumes your header background looks like the page background. The
+          example above inverts the header (<code>--bg-header</code> is dark
+          while <code>--bg</code> is light), so the &ldquo;Sign in&rdquo; button
+          turns dark-on-dark and vanishes. Give it the header colors explicitly:
+        </p>
+        <CodeBlock
+          code={`/* components/SiteHeader.module.css */
+[data-theme="newsprint"] button.navButton {
+  color: var(--text-header);
+  border-color: var(--text-header);
+}`}
+        />
+        <p className="meta">
+          The <code>button</code> element qualifier is deliberate — it raises
+          specificity just enough to beat <code>Button.module.css</code>{" "}
+          regardless of which stylesheet the bundler emits first. Note also that
+          a selector can only reference classes from its own module; to style a
+          component defined elsewhere, pass a class through its{" "}
+          <code>className</code> prop, which is exactly what{" "}
+          <code>SiteHeader</code> does with <code>navButton</code>.
         </p>
 
         <h2>5. Agent parity</h2>

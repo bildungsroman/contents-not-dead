@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { Button } from "./Button";
+import { Spinner } from "./Spinner";
 
 export function ManageSubscription() {
   const [loading, setLoading] = useState(false);
@@ -27,9 +29,9 @@ export function ManageSubscription() {
   return (
     <>
       {error ? <p className="warn">{error}</p> : null}
-      <button className="btn" disabled={loading} onClick={openPortal}>
-        {loading ? <span className="spinner" /> : "Manage / cancel subscription"}
-      </button>
+      <Button disabled={loading} onClick={openPortal}>
+        {loading ? <Spinner /> : "Manage / cancel subscription"}
+      </Button>
     </>
   );
 }

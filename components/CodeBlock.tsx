@@ -1,22 +1,25 @@
 "use client";
 
 import { useState } from "react";
+import styles from "./CodeBlock.module.css";
 
 /** Terminal-style code block with a copy-all button in the header and a
  * per-line copy icon revealed on hover. */
 export function CodeBlock({ code }: { code: string }) {
   const lines = code.replace(/\n+$/, "").split("\n");
   return (
-    <pre className="codeblock">
-      <CopyButton text={code} className="copy-all" label="Copy all" />
+    <pre className={styles.codeblock}>
+      <CopyButton text={code} className={styles.copyAll} label="Copy all" />
       <code>
         {lines.map((line, i) => (
-          <span className="code-line" key={i}>
-            <span className="code-line-text">{line.length ? line : "\u00A0"}</span>
+          <span className={styles.codeLine} key={i}>
+            <span className={styles.codeLineText}>
+              {line.length ? line : "\u00A0"}
+            </span>
             {line.trim() ? (
               <CopyButton
                 text={line}
-                className="copy-line"
+                className={styles.copyLine}
                 label={`Copy line ${i + 1}`}
               />
             ) : null}
@@ -51,7 +54,7 @@ function CopyButton({
   return (
     <button
       type="button"
-      className={`copy-btn${className ? ` ${className}` : ""}`}
+      className={`${styles.copyBtn}${className ? ` ${className}` : ""}`}
       onClick={copy}
       aria-label={label}
       title={copied ? "Copied!" : label}

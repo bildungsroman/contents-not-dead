@@ -4,35 +4,43 @@ import { IS_DEMO, SITE } from "@/lib/config";
 import { Logo } from "./Logo";
 import { ThemeSwitcher } from "./ThemeSwitcher";
 import { SchemeToggle } from "./SchemeToggle";
+import { Button } from "./Button";
+import styles from "./SiteHeader.module.css";
 
 export function SiteHeader() {
   return (
-    <header className="site-header">
-      <div className="inner">
-        <div className="header-top">
-          <Link href="/" className="brand-link" aria-label={`${SITE.name} home`}>
-            <span className="brand-title">
+    <header className={styles.siteHeader}>
+      <div className={styles.inner}>
+        <div className={styles.headerTop}>
+          <Link
+            href="/"
+            className={styles.brandLink}
+            aria-label={`${SITE.name} home`}
+          >
+            <span className={styles.brandTitle}>
               Content&rsquo;s Not Dead
-              <Logo className="brand-logo" />
+              <Logo className={styles.brandLogo} />
             </span>
           </Link>
           <SchemeToggle />
         </div>
-        <nav className="site-nav">
-          <div className="nav-links">
+        <nav className={styles.siteNav}>
+          <div className={styles.navLinks}>
             <Link href="/">Home</Link>
             <Link href="/subscribe">Subscribe</Link>
             <Link href="/payments">For Agents</Link>
             <Link href="/docs">Docs</Link>
           </div>
-          <div className="nav-actions">
+          <div className={styles.navActions}>
             <SignedIn>
               <Link href="/account">Account</Link>
               <UserButton afterSignOutUrl="/" />
             </SignedIn>
             <SignedOut>
               <SignInButton mode="modal">
-                <button className="btn secondary">Sign in</button>
+                <Button variant="secondary" className={styles.navButton}>
+                  Sign in
+                </Button>
               </SignInButton>
             </SignedOut>
             {IS_DEMO ? <ThemeSwitcher /> : null}

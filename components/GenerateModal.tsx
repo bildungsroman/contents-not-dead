@@ -3,6 +3,10 @@
 import { useState } from "react";
 import { addSessionPost } from "@/lib/session-posts";
 import { GEN_LIMIT } from "@/lib/gen-constants";
+import { Button } from "./Button";
+import { Field } from "./Field";
+import { Modal } from "./Modal";
+import { Spinner } from "./Spinner";
 
 export function GenerateModal({
   onClose,
@@ -55,80 +59,66 @@ export function GenerateModal({
     remaining !== null && remaining <= 1 && remaining > 0;
 
   return (
-    <div
-      className="modal-backdrop"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Generate content"
-      onClick={onClose}
-    >
-      <div className="modal" onClick={(e) => e.stopPropagation()}>
-        {loading ? (
-          <div className="center" style={{ flexDirection: "column", gap: 12 }}>
-            <span className="spinner" />
-            <p>Generating… this can take a few seconds.</p>
-          </div>
-        ) : (
-          <form onSubmit={submit}>
-            <h2 style={{ marginTop: 0 }}>Generate content</h2>
-            <p className="meta">
-              Up to {GEN_LIMIT} generations per session. Content is ephemeral and
-              disappears on reload.
+    <Modal label="Generate content" onClose={onClose}>
+      {loading ? (
+        <div className="center" style={{ flexDirection: "column", gap: 12 }}>
+          <Spinner />
+          <p>Generating… this can take a few seconds.</p>
+        </div>
+      ) : (
+        <form onSubmit={submit}>
+          <h2 style={{ marginTop: 0 }}>Generate content</h2>
+          <p className="meta">
+            Up to {GEN_LIMIT} generations per session. Content is ephemeral and
+            disappears on reload.
+          </p>
+          {error ? <p className="warn">{error}</p> : null}
+          {lowRemaining ? (
+            <p className="warn">
+              Heads up: only {remaining} generation left this session.
             </p>
-            {error ? <p className="warn">{error}</p> : null}
-            {lowRemaining ? (
-              <p className="warn">
-                Heads up: only {remaining} generation left this session.
-              </p>
-            ) : null}
-            <div className="field">
-              <label htmlFor="gen-type">Type</label>
-              <select
-                id="gen-type"
-                value={type}
-                onChange={(e) =>
-                  setType(e.target.value as "article" | "image")
-                }
-              >
-                <option value="article">Article</option>
-                <option value="image">Image</option>
-              </select>
-            </div>
-            <div className="field">
-              <label htmlFor="gen-tags">Tags (comma-separated)</label>
-              <input
-                id="gen-tags"
-                value={tags}
-                onChange={(e) => setTags(e.target.value)}
-                placeholder="space, optimism"
-                required
-              />
-            </div>
-            <div className="field">
-              <label htmlFor="gen-desc">
-                What would you like to {type === "image" ? "see" : "read"}?
-              </label>
-              <textarea
-                id="gen-desc"
-                rows={3}
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="A hopeful short essay about small daily wins"
-                maxLength={280}
-                required
-              />
-            </div>
-            <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
-              <button type="button" className="btn secondary" onClick={onClose}>
-                Cancel
-              </button>
-              <button type="submit" className="btn">
-                Generate
-              </button>
-            </div>
-          </form>
-        )}
-      </div>
-    </div>
+          ) : null}
+          <Field id="gen-type" label="Type">
+            <select
+              id="gen-type"
+              value={type}
+              onChange={(e) => setType(e.target.value as "article" | "image")}
+            >
+              <option value="article">Article</option>
+              <option value="image">Image</option>
+            </select>
+          </Field>
+          <Field id="gen-tags" label="Tags (comma-separated)">
+            <input
+              id="gen-tags"
+              value={tags}
+              onChange={(e) => setTags(e.target.value)}
+              placeholder="space, optimism"
+              required
+            />
+          </Field>
+          <Field
+            id="gen-desc"
+            label={`What would you like to ${type === "image" ? "see" : "read"}?`}
+          >
+            <textarea
+              id="gen-desc"
+              rows={3}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="A hopeful short essay about small daily wins"
+              maxLength={280}
+              required
+            />
+          </Field>
+          <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
+            <Button variant="secondary" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button type="submit">Generate</Button>
+          </div>
+        </form>
+      )}
+    </Modal>
   );
 }

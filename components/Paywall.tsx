@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { PER_CONTENT_PRICE_USD } from "@/lib/config";
+import { ButtonLink } from "./Button";
+import { Panel } from "./Panel";
 
 /** Shown to unauthenticated/unsubscribed humans on a paid post. */
 export function Paywall({
@@ -10,7 +12,7 @@ export function Paywall({
   postTitle: string;
 }) {
   return (
-    <div className="panel prose" style={{ maxWidth: 720 }}>
+    <Panel>
       <h2 style={{ marginTop: 0 }}>This content is for subscribers</h2>
       <p>
         <strong>{postTitle}</strong> is available with a Content&rsquo;s Not
@@ -18,12 +20,10 @@ export function Paywall({
         everything.
       </p>
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-        <Link className="btn" href="/subscribe">
-          Subscribe for unlimited access
-        </Link>
-        <Link className="btn secondary" href="/account">
+        <ButtonLink href="/subscribe">Subscribe for unlimited access</ButtonLink>
+        <ButtonLink variant="secondary" href="/account">
           Manage subscription
-        </Link>
+        </ButtonLink>
       </div>
       <hr style={{ margin: "24px 0", borderColor: "var(--border)" }} />
       <h3>Are you an agent?</h3>
@@ -40,6 +40,6 @@ export function Paywall({
         <a href="/.well-known/mpp.json">/.well-known/mpp.json</a> for
         machine-readable details.
       </p>
-    </div>
+    </Panel>
   );
 }

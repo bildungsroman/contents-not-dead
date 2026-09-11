@@ -4,6 +4,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { PostCard, type CardData } from "./PostCard";
 import { GenerateModal } from "./GenerateModal";
 import { getSessionPosts } from "@/lib/session-posts";
+import { Button } from "./Button";
+import styles from "./PostGrid.module.css";
 
 const BATCH = 6;
 
@@ -62,7 +64,7 @@ export function PostGrid({
 
   return (
     <>
-      <div className="post-grid">
+      <div className={styles.postGrid}>
         {shown.map((post) => (
           <PostCard key={post.id} post={post} />
         ))}
@@ -76,9 +78,7 @@ export function PostGrid({
 
       {isDemo ? (
         <div className="center">
-          <button className="btn" onClick={() => setModalOpen(true)}>
-            Generate content
-          </button>
+          <Button onClick={() => setModalOpen(true)}>Generate content</Button>
         </div>
       ) : null}
 

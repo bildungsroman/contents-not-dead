@@ -1,0 +1,108 @@
+.siteHeader {
+  background: var(--bg-header);
+  color: var(--text-header);
+  border-bottom: 2px solid var(--border);
+}
+.inner {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.headerTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+.brandLink {
+  color: var(--text-header);
+  text-decoration: none;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.brandLink:hover {
+  text-decoration: none;
+}
+.brandTitle {
+  display: block;
+  font-family: var(--font-header);
+  font-weight: 400;
+  font-size: clamp(2.2rem, 9vw, 5rem);
+  transform: rotate(var(--header-skew));
+  transform-origin: left center;
+  line-height: 1;
+  margin: 0;
+}
+.brandLogo {
+  display: none;
+}
+[data-theme="maximalist"] .brandLogo {
+  display: inline-block;
+  width: 0.85em;
+  height: 0.85em;
+  margin-left: 0.2em;
+  vertical-align: -0.12em;
+  filter: drop-shadow(2px 0 var(--accent)) drop-shadow(-2px 0 #38bdf8);
+}
+.siteNav {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+.navLinks,
+.navActions {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.siteNav a {
+  color: var(--text-header);
+  font-size: 0.95rem;
+  opacity: 0.9;
+}
+.siteNav a:hover {
+  opacity: 1;
+}
+[data-theme="maximalist"] .navLinks a {
+  font-family: var(--font-accent);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 700;
+  opacity: 1;
+  padding-bottom: 2px;
+  border-bottom: 3px solid transparent;
+}
+[data-theme="maximalist"] .navLinks a:hover {
+  text-decoration: none;
+  border-bottom-color: var(--accent);
+}
+
+/* The sign-in button. Qualified by the element so it outranks Button's own
+   .btn/.secondary regardless of the order the two modules are emitted in. */
+button.navButton {
+  height: 36px;
+  padding: 0 8px;
+  line-height: 1.4;
+}
+[data-theme="maximalist"] button.navButton {
+  background: var(--text-header);
+  color: var(--bg-header);
+  border: 1px solid var(--text-header);
+  border-radius: var(--radius);
+  font-family: var(--font-accent);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 700;
+}
+[data-theme="maximalist"] button.navButton:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-contrast);
+  opacity: 1;
+}

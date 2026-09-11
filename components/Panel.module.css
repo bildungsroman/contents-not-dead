@@ -1,0 +1,11 @@
+.panel {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px;
+  background: var(--overlay);
+  color: var(--text);
+}
+[data-theme="maximalist"] .panel {
+  color: #121212;
+  border-width: 2px;
+}

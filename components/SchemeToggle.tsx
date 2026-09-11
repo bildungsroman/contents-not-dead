@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { SCHEME_COOKIE, type Scheme } from "@/lib/theme-shared";
+import styles from "./SchemeToggle.module.css";
 
 /** Toggles light/dark, overriding the OS preference. Persists via cookie. */
 export function SchemeToggle() {
@@ -40,7 +41,7 @@ export function SchemeToggle() {
   return (
     <button
       type="button"
-      className="scheme-toggle"
+      className={styles.schemeToggle}
       onClick={toggle}
       aria-label={label}
       title={label}

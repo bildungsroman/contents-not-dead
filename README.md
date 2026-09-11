@@ -12,7 +12,7 @@ pay for — with full parity between them.
   markdown `/agents` directory. Anything a human can read, an agent can
   discover and pay for.
 - **Three themes** (minimalist, bookworm, maximalist) via CSS variables with
-  automatic light/dark — no CSS framework.
+  automatic light/dark — no CSS framework, just CSS Modules.
 - **File-based content** — drop Markdown into `content/`.
 
 It's built to be **cloned and personalized**: bring your own content, keys, and
@@ -99,7 +99,112 @@ stripe projects variables set stripe-webhook-secret --env-key STRIPE_WEBHOOK_SEC
 | Subscriptions | Stripe Checkout (`mode: subscription`) + Billing Portal. Stripe is the source of truth; no database required. |
 | Agent payments | `mppx` (`mppx/server`) with the Stripe SPT method. `GET /api/content/{id}` returns a `402` challenge, then the full markdown + a `Payment-Receipt` on success. |
 | Paid images | Full assets live in `content/assets/` (outside `public/`) and are served via `/api/content/{id}/asset` only to subscribers or with a short-lived HMAC-signed URL. |
-| Themes | CSS variables keyed on `data-theme`; light/dark via `prefers-color-scheme`. |
+| Themes | CSS variables keyed on `data-theme`; light/dark via `prefers-color-scheme`. See [Theming](#theming). |
+| Styles | `app/globals.css` for theme variables, base elements, layout/typography, and shared utilities. Component-specific styles are co-located CSS Modules. |
+
+## Theming
+
+Styles are split in two layers:
+
+- **`app/globals.css`** — theme variables, base element styles, the page
+  `.container`, and the `.prose` block that styles rendered Markdown (it has to
+  be global, since `react-markdown` generates that HTML and can't carry hashed
+  class names). It also contains the shared `.meta`, `.center`, `.warn`, and
+  `.hidden` utilities.
+- **`components/*.module.css`** — component-specific styles, co-located with
+  the component that owns them. `PostCard.module.css` holds the card styles,
+  `Button.module.css` the button styles, and so on.
+
+A theme is a block of CSS variables selected by a `data-theme` attribute on
+`<html>`. Adding one takes two steps, plus an optional third.
+
+**1. Register the name** in `lib/config.ts` — `THEMES` drives both the `Theme`
+type and the switcher:
+
+```ts
+export const THEMES = ["minimalist", "bookworm", "maximalist", "newsprint"] as const;
+```
+
+**2. Define the variables** in `app/globals.css`. Anything you omit falls back
+to the `:root` defaults:
+
+```css
+[data-theme="newsprint"] {
+  --font-body: "Iowan Old Style", Georgia, serif;
+  --font-header: var(--font-body);
+  --font-accent: var(--font-body);
+
+  --bg: #fffdf7;             /* page background */
+  --text: #1a1a1a;           /* body copy */
+  --muted: #5f5f5f;          /* .meta secondary text */
+  --border: #e0ddd3;
+
+  --bg-header: #1a1a1a;      /* header bar */
+  --text-header: #fffdf7;
+
+  --accent: #9b1d20;         /* links + primary buttons */
+  --accent-contrast: #ffffff;
+  --overlay: #f2efe4;        /* panels + footer */
+
+  --card-bg: #f7f5ed;        /* post cards */
+  --card-text: #1a1a1a;
+  --card-border: #e0ddd3;
+
+  /* Optional: --radius, --maxw, --gap, --header-skew */
+  --radius: 2px;
+}
+```
+
+Dark mode needs two blocks — one following the OS, one for an explicit toggle.
+Override only what changes:
+
+```css
+@media (prefers-color-scheme: dark) {
+  [data-theme="newsprint"]:not([data-scheme="light"]) {
+    --bg: #14130f;
+    --text: #f2efe4;
+  }
+}
+[data-theme="newsprint"][data-scheme="dark"] {
+  --bg: #14130f;
+  --text: #f2efe4;
+}
+```
+
+**3. Per-component tweaks (optional).** Most themes stop at variables. If yours
+needs to restyle a specific component, put the rule in *that component's*
+module, not in `globals.css`. `data-theme` is a global attribute and the class
+is locally scoped, so they compose normally:
+
+```css
+/* components/PostCard.module.css */
+[data-theme="newsprint"] .postCard {
+  border-width: 2px;
+  box-shadow: 4px 4px 0 var(--border);
+}
+```
+
+One case to watch: the secondary `Button` variant is colored with `--text`,
+which assumes the header background resembles the page background. The theme
+above inverts the header (dark `--bg-header`, light `--bg`), so the "Sign in"
+button renders dark-on-dark and disappears. Give it header colors explicitly:
+
+```css
+/* components/SiteHeader.module.css */
+[data-theme="newsprint"] button.navButton {
+  color: var(--text-header);
+  border-color: var(--text-header);
+}
+```
+
+The `button` element qualifier is deliberate — it raises specificity just
+enough to beat `Button.module.css` no matter which stylesheet the bundler emits
+first. A selector can also only reference classes from its own module; to
+restyle a component defined elsewhere, pass a class through its `className`
+prop, which is what `SiteHeader` does with `navButton`.
+
+Set the starting theme with `NEXT_PUBLIC_DEFAULT_THEME`. The in-app switcher
+only appears in demo mode (`NEXT_PUBLIC_IS_DEMO`).
 
 ## Routes
 

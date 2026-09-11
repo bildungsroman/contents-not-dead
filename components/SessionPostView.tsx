@@ -4,6 +4,9 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { getSessionPost, type GeneratedPost } from "@/lib/session-posts";
 import { Markdown } from "./Markdown";
+import { ButtonLink } from "./Button";
+import { Panel } from "./Panel";
+import { Spinner } from "./Spinner";
 
 /**
  * Client fallback for demo-generated posts, which exist only in the browser
@@ -20,23 +23,21 @@ export function SessionPostView({ id }: { id: string }) {
   if (post === undefined) {
     return (
       <div className="center">
-        <span className="spinner" />
+        <Spinner />
       </div>
     );
   }
 
   if (post === null) {
     return (
-      <div className="panel prose">
+      <Panel>
         <h2 style={{ marginTop: 0 }}>Not found</h2>
         <p>
           This post doesn&rsquo;t exist, or it was a generated post from a
           previous session (generated content disappears on reload).
         </p>
-        <Link className="btn" href="/">
-          Back home
-        </Link>
-      </div>
+        <ButtonLink href="/">Back home</ButtonLink>
+      </Panel>
     );
   }
 

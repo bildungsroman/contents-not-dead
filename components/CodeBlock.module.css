@@ -1,0 +1,55 @@
+/* The terminal "window" chrome comes from the global `.prose pre` rule, which
+   also positions this element — .copyAll anchors to it. */
+.codeblock code {
+  display: flex;
+  flex-direction: column;
+}
+.codeLine {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 1.6em;
+}
+.codeLineText {
+  flex: 1 1 auto;
+  white-space: pre;
+}
+.copyBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px;
+  margin: 0;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.1s ease, background 0.1s ease;
+}
+.copyBtn:hover {
+  opacity: 1;
+  background: color-mix(in srgb, currentColor 16%, transparent);
+}
+.copyAll {
+  position: absolute;
+  top: 5px;
+  right: 8px;
+  z-index: 1;
+}
+.copyLine {
+  flex: 0 0 auto;
+  opacity: 0;
+}
+.codeLine:hover .copyLine {
+  opacity: 0.6;
+}
+.copyLine:focus-visible {
+  opacity: 1;
+}
+@media (hover: none) {
+  .copyLine {
+    opacity: 0.5;
+  }
+}
