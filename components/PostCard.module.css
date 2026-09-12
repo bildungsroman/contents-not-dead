@@ -57,6 +57,13 @@
   padding: 2px 10px;
   opacity: 0.8;
 }
+/* The tier badge reads as a label rather than a topic tag. */
+.accessTag {
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  opacity: 1;
+}
 
 /* Maximalist: rotate bold card backgrounds like the wireframe. */
 [data-theme="maximalist"] .postCard {

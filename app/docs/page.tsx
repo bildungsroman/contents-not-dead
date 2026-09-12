@@ -32,12 +32,14 @@ cp .env.example .env.local`}
         <ul>
           <li>
             <strong>Stripe</strong> — <code>STRIPE_SECRET_KEY</code> (with
-            Products, Prices, Checkout, Customers, Billing Portal, and
-            PaymentIntents write access), then run{" "}
+            Products, Prices, Checkout, Customers, Billing Portal,
+            PaymentIntents, and Entitlements write access), then run{" "}
             <code>node --env-file=.env.local scripts/setup-stripe.mjs</code> to
-            create the $5/mo and $50/yr prices and copy the printed{" "}
-            <code>STRIPE_PRICE_MONTHLY</code>/<code>STRIPE_PRICE_ANNUAL</code>{" "}
-            into your env.
+            create the entitlement features, the $0/mo free plan, and the $5/mo
+            and $50/yr prices. Copy the printed{" "}
+            <code>STRIPE_PRICE_MONTHLY</code>, <code>STRIPE_PRICE_ANNUAL</code>,
+            and <code>STRIPE_PRICE_FREE</code> into your env. The script is
+            idempotent, so re-running it is safe.
           </li>
           <li>
             <strong>Clerk</strong> — <code>NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY</code>{" "}
@@ -76,6 +78,7 @@ authors: [Your Name]
 date: '2026-07-18'
 tags: [essays]
 type: article        # or: image
+access: paid         # or: free — defaults to paid when omitted
 # image posts only:
 # image: my-art.png       # full asset in content/assets/
 # preview: /previews/my-art.png  # low-detail preview in public/
@@ -93,7 +96,80 @@ Your Markdown body here.`}
           rewritten to the same signed, access-checked URL when the post renders.
         </p>
 
-        <h2>4. Theming</h2>
+        <h2>4. Access tiers</h2>
+        <p>
+          The <code>access</code> field answers one question:{" "}
+          <em>what does a signed-in human need in order to read this post?</em>{" "}
+          It is not a &ldquo;free to the world&rdquo; switch — callers without a
+          session pay per item either way. Omitting it means{" "}
+          <code>paid</code>, so new content is never published by accident.
+        </p>
+        <table>
+          <thead>
+            <tr>
+              <th>Caller</th>
+              <th>
+                <code>access: free</code>
+              </th>
+              <th>
+                <code>access: paid</code>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Not signed in (human or agent)</td>
+              <td>
+                <code>402</code> → pay $0.50
+              </td>
+              <td>
+                <code>402</code> → pay $0.50
+              </td>
+            </tr>
+            <tr>
+              <td>Signed in, free tier</td>
+              <td>full content</td>
+              <td>paywall / teaser</td>
+            </tr>
+            <tr>
+              <td>Signed in, paid tier</td>
+              <td>full content</td>
+              <td>full content</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>
+          The real dividing line is whether the caller has a session, not
+          whether they&rsquo;re human. An agent is how a person buys a single
+          article without subscribing, so every paywall keeps pointing at the
+          MPP flow.
+        </p>
+        <p>
+          Two <a href="https://docs.stripe.com/billing/entitlements">Stripe
+          entitlement features</a> do the gating:{" "}
+          <code>cnd_free_content</code> and <code>cnd_paid_content</code>. The
+          Free product ($0/month) grants the first; the Unlimited product grants
+          both. Signing in subscribes you to the $0 plan automatically, so every
+          signed-in user holds a real Stripe subscription and Checkout simply
+          swaps it for a paid one. Because the mapping lives in Stripe, changing
+          who can read what is a config change rather than a deploy.
+        </p>
+        <p>
+          What stays public: titles, summaries, and tags — agents need them to
+          decide what&rsquo;s worth buying — plus the low-detail images in{" "}
+          <code>public/previews/</code>. Everything else needs an entitlement or
+          a payment receipt.
+        </p>
+        <p className="meta">
+          While developing, <code>LOCAL_FULL_ACCESS=true</code> (the default)
+          unlocks the website for localhost requests. It deliberately does{" "}
+          <em>not</em> apply to <code>/api/content/*</code> or{" "}
+          <code>/agents/*</code>, so the shortcut can never hand an agent
+          content it should have paid for. Set it to <code>false</code> to
+          exercise the real paywall.
+        </p>
+
+        <h2>5. Theming</h2>
         <p>
           A theme is a block of CSS variables keyed on a{" "}
           <code>data-theme</code> attribute set on <code>&lt;html&gt;</code>.
@@ -224,8 +300,13 @@ Your Markdown body here.`}
           <code>SiteHeader</code> does with <code>navButton</code>.
         </p>
 
-        <h2>5. Agent parity</h2>
-        <p>Every piece of content is equally available to agents:</p>
+        <h2>6. Agent parity</h2>
+        <p>
+          Every piece of content is equally available to agents — including
+          posts marked <code>access: free</code>, which still cost $0.50 because
+          the free tier is a perk for having an account rather than a public
+          giveaway:
+        </p>
         <ul>
           <li>
             <a href="/.well-known/mpp.json">/.well-known/mpp.json</a> — payment
@@ -243,12 +324,23 @@ Your Markdown body here.`}
           </li>
         </ul>
 
-        <h2>6. Deploy</h2>
+        <h2>7. Deploy</h2>
         <p>
           Deploy to Vercel. Set all env vars in the project settings and point{" "}
-          <code>NEXT_PUBLIC_APP_URL</code> at your domain. Configure a Stripe
-          webhook endpoint at <code>/api/stripe/webhook</code>. Vercel Web
-          Analytics and Speed Insights are already wired up.
+          <code>NEXT_PUBLIC_APP_URL</code> at your domain. Run{" "}
+          <code>scripts/setup-stripe.mjs</code> against the production Stripe
+          account so the features, products, and prices exist there too. Vercel
+          Web Analytics and Speed Insights are already wired up.
+        </p>
+        <p>
+          Configure a Stripe webhook endpoint at{" "}
+          <code>/api/stripe/webhook</code> subscribed to{" "}
+          <code>checkout.session.completed</code>,{" "}
+          <code>customer.subscription.created</code>/<code>updated</code>/
+          <code>deleted</code>, and{" "}
+          <code>entitlements.active_entitlement_summary.updated</code>. That
+          last event is what keeps access current — miss it and entitlement
+          changes only reach the app through the slower revalidation fallback.
         </p>
         <p className="meta">
           This demo and its AI content generator are only

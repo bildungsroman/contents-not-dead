@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { auth } from "@clerk/nextjs/server";
 import { SignInButton } from "@clerk/nextjs";
-import { getSubscriptionState, isActive } from "@/lib/subscription";
+import { getSubscriptionState, isActive, isPaidPlan } from "@/lib/subscription";
 import { ManageSubscription } from "@/components/ManageSubscription";
 import { Button, ButtonLink } from "@/components/Button";
 import { Panel } from "@/components/Panel";
@@ -36,7 +36,9 @@ export default async function AccountPage() {
   }
 
   const { state } = await getSubscriptionState();
-  const active = isActive(state);
+  // The free tier is a real active $0 subscription, so "subscribed" means a
+  // paid plan. Only paid customers have anything to manage in the portal.
+  const paid = isActive(state) && isPaidPlan(state.plan);
   const renews = formatDate(state.currentPeriodEnd);
 
   return (
@@ -46,12 +48,13 @@ export default async function AccountPage() {
       </div>
 
       <Panel style={{ marginTop: 12 }}>
-        {active ? (
+        {paid ? (
           <>
-            <h2 style={{ marginTop: 0 }}>Subscription active</h2>
+            <h2 style={{ marginTop: 0 }}>Unlimited — subscription active</h2>
             <p>
               Plan: <strong>{state.plan ?? "subscription"}</strong>
-              {state.status === "trialing" ? " (trial)" : ""}.
+              {state.status === "trialing" ? " (trial)" : ""}. You can read
+              everything on the site.
               {renews ? (
                 <>
                   {" "}
@@ -66,10 +69,10 @@ export default async function AccountPage() {
           </>
         ) : (
           <>
-            <h2 style={{ marginTop: 0 }}>No active subscription</h2>
+            <h2 style={{ marginTop: 0 }}>Free tier</h2>
             <p>
-              You don&rsquo;t have an active subscription. Subscribe for
-              unlimited access to all content.
+              You can read everything marked <strong>Free</strong>. Subscribe
+              for unlimited access to members-only content.
             </p>
             <ButtonLink href="/subscribe">See plans</ButtonLink>
           </>

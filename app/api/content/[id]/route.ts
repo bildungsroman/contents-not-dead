@@ -1,5 +1,6 @@
 import { getPost } from "@/lib/content";
-import { currentUserHasActiveSubscription } from "@/lib/subscription";
+import { hasFeature } from "@/lib/subscription";
+import { TIER_FEATURE } from "@/lib/tiers";
 import { chargeForContent, isMppConfigured } from "@/lib/mpp";
 import { renderPaidMarkdown } from "@/lib/agent-format";
 
@@ -14,8 +15,11 @@ const MD_HEADERS = {
 /**
  * MPP-protected machine endpoint. Delivers a post's full markdown only after:
  *   - a valid MPP payment credential ($0.50 SPT), or
- *   - an authenticated, active subscription.
- * Otherwise it returns an HTTP 402 challenge.
+ *   - a session holding the entitlement for this post's tier.
+ *
+ * Otherwise it returns an HTTP 402 challenge. Note that `access: free` posts
+ * are free only to signed-in humans — a caller with no session pays for every
+ * post, which is the whole agent-facing business model.
  */
 export async function GET(
   request: Request,
@@ -27,8 +31,9 @@ export async function GET(
     return Response.json({ error: "Not found" }, { status: 404 });
   }
 
-  // Subscribers bypass MPP entirely.
-  if (await currentUserHasActiveSubscription()) {
+  // Entitled sessions bypass MPP entirely, so subscribers are never charged
+  // twice for content their subscription already covers.
+  if (await hasFeature(TIER_FEATURE[post.access])) {
     return new Response(renderPaidMarkdown(post), { headers: MD_HEADERS });
   }
 

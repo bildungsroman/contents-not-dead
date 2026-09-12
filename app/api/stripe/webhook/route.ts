@@ -2,8 +2,11 @@ import { NextResponse } from "next/server";
 import type Stripe from "stripe";
 import { getStripe } from "@/lib/stripe";
 import {
+  cancelRedundantFreeSubscriptions,
+  fetchEntitlements,
   fetchSubscriptionFromStripe,
   findUserByStripeCustomer,
+  writeEntitlements,
   writeSubscriptionState,
 } from "@/lib/subscription";
 
@@ -35,10 +38,32 @@ async function syncCustomer(
 ) {
   const userId = await resolveClerkUserId(stripe, customerId, metaUserId);
   if (!userId) return;
+  // An upgrade leaves the $0 subscription in place alongside the paid one;
+  // drop it before reading state back so the recorded plan is the paid one.
+  await cancelRedundantFreeSubscriptions(customerId);
   const derived = (await fetchSubscriptionFromStripe(customerId)) ?? {
     status: "none" as const,
   };
-  await writeSubscriptionState(userId, customerId, derived);
+  const entitlements = await fetchEntitlements(customerId);
+  await writeSubscriptionState(userId, customerId, derived, entitlements);
+}
+
+/**
+ * Entitlements are the gate the app actually reads, so this event is the
+ * authoritative refresh signal. The summary carries the entitlement list
+ * inline, so no extra API call is needed unless it happens to be paginated.
+ */
+async function syncEntitlements(
+  stripe: Stripe,
+  summary: Stripe.Entitlements.ActiveEntitlementSummary,
+) {
+  const customerId = summary.customer;
+  const userId = await resolveClerkUserId(stripe, customerId);
+  if (!userId) return;
+  const keys = summary.entitlements.has_more
+    ? await fetchEntitlements(customerId)
+    : new Set(summary.entitlements.data.map((e) => e.lookup_key));
+  await writeEntitlements(userId, customerId, keys);
 }
 
 export async function POST(req: Request) {
@@ -71,7 +96,7 @@ export async function POST(req: Request) {
   try {
     switch (event.type) {
       case "checkout.session.completed": {
-        const session = event.data.object as Stripe.Checkout.Session;
+        const session = event.data.object;
         const customerId =
           typeof session.customer === "string"
             ? session.customer
@@ -89,7 +114,7 @@ export async function POST(req: Request) {
       case "customer.subscription.created":
       case "customer.subscription.updated":
       case "customer.subscription.deleted": {
-        const sub = event.data.object as Stripe.Subscription;
+        const sub = event.data.object;
         const customerId =
           typeof sub.customer === "string" ? sub.customer : sub.customer.id;
         await syncCustomer(
@@ -97,6 +122,10 @@ export async function POST(req: Request) {
           customerId,
           (sub.metadata as Record<string, string>)?.clerkUserId,
         );
+        break;
+      }
+      case "entitlements.active_entitlement_summary.updated": {
+        await syncEntitlements(stripe, event.data.object);
         break;
       }
       default:

@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import type { ContentTier } from "@/lib/tiers";
 import styles from "./PostCard.module.css";
 
 export interface CardData {
@@ -9,11 +10,18 @@ export interface CardData {
   summary: string;
   tags: string[];
   type: "article" | "image";
+  /** Tier a signed-in human needs. Absent for session-generated posts. */
+  access?: ContentTier;
   /** Preview image src (public) for image posts. */
   preview?: string;
   /** True for demo session-generated posts (client-only). */
   session?: boolean;
 }
+
+const TIER_BADGE: Record<ContentTier, string> = {
+  free: "Free",
+  paid: "Members",
+};
 
 export function PostCard({ post }: { post: CardData }) {
   const router = useRouter();
@@ -47,8 +55,13 @@ export function PostCard({ post }: { post: CardData }) {
           <p>{post.summary}</p>
         </>
       )}
-      {post.tags.length > 0 ? (
+      {post.tags.length > 0 || post.access ? (
         <span className={styles.tagRow}>
+          {post.access ? (
+            <span className={`${styles.tag} ${styles.accessTag}`}>
+              {TIER_BADGE[post.access]}
+            </span>
+          ) : null}
           {post.tags.slice(0, 4).map((t) => (
             <span className={styles.tag} key={t}>
               #{t}

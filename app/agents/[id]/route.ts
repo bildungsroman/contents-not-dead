@@ -1,5 +1,6 @@
 import { getPost, toPreview } from "@/lib/content";
-import { currentUserHasActiveSubscription } from "@/lib/subscription";
+import { hasFeature } from "@/lib/subscription";
+import { TIER_FEATURE } from "@/lib/tiers";
 import { renderPaidMarkdown, renderTeaserMarkdown } from "@/lib/agent-format";
 
 export const runtime = "nodejs";
@@ -11,9 +12,10 @@ const MD_HEADERS = {
 };
 
 /**
- * Per-post markdown for agents. Subscribers get the full body; everyone else
- * gets a teaser (metadata + how to pay) — never the paid body anonymously.
- * The paid body is delivered by /api/content/{id} after MPP payment.
+ * Per-post markdown for agents. A session holding the entitlement for the
+ * post's tier gets the full body; everyone else gets a teaser (metadata + how
+ * to pay) — never the body anonymously, free posts included. The body is
+ * delivered by /api/content/{id} after MPP payment.
  */
 export async function GET(
   _request: Request,
@@ -25,7 +27,7 @@ export async function GET(
     return new Response("Not found", { status: 404 });
   }
 
-  if (await currentUserHasActiveSubscription()) {
+  if (await hasFeature(TIER_FEATURE[post.access])) {
     return new Response(renderPaidMarkdown(post), { headers: MD_HEADERS });
   }
 

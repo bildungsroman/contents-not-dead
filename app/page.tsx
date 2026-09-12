@@ -11,6 +11,7 @@ export default function HomePage() {
     summary: p.summary,
     tags: p.tags,
     type: p.type,
+    access: p.access,
     preview: p.preview,
   }));
 

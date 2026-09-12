@@ -2,19 +2,46 @@
 
 import { useState } from "react";
 import { Show, SignInButton } from "@clerk/nextjs";
-import { SUBSCRIPTION } from "@/lib/config";
+import { SUBSCRIPTION, type PurchasablePlan } from "@/lib/config";
 import { Button } from "./Button";
 import { Spinner } from "./Spinner";
 import styles from "./SubscribeOptions.module.css";
+
+/**
+ * The free tier isn't bought — signing in subscribes you to the $0 plan
+ * automatically — so this card only ever points at sign-in.
+ */
+function FreeCard() {
+  const info = SUBSCRIPTION.free;
+  return (
+    <div className={styles.priceCard}>
+      <div className={styles.amount}>${info.amount}</div>
+      <p className="meta">forever</p>
+      <p>Read everything marked free. No card required.</p>
+      <Show when="signed-in">
+        <Button block disabled>
+          Included with your account
+        </Button>
+      </Show>
+      <Show when="signed-out">
+        <SignInButton mode="modal" forceRedirectUrl="/subscribe">
+          <Button block variant="secondary">
+            Sign in to start free
+          </Button>
+        </SignInButton>
+      </Show>
+    </div>
+  );
+}
 
 function PlanCard({
   plan,
   onSelect,
   loading,
 }: {
-  plan: "monthly" | "annual";
-  onSelect: (p: "monthly" | "annual") => void;
-  loading: "monthly" | "annual" | null;
+  plan: PurchasablePlan;
+  onSelect: (p: PurchasablePlan) => void;
+  loading: PurchasablePlan | null;
 }) {
   const info = SUBSCRIPTION[plan];
   return (
@@ -24,7 +51,7 @@ function PlanCard({
       <p>
         {plan === "annual"
           ? "Best value — two months free vs monthly."
-          : "Cancel anytime."}
+          : "Access to all content. Cancel anytime."}
       </p>
       <Show when="signed-in">
         <Button
@@ -45,10 +72,10 @@ function PlanCard({
 }
 
 export function SubscribeOptions() {
-  const [loading, setLoading] = useState<"monthly" | "annual" | null>(null);
+  const [loading, setLoading] = useState<PurchasablePlan | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  async function select(plan: "monthly" | "annual") {
+  async function select(plan: PurchasablePlan) {
     setLoading(plan);
     setError(null);
     try {
@@ -74,6 +101,7 @@ export function SubscribeOptions() {
     <>
       {error ? <p className="warn">{error}</p> : null}
       <div className={styles.pricing}>
+        <FreeCard />
         <PlanCard plan="monthly" onSelect={select} loading={loading} />
         <PlanCard plan="annual" onSelect={select} loading={loading} />
       </div>

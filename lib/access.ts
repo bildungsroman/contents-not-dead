@@ -1,7 +1,8 @@
 import "server-only";
 
 import { headers } from "next/headers";
-import { currentUserHasActiveSubscription } from "./subscription";
+import { hasFeature } from "./subscription";
+import { type ContentTier, TIER_FEATURE } from "./tiers";
 
 const LOCAL_HOSTNAMES = new Set([
   "localhost",
@@ -33,10 +34,13 @@ export async function isLocalRequest(): Promise<boolean> {
 }
 
 /**
- * Whether the caller may read a post's full body and assets: an active
- * subscription, or any request served locally.
+ * Whether the caller may read a post of the given tier on the website: the
+ * matching Stripe entitlement, or any request served locally.
+ *
+ * Agent-facing routes deliberately call `hasFeature` directly instead, so the
+ * localhost shortcut never hands out content that should have been paid for.
  */
-export async function hasContentAccess(): Promise<boolean> {
+export async function canRead(tier: ContentTier): Promise<boolean> {
   if (await isLocalRequest()) return true;
-  return currentUserHasActiveSubscription();
+  return hasFeature(TIER_FEATURE[tier]);
 }

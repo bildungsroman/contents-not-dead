@@ -250,6 +250,25 @@ main.container {
   max-width: 100%;
   border-radius: var(--radius);
 }
+/* Markdown tables (remark-gfm) and hand-written ones in /docs. */
+.prose table {
+  width: 100%;
+  margin: 20px 0;
+  border-collapse: collapse;
+  font-size: 0.94rem;
+}
+.prose th,
+.prose td {
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  text-align: left;
+  vertical-align: top;
+}
+.prose th {
+  font-family: var(--font-accent);
+  font-weight: 600;
+  background: var(--overlay);
+}
 /* Terminal-style code blocks: a dark "window" with a title bar + traffic
    lights, consistent across themes and light/dark schemes. */
 .prose pre {

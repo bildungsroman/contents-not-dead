@@ -3,11 +3,16 @@
 An open-source, themeable content platform that both **humans and agents** can
 pay for — with full parity between them.
 
-- **Subscriptions** for humans — $5/month or $50/year via Stripe Checkout
-  (auth by Clerk).
+- **Free and paid tiers for humans** — signing in subscribes you to a $0/month
+  Stripe plan that unlocks posts marked `access: free`; $5/month or $50/year
+  unlocks everything. [Stripe Entitlements](https://docs.stripe.com/billing/entitlements)
+  are the gate, so tiers are configured in Stripe rather than in code (auth by
+  Clerk).
 - **Per-item agent payments** — $0.50 per item over the
   [Machine Payments Protocol (MPP)](https://mpp.dev) using Stripe (Shared
   Payment Tokens, fiat rail), served through an HTTP `402` challenge flow.
+  Agents pay for **every** item, including posts that are free to signed-in
+  humans — "free" is a perk for having an account, not a public giveaway.
 - **Agent-native discovery** — `/.well-known/mpp.json`, `/llms.txt`, and a
   markdown `/agents` directory. Anything a human can read, an agent can
   discover and pay for.
@@ -48,13 +53,27 @@ stripe projects variables set content-asset-secret --env-key CONTENT_ASSET_SECRE
 stripe projects variables set app-url             --env-key NEXT_PUBLIC_APP_URL --value http://localhost:3000
 ```
 
-Create the subscription Product + Prices once, then store the IDs as variables:
+Create the subscription Products, Prices, and entitlement Features once, then
+store the IDs as variables. The script is idempotent, so re-running it is safe:
 
 ```bash
 node --env-file=.env scripts/setup-stripe.mjs
 stripe projects variables set stripe-price-monthly --env-key STRIPE_PRICE_MONTHLY --value price_...
 stripe projects variables set stripe-price-annual  --env-key STRIPE_PRICE_ANNUAL  --value price_...
+stripe projects variables set stripe-price-free    --env-key STRIPE_PRICE_FREE    --value price_...
 ```
+
+It creates two entitlement features, `cnd_free_content` and `cnd_paid_content`,
+and attaches them to the products that grant them:
+
+| Product | Price | Grants |
+| --- | --- | --- |
+| Free | $0 / month | `cnd_free_content` |
+| Unlimited | $5 / month or $50 / year | both features |
+
+> `STRIPE_PRICE_FREE` is not optional. Without it nobody is ever granted an
+> entitlement, so every post falls back to requiring a paid subscription or an
+> MPP payment. The app logs a warning when it's missing.
 
 Then start the app:
 
@@ -76,7 +95,7 @@ stripe projects env --json      # env var names (never values)
 
 | Env var | Managed by |
 | --- | --- |
-| `STRIPE_SECRET_KEY`, `STRIPE_PRICE_MONTHLY`, `STRIPE_PRICE_ANNUAL` | Stripe / project variables |
+| `STRIPE_SECRET_KEY`, `STRIPE_PRICE_MONTHLY`, `STRIPE_PRICE_ANNUAL`, `STRIPE_PRICE_FREE` | Stripe / project variables |
 | `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY` | `stripe projects add clerk/auth` |
 | `MPP_SECRET_KEY`, `CONTENT_ASSET_SECRET`, `NEXT_PUBLIC_APP_URL` | project variables |
 | `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` | optional self-managed env vars (rate limiting; in-memory fallback if unset) |
@@ -89,18 +108,80 @@ stripe projects variables set stripe-webhook-secret --env-key STRIPE_WEBHOOK_SEC
 ```
 
 > The Stripe restricted key needs write access to Products, Prices, Checkout
-> Sessions, Customers, Billing Portal, and PaymentIntents.
+> Sessions, Customers, Billing Portal, PaymentIntents, and Entitlements.
 
 ## How it works
 
 | Concern | Approach |
 | --- | --- |
-| Auth | Clerk. Subscription state is written to the user's `publicMetadata` by Stripe webhooks and revalidated against Stripe when stale. |
-| Subscriptions | Stripe Checkout (`mode: subscription`) + Billing Portal. Stripe is the source of truth; no database required. |
-| Agent payments | `mppx` (`mppx/server`) with the Stripe SPT method. `GET /api/content/{id}` returns a `402` challenge, then the full markdown + a `Payment-Receipt` on success. |
-| Paid images | Full assets live in `content/assets/` (outside `public/`) and are served via `/api/content/{id}/asset` only to subscribers or with a short-lived HMAC-signed URL. |
+| Auth | Clerk. Subscription state and entitlement keys are written to the user's `publicMetadata` by Stripe webhooks and revalidated against Stripe when stale. |
+| Access control | Stripe Entitlements. Each post declares `access: free` or `access: paid`; every gate resolves to `hasFeature(TIER_FEATURE[post.access])`. Changing who can read what is a Stripe config change, not a deploy. |
+| Subscriptions | Stripe Checkout (`mode: subscription`) + Billing Portal. Every signed-in user holds a real subscription — the $0 one is created on first page load, and Checkout replaces it on upgrade. Stripe is the source of truth; no database required. |
+| Agent payments | `mppx` (`mppx/server`) with the Stripe SPT method. `GET /api/content/{id}` returns a `402` challenge, then the full markdown + a `Payment-Receipt` on success. Applies to every post regardless of tier. |
+| Paid images | Full assets live in `content/assets/` (outside `public/`) and are served via `/api/content/{id}/asset` only to entitled sessions or with a short-lived HMAC-signed URL. Low-detail previews in `public/previews/` stay public. |
 | Themes | CSS variables keyed on `data-theme`; light/dark via `prefers-color-scheme`. See [Theming](#theming). |
 | Styles | `app/globals.css` for theme variables, base elements, layout/typography, and shared utilities. Component-specific styles are co-located CSS Modules. |
+
+## Access tiers
+
+Mark a post's tier in its frontmatter. Omitting the field means `paid`, so new
+content is never published by accident:
+
+```yaml
+---
+title: My Post
+type: article
+access: free   # or: paid (the default)
+---
+```
+
+`access` answers one question: *what does a signed-in human need in order to
+read this?* It is not a "free to the world" switch. Callers without a session
+pay per item either way.
+
+| Caller | `access: free` | `access: paid` |
+| --- | --- | --- |
+| Not signed in (human or agent) | `402` → pay $0.50 | `402` → pay $0.50 |
+| Signed in, free tier | full content | paywall / teaser |
+| Signed in, paid tier | full content | full content |
+
+The real dividing line is whether the caller has a session, not whether they're
+human. An agent is how a person buys a single article without subscribing, so
+`/post/[id]` keeps pointing at the MPP flow for everyone.
+
+What stays public: post titles, summaries, and tags — agents need them to
+decide what's worth buying — plus the low-detail images in `public/previews/`.
+Everything else needs an entitlement or a payment receipt.
+
+Existing subscribers need no migration. Attaching a feature to a product grants
+it to everyone already subscribed, and each user's cached entitlements refresh
+on their next request.
+
+> During local development `LOCAL_FULL_ACCESS=true` (the default) unlocks the
+> website for localhost requests. It deliberately does **not** apply to
+> `/api/content/*` or `/agents/*`, so the dev shortcut can never hand an agent
+> content it should have paid for. Set it to `false` to exercise the real
+> paywall.
+
+## Testing
+
+```bash
+npm test        # unit tests (Vitest)
+npm run typecheck
+```
+
+The suite covers tier defaulting, the tier-to-entitlement mapping, plan
+resolution from price IDs, and the access matrix above.
+
+There is also an opt-in integration test that creates and deletes real Clerk
+users and Stripe customers to verify the whole provisioning path — free tier on
+first sign-in, idempotency on repeat sign-ins, and the upgrade to paid:
+
+```bash
+RUN_INTEGRATION=1 node --env-file=.env ./node_modules/.bin/vitest run test/
+```
+
+Point it at a **test-mode** Stripe key and a Clerk development instance.
 
 ## Theming
 
@@ -208,9 +289,9 @@ only appears in demo mode (`NEXT_PUBLIC_IS_DEMO`).
 
 ## Routes
 
-- `/` — home grid of previews (lazy-loaded)
-- `/post/[id]` — full content (subscribers) or paywall
-- `/subscribe`, `/account` — plans + billing management
+- `/` — home grid of previews (lazy-loaded), each card badged Free or Members
+- `/post/[id]` — full content for entitled readers, otherwise a tier-aware paywall
+- `/subscribe`, `/account` — plans (Free, monthly, annual) + billing management
 - `/payments` — MPP guide for agents
 - `/docs` — setup, theming, adding content
 - `/agents`, `/agents/[id]` — markdown for agents
@@ -232,9 +313,20 @@ stripe projects env use production
 stripe projects variables set app-url --env-key NEXT_PUBLIC_APP_URL --value https://your-domain.com
 ```
 
-Sync the generated values into your host's env (Vercel, etc.) and add a Stripe
-webhook endpoint at `/api/stripe/webhook`. Web Analytics and Speed Insights are
-already wired in.
+Run `node --env-file=.env.production scripts/setup-stripe.mjs` against the
+production Stripe account so the features, products, and prices exist there
+too, then sync the generated values into your host's env (Vercel, etc.).
+
+Add a Stripe webhook endpoint at `/api/stripe/webhook` subscribed to:
+
+- `checkout.session.completed`
+- `customer.subscription.created`, `.updated`, `.deleted`
+- `entitlements.active_entitlement_summary.updated`
+
+That last event is what keeps access current. Miss it and entitlement changes
+only reach the app through the slower revalidation fallback.
+
+Web Analytics and Speed Insights are already wired in.
 
 ## License
 

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getPost } from "@/lib/content";
-import { hasContentAccess } from "@/lib/access";
+import { canRead } from "@/lib/access";
 import { resolveInlineAssets, signedAssetPath } from "@/lib/assets";
 import { Markdown } from "@/components/Markdown";
 import { Paywall } from "@/components/Paywall";
@@ -38,12 +38,16 @@ export default async function PostPage({
     );
   }
 
-  const unlocked = await hasContentAccess();
+  const unlocked = await canRead(post.access);
 
   if (!unlocked) {
     return (
       <main className="container">
-        <Paywall postId={post.id} postTitle={post.title} />
+        <Paywall
+          postId={post.id}
+          postTitle={post.title}
+          tier={post.access}
+        />
       </main>
     );
   }

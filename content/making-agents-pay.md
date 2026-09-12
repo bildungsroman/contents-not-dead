@@ -5,6 +5,7 @@ authors: [The Editors]
 date: '2026-09-30'
 tags: [mpp, content]
 type: article
+access: free
 ---
 
 Is content dead? That's the central premise of this site, and we'd like to argue that it's not. But it has run into a huge impediment: people are tired of paying for content with their attention, and machines have been scraping and using content without paying for years now. In that reality, what incentives do creators have to share their art or writing with the world?

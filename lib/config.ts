@@ -35,9 +35,14 @@ export const AVAILABLE_THEMES: readonly Theme[] = IS_DEMO
 export const PER_CONTENT_PRICE_USD = "0.50";
 
 export const SUBSCRIPTION = {
+  free: { amount: 0, interval: "month" as const, label: "Free" },
   monthly: { amount: 5, interval: "month" as const, label: "$5 / month" },
   annual: { amount: 50, interval: "year" as const, label: "$50 / year" },
 };
+
+/** Plans a signed-in human can buy. The free tier is granted, not purchased. */
+export const PURCHASABLE_PLANS = ["monthly", "annual"] as const;
+export type PurchasablePlan = (typeof PURCHASABLE_PLANS)[number];
 
 export const SITE = {
   name: "Content's Not Dead",

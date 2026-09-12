@@ -1,10 +1,10 @@
 .pricing {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, 1fr);
   gap: 16px;
   margin: 24px 0;
 }
-@media (max-width: 560px) {
+@media (max-width: 860px) {
   .pricing {
     grid-template-columns: 1fr;
   }

@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { getPost, ASSETS_DIR, type Post } from "@/lib/content";
 import { verifyAssetToken } from "@/lib/assets";
-import { hasContentAccess } from "@/lib/access";
+import { canRead } from "@/lib/access";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -44,8 +44,11 @@ export async function GET(
     return new Response("Not found", { status: 404 });
   }
 
+  // The signed token is what an MPP payer receives, so it must keep working
+  // independently of any session or entitlement.
   const token = search.get("token") || "";
-  const authorized = verifyAssetToken(id, token) || (await hasContentAccess());
+  const authorized =
+    verifyAssetToken(id, token) || (await canRead(post.access));
   if (!authorized) {
     return new Response("Payment or subscription required", { status: 402 });
   }

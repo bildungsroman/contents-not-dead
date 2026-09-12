@@ -3,6 +3,7 @@ import "server-only";
 import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
+import { type ContentTier, parseContentTier } from "./tiers";
 
 export type PostType = "article" | "image";
 
@@ -13,6 +14,12 @@ export interface PostFrontmatter {
   date: string; // YYYY-MM-DD
   tags: string[];
   type: PostType;
+  /**
+   * What a signed-in human needs to read this post — not whether it is free to
+   * the world. Callers without a session pay per item over MPP either way.
+   * Defaults to `paid` when the frontmatter omits it.
+   */
+  access: ContentTier;
   /** Image posts only: filename of the full-resolution asset in content/assets/. */
   image?: string;
   /** Image posts only: public path to a low-detail preview derivative. */
@@ -52,6 +59,7 @@ function parseFile(filePath: string, id: string): Post {
     date: String(data.date ?? ""),
     tags: normalizeStringArray(data.tags),
     type,
+    access: parseContentTier(data.access),
     image: data.image ? String(data.image) : undefined,
     preview: data.preview ? String(data.preview) : undefined,
     contents: content.trim(),

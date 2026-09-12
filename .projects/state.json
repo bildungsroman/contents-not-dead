@@ -74,6 +74,10 @@
           "envKey": "STRIPE_PRICE_ANNUAL"
         },
         {
+          "variableName": "stripe-price-free",
+          "envKey": "STRIPE_PRICE_FREE"
+        },
+        {
           "variableName": "stripe-price-monthly",
           "envKey": "STRIPE_PRICE_MONTHLY"
         },
@@ -128,6 +132,10 @@
     "stripe-price-annual": {
       "name": "stripe-price-annual",
       "backendId": "fprjvar_61V4N1SDsATyXsxfQ16UnJFA1ASQPm3cWejUZAGYq8dc"
+    },
+    "stripe-price-free": {
+      "name": "stripe-price-free",
+      "backendId": "fprjvar_61VO5Fd16qCZi125o16UnJFA1ASQPm3cWejUZAGYq6aO"
     },
     "stripe-price-monthly": {
       "name": "stripe-price-monthly",
