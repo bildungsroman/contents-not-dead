@@ -18,7 +18,7 @@ export function SiteHeader() {
             aria-label={`${SITE.name} home`}
           >
             <span className={styles.brandTitle}>
-              Content&rsquo;s Not Dead
+              <span className={styles.brandText}>Content&rsquo;s Not Dead</span>
               <Logo className={styles.brandLogo} />
             </span>
           </Link>
