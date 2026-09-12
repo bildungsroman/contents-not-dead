@@ -27,6 +27,7 @@ export function SiteHeader() {
         <nav className={styles.siteNav}>
           <div className={styles.navLinks}>
             <Link href="/">Home</Link>
+            <Link href="/about">About</Link>
             <Link href="/subscribe">Subscribe</Link>
             <Link href="/payments">For Agents</Link>
             <Link href="/docs">Docs</Link>

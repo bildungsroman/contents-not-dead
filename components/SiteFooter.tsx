@@ -10,6 +10,7 @@ export function SiteFooter() {
         <div className={styles.footerGroups}>
           <div className={styles.footerGroup}>
             <p className={styles.footerGroupTitle}>Humans</p>
+            <Link href="/about">About</Link>
             <Link href="/subscribe">Subscribe</Link>
             <Link href="/account">Account</Link>
           </div>
