@@ -21,10 +21,7 @@ const { clerkMiddleware } = require("@clerk/nextjs/server") as {
 export default clerkMiddleware();
 
 export const config = {
-  // Node.js runtime; for middleware the runtime must be declared inside
-  // `config` (a top-level `export const runtime` is ignored here).
-  runtime: "nodejs",
   // Run on all routes except Next internals so Clerk's auth context is always
   // available to the layout (including on not-found pages).
-  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"]
 };

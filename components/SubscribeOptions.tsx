@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { SignedIn, SignedOut, SignInButton } from "@clerk/nextjs";
+import { Show, SignInButton } from "@clerk/nextjs";
 import { SUBSCRIPTION } from "@/lib/config";
 import { Button } from "./Button";
 import { Spinner } from "./Spinner";
@@ -26,7 +26,7 @@ function PlanCard({
           ? "Best value — two months free vs monthly."
           : "Cancel anytime."}
       </p>
-      <SignedIn>
+      <Show when="signed-in">
         <Button
           block
           disabled={loading !== null}
@@ -34,12 +34,12 @@ function PlanCard({
         >
           {loading === plan ? <Spinner /> : `Choose ${plan}`}
         </Button>
-      </SignedIn>
-      <SignedOut>
+      </Show>
+      <Show when="signed-out">
         <SignInButton mode="modal" forceRedirectUrl="/subscribe">
           <Button block>Sign in to subscribe</Button>
         </SignInButton>
-      </SignedOut>
+      </Show>
     </div>
   );
 }

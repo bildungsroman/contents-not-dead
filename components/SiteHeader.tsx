@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
+import { Show, SignInButton, UserButton } from "@clerk/nextjs";
 import { IS_DEMO, SITE } from "@/lib/config";
 import { Logo } from "./Logo";
 import { ThemeSwitcher } from "./ThemeSwitcher";
@@ -33,17 +33,17 @@ export function SiteHeader() {
             <Link href="/docs">Docs</Link>
           </div>
           <div className={styles.navActions}>
-            <SignedIn>
+            <Show when="signed-in">
               <Link href="/account">Account</Link>
-              <UserButton afterSignOutUrl="/" />
-            </SignedIn>
-            <SignedOut>
+              <UserButton />
+            </Show>
+            <Show when="signed-out">
               <SignInButton mode="modal">
                 <Button variant="secondary" className={styles.navButton}>
                   Sign in
                 </Button>
               </SignInButton>
-            </SignedOut>
+            </Show>
             {IS_DEMO ? <ThemeSwitcher /> : null}
           </div>
         </nav>

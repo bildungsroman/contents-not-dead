@@ -66,7 +66,10 @@ export default async function RootLayout({
   const clerkKeys = getClerkKeys();
 
   return (
-    <ClerkProvider publishableKey={clerkKeys.publishableKey}>
+    <ClerkProvider
+      publishableKey={clerkKeys.publishableKey}
+      afterSignOutUrl="/"
+    >
       <html
         lang="en"
         data-theme={theme}
