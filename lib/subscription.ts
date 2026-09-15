@@ -53,7 +53,7 @@ export function isPaidPlan(plan: SubscriptionPlan | undefined): boolean {
   return plan === "monthly" || plan === "annual";
 }
 
-interface CachedMetadata {
+export interface CachedMetadata {
   state: SubscriptionState;
   entitlements: Set<string>;
   entitlementsUpdatedAt?: number;
@@ -83,24 +83,36 @@ function fromMetadata(meta: Record<string, unknown> | undefined): CachedMetadata
 const EMPTY_ENTITLEMENT_RETRY_SECONDS = 30;
 
 /**
+ * How long a populated entitlement set may be trusted without a webhook.
+ *
+ * Deliveries refresh the cache within seconds, so a cache that reaches this age
+ * means they are not arriving — a wrong signing secret, a disabled endpoint, a
+ * deploy gap. Without an expiry those failures are permanent and invisible: an
+ * upgrade never reaches the reader, who keeps seeing the plan they held when
+ * the last webhook landed, and the symptom is an ordinary paywall.
+ */
+const ENTITLEMENT_MAX_AGE_SECONDS = 15 * 60;
+
+/**
  * Whether we should go back to Stripe rather than trust the Clerk cache.
  *
  * Webhooks normally keep the cache fresh, so this is a backstop for the cases
- * where there is nothing to trust yet (a brand new user) or where the cached
+ * where there is nothing to trust yet (a brand new user), where the cached
  * state says the caller has no live subscription and therefore still needs the
- * free one provisioned.
+ * free one provisioned, or where the cache has gone stale because webhooks
+ * stopped arriving.
  */
-function needsRevalidation(cached: CachedMetadata): boolean {
+export function needsRevalidation(cached: CachedMetadata): boolean {
   if (!cached.state.stripeCustomerId) return true;
   if (!cached.entitlementsUpdatedAt) return true;
   if (!isActive(cached.state)) return true;
+  const age = Math.floor(Date.now() / 1000) - cached.entitlementsUpdatedAt;
   // An active subscription with no entitlements means we cached the gap before
   // Stripe finished computing them. Retry, but not on every single request.
   if (cached.entitlements.size === 0) {
-    const age = Math.floor(Date.now() / 1000) - cached.entitlementsUpdatedAt;
     return age >= EMPTY_ENTITLEMENT_RETRY_SECONDS;
   }
-  return false;
+  return age >= ENTITLEMENT_MAX_AGE_SECONDS;
 }
 
 /**

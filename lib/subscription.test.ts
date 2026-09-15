@@ -1,6 +1,13 @@
 import type Stripe from "stripe";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { deriveFromSubscription, isActive, isPaidPlan } from "./subscription";
+import {
+  type CachedMetadata,
+  deriveFromSubscription,
+  isActive,
+  isPaidPlan,
+  needsRevalidation,
+  type SubscriptionStatus,
+} from "./subscription";
 import { CONTENT_TIERS, TIER_FEATURE, type ContentTier } from "./tiers";
 
 const MONTHLY = "price_monthly_test";
@@ -107,6 +114,74 @@ describe("isActive", () => {
     );
     expect(isActive({ status: "active", currentPeriodEnd: past })).toBe(false);
     expect(isActive(null)).toBe(false);
+  });
+});
+
+describe("needsRevalidation", () => {
+  const now = () => Math.floor(Date.now() / 1000);
+
+  function cached(overrides: {
+    entitlements?: string[];
+    ageSeconds?: number;
+    status?: SubscriptionStatus;
+    stripeCustomerId?: string;
+    entitlementsUpdatedAt?: number;
+  }): CachedMetadata {
+    const {
+      entitlements = ["cnd_free_content"],
+      ageSeconds = 0,
+      status = "active",
+    } = overrides;
+    return {
+      state: {
+        stripeCustomerId:
+          "stripeCustomerId" in overrides
+            ? overrides.stripeCustomerId
+            : "cus_test",
+        status,
+        currentPeriodEnd: now() + 3600,
+      },
+      entitlements: new Set(entitlements),
+      entitlementsUpdatedAt:
+        "entitlementsUpdatedAt" in overrides
+          ? overrides.entitlementsUpdatedAt
+          : now() - ageSeconds,
+    };
+  }
+
+  it("revalidates when there is nothing worth trusting yet", () => {
+    expect(needsRevalidation(cached({ stripeCustomerId: undefined }))).toBe(
+      true,
+    );
+    expect(needsRevalidation(cached({ entitlementsUpdatedAt: undefined }))).toBe(
+      true,
+    );
+  });
+
+  it("revalidates when the cached subscription is not live", () => {
+    expect(needsRevalidation(cached({ status: "canceled" }))).toBe(true);
+  });
+
+  // Stripe computes entitlements asynchronously, so an empty set right after
+  // provisioning is normal. Retry, but not on every request.
+  it("backs off briefly on an active subscription with no entitlements", () => {
+    expect(needsRevalidation(cached({ entitlements: [], ageSeconds: 5 }))).toBe(
+      false,
+    );
+    expect(needsRevalidation(cached({ entitlements: [], ageSeconds: 31 }))).toBe(
+      true,
+    );
+  });
+
+  it("trusts a freshly written entitlement set", () => {
+    expect(needsRevalidation(cached({ ageSeconds: 60 }))).toBe(false);
+  });
+
+  // The regression this guards: a populated cache used to be trusted forever,
+  // so a webhook that never arrived (wrong signing secret, disabled endpoint)
+  // pinned the reader to their old plan and an upgrade was invisible.
+  it("expires a populated entitlement set once webhooks have gone quiet", () => {
+    expect(needsRevalidation(cached({ ageSeconds: 15 * 60 + 1 }))).toBe(true);
   });
 });
 
