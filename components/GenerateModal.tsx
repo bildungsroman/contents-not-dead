@@ -39,10 +39,14 @@ export function GenerateModal({
             .filter(Boolean),
         }),
       });
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.error || "Generation failed. Please try again.");
-        if (typeof data.remaining === "number") setRemaining(data.remaining);
+      // Server faults can return an empty body, so parsing is allowed to fail
+      // without being reported as a network error.
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data?.post) {
+        setError(
+          data?.error || `Generation failed (${res.status}). Please try again.`,
+        );
+        if (typeof data?.remaining === "number") setRemaining(data.remaining);
         setLoading(false);
         return;
       }

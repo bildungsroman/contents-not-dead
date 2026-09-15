@@ -17,22 +17,9 @@ export function getRedis(): Redis | null {
   return cached;
 }
 
-/**
- * Atomically increments a counter with a TTL window and returns the new count.
- * Falls back to an in-memory counter when Redis is unavailable (dev only).
- */
 const memory = new Map<string, { count: number; expires: number }>();
 
-export async function incrementWithTtl(
-  key: string,
-  ttlSeconds: number,
-): Promise<number> {
-  const redis = getRedis();
-  if (redis) {
-    const count = await redis.incr(key);
-    if (count === 1) await redis.expire(key, ttlSeconds);
-    return count;
-  }
+function incrementInMemory(key: string, ttlSeconds: number): number {
   const now = Date.now();
   const entry = memory.get(key);
   if (!entry || entry.expires < now) {
@@ -41,4 +28,32 @@ export async function incrementWithTtl(
   }
   entry.count += 1;
   return entry.count;
+}
+
+/**
+ * Atomically increments a counter with a TTL window and returns the new count.
+ *
+ * Falls back to an in-memory counter both when Redis isn't configured and when
+ * a configured Redis is unreachable or rejects the command. Callers use this to
+ * rate-limit, so a transient backend fault must degrade the limit to per-
+ * instance counting rather than take the endpoint down with it.
+ */
+export async function incrementWithTtl(
+  key: string,
+  ttlSeconds: number,
+): Promise<number> {
+  const redis = getRedis();
+  if (redis) {
+    try {
+      const count = await redis.incr(key);
+      if (count === 1) await redis.expire(key, ttlSeconds);
+      return count;
+    } catch (err) {
+      console.error(
+        "Redis counter failed, falling back to in-memory:",
+        (err as Error).message,
+      );
+    }
+  }
+  return incrementInMemory(key, ttlSeconds);
 }

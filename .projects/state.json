@@ -26,6 +26,9 @@
         },
         {
           "resourceName": "clerk-plan"
+        },
+        {
+          "resourceName": "openrouter-plan"
         }
       ],
       "variables": [
