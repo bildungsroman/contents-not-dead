@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { auth } from "@clerk/nextjs/server";
-import { SignInButton } from "@clerk/nextjs";
+import { SignInButton, SignOutButton } from "@clerk/nextjs";
 import { getSubscriptionState, isActive, isPaidPlan } from "@/lib/subscription";
 import { ManageSubscription } from "@/components/ManageSubscription";
 import { Button, ButtonLink } from "@/components/Button";
@@ -78,6 +78,13 @@ export default async function AccountPage() {
           </>
         )}
       </Panel>
+
+      {/* Outside the paid/free branches: signing out is not about the plan. */}
+      <div style={{ marginTop: 16 }}>
+        <SignOutButton redirectUrl="/">
+          <Button variant="secondary">Sign out</Button>
+        </SignOutButton>
+      </div>
     </main>
   );
 }
