@@ -65,8 +65,11 @@ export function GenerateModal({
   return (
     <Modal label="Generate content" onClose={onClose}>
       {loading ? (
-        <div className="center" style={{ flexDirection: "column", gap: 12 }}>
-          <Spinner />
+        <div
+          className="center"
+          style={{ flexDirection: "column", alignItems: "center", gap: 12 }}
+        >
+          <Spinner size="large" label="Generating content" />
           <p>Generating… this can take a few seconds.</p>
         </div>
       ) : (

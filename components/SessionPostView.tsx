@@ -24,7 +24,7 @@ export function SessionPostView({ id }: { id: string }) {
   if (post === undefined) {
     return (
       <div className="center">
-        <Spinner />
+        <Spinner size="large" label="Loading post" />
       </div>
     );
   }

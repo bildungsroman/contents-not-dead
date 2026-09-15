@@ -10,7 +10,7 @@ export default function Loading() {
   return (
     <main className="container">
       <div className="center">
-        <Spinner label="Loading post" />
+        <Spinner size="large" label="Loading post" />
       </div>
     </main>
   );
