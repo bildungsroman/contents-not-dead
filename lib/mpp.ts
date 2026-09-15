@@ -2,7 +2,7 @@ import "server-only";
 
 import { Mppx, stripe as mppxStripe } from "mppx/server";
 import { getStripe } from "./stripe";
-import { PER_CONTENT_PRICE_USD } from "./config";
+import { apiRealm, PER_CONTENT_PRICE_USD } from "./config";
 
 /**
  * A single, process-wide MPP handler for the Stripe SPT (fiat) rail.
@@ -11,6 +11,11 @@ import { PER_CONTENT_PRICE_USD } from "./config";
  * and MUST be stable across deploys/instances, otherwise challenges issued by
  * one instance can't be verified by another. Generating a random key per
  * request (as some quickstarts show) would break verification on serverless.
+ *
+ * `realm` is passed explicitly for the same reason it can't be left to mppx's
+ * env fallback chain: on Vercel that chain lands on `VERCEL_URL`, stamping the
+ * challenge with the internal per-deployment hostname instead of the origin
+ * agents actually call.
  */
 let cached: ReturnType<typeof buildMppx> | null = null;
 
@@ -32,6 +37,7 @@ function buildMppx() {
         paymentMethodTypes: ["card", "link"],
       }),
     ],
+    realm: apiRealm(),
     secretKey,
   });
 }

@@ -58,6 +58,15 @@ cp .env.example .env.local`}
             <code>stripe listen --forward-to localhost:3000/api/stripe/webhook</code>{" "}
             and set <code>STRIPE_WEBHOOK_SECRET</code>.
           </li>
+          <li>
+            <strong>Discovery</strong> — both optional.{" "}
+            <code>NEXT_PUBLIC_API_URL</code> is the public origin agents call;
+            leave it unset to serve the agent surface from{" "}
+            <code>NEXT_PUBLIC_APP_URL</code>, and set it only when agents use a
+            dedicated hostname. <code>MPP_CONTACT_EMAIL</code> is published in{" "}
+            <code>/openapi.json</code> so you can verify ownership of the
+            origin.
+          </li>
         </ul>
         <p>
           Using{" "}
@@ -309,6 +318,10 @@ Your Markdown body here.`}
         </p>
         <ul>
           <li>
+            <a href="/openapi.json">/openapi.json</a> — the canonical
+            machine-readable contract
+          </li>
+          <li>
             <a href="/.well-known/mpp.json">/.well-known/mpp.json</a> — payment
             config
           </li>
@@ -323,6 +336,28 @@ Your Markdown body here.`}
             pay → full markdown</code>)
           </li>
         </ul>
+        <p>
+          <code>/openapi.json</code> is what registries and agent tooling
+          resolve first, so it is the one to keep honest. Paid operations
+          declare a <code>402</code> response plus an{" "}
+          <code>x-payment-info</code> block carrying the price and the supported
+          protocols; free operations carry <code>security: []</code>, which is
+          what marks them as deliberately open rather than merely undeclared.
+          The values come from the same constants the payment code charges, so
+          the document cannot quietly drift from what the endpoint actually
+          does.
+        </p>
+        <p>
+          The runtime <code>402</code> is the final source of truth, and the
+          part that most often goes wrong is the <code>realm</code> in the{" "}
+          <code>WWW-Authenticate</code> header. It has to name the origin agents
+          actually dialled. Left to its own devices the MPP library will resolve
+          a host from the environment — on Vercel, the internal per-deployment
+          hostname — so the realm is pinned to{" "}
+          <code>NEXT_PUBLIC_API_URL</code> instead, and every discovery document
+          above advertises that same origin. A proxy in front of the app must
+          preserve the header and leave the realm alone.
+        </p>
 
         <h2>7. Deploy</h2>
         <p>
@@ -331,6 +366,22 @@ Your Markdown body here.`}
           <code>scripts/setup-stripe.mjs</code> against the production Stripe
           account so the features, products, and prices exist there too. Vercel
           Web Analytics and Speed Insights are already wired up.
+        </p>
+        <p>
+          If agents call a dedicated hostname, attach it to the deployment and
+          set <code>NEXT_PUBLIC_API_URL</code> to it. A domain that resolves to
+          Vercel but is not attached to the project answers every request with{" "}
+          <code>DEPLOYMENT_NOT_FOUND</code>, which reads to a registry as an
+          origin with nothing on it. Check both halves of discovery against the
+          real origin before registering anywhere:
+        </p>
+        <CodeBlock
+          code={`curl -s https://api.your-domain.com/openapi.json | head
+curl -sI https://api.your-domain.com/api/content/<id> | grep -i www-authenticate`}
+        />
+        <p>
+          The <code>realm</code> in that header and the host you registered must
+          be the same.
         </p>
         <p>
           Configure a Stripe webhook endpoint at{" "}

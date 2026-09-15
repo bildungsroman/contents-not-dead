@@ -98,7 +98,16 @@ stripe projects env --json      # env var names (never values)
 | `STRIPE_SECRET_KEY`, `STRIPE_PRICE_MONTHLY`, `STRIPE_PRICE_ANNUAL`, `STRIPE_PRICE_FREE` | Stripe / project variables |
 | `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY` | `stripe projects add clerk/auth` |
 | `MPP_SECRET_KEY`, `CONTENT_ASSET_SECRET`, `NEXT_PUBLIC_APP_URL` | project variables |
+| `NEXT_PUBLIC_API_URL`, `MPP_CONTACT_EMAIL` | optional self-managed env vars (agent discovery; see below) |
 | `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` | optional self-managed env vars (rate limiting; in-memory fallback if unset) |
+
+`NEXT_PUBLIC_API_URL` is the public origin agents call. It sets `servers[0].url`
+in `/openapi.json`, the paid resource URLs in `/.well-known/mpp.json`, and the
+MPP `WWW-Authenticate` realm. Leave it unset to serve the agent surface from
+`NEXT_PUBLIC_APP_URL`; set it when agents use a dedicated hostname. It must name
+the origin agents actually reach — a realm pointing at an internal or
+per-deployment host fails agent discovery. `MPP_CONTACT_EMAIL` is optional and
+published in `/openapi.json` for origin ownership verification.
 
 Forward Stripe webhooks while developing and store the signing secret:
 
@@ -312,6 +321,17 @@ stripe projects env use production
 # NEXT_PUBLIC_APP_URL at your domain
 stripe projects variables set app-url --env-key NEXT_PUBLIC_APP_URL --value https://your-domain.com
 ```
+
+If agents call a dedicated hostname, attach it to the deployment and set
+`NEXT_PUBLIC_API_URL` to it (e.g. `https://api.your-domain.com`). Verify both
+halves of discovery agree before registering anywhere:
+
+```bash
+curl -s https://api.your-domain.com/openapi.json | head
+curl -sI https://api.your-domain.com/api/content/<id> | grep -i www-authenticate
+```
+
+The `realm` in that header must be the same host you registered.
 
 Run `node --env-file=.env.production scripts/setup-stripe.mjs` against the
 production Stripe account so the features, products, and prices exist there

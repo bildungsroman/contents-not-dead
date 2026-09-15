@@ -1,12 +1,15 @@
 import { getAllPreviews } from "@/lib/content";
-import { appUrl, PER_CONTENT_PRICE_USD, SITE } from "@/lib/config";
+import { apiUrl, appUrl, PER_CONTENT_PRICE_USD, SITE } from "@/lib/config";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 /** llms.txt — a concise, LLM-friendly map of the site (served at /llms.txt). */
 export async function GET() {
-  const base = appUrl();
+  // Endpoints an agent calls must name the origin the MPP realm names, or the
+  // challenge it gets back won't match the host it dialled.
+  const base = apiUrl();
+  const site = appUrl();
   const previews = getAllPreviews();
 
   const lines: string[] = [
@@ -18,13 +21,14 @@ export async function GET() {
     "subscribe. Full parity: anything a human can read, an agent can pay for.",
     "",
     "## Discovery",
+    `- [OpenAPI contract](${base}/openapi.json): machine-readable API contract`,
     `- [MPP config](${base}/.well-known/mpp.json): machine-readable payment details`,
     `- [MPP instructions](${base}/.well-known/mpp.md): how to pay as an agent`,
     `- [Agent directory](${base}/agents): markdown index of all content`,
     "",
     "## Paying",
     `- Per item: $${PER_CONTENT_PRICE_USD} via MPP at ${base}/api/content/{id} (HTTP 402 challenge)`,
-    `- Subscription: ${base}/subscribe ($5/month or $50/year)`,
+    `- Subscription: ${site}/subscribe ($5/month or $50/year)`,
     "",
     "## Content",
   ];

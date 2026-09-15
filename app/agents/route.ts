@@ -1,5 +1,5 @@
 import { getAllPreviews } from "@/lib/content";
-import { appUrl, PER_CONTENT_PRICE_USD, SITE } from "@/lib/config";
+import { apiUrl, appUrl, PER_CONTENT_PRICE_USD, SITE } from "@/lib/config";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -10,7 +10,10 @@ export const dynamic = "force-dynamic";
  * includes paid bodies — those come from /api/content/{id} after payment.
  */
 export async function GET() {
-  const base = appUrl();
+  // Endpoints an agent calls must name the origin the MPP realm names, or the
+  // challenge it gets back won't match the host it dialled.
+  const base = apiUrl();
+  const site = appUrl();
   const previews = getAllPreviews();
 
   const lines: string[] = [
@@ -20,11 +23,12 @@ export async function GET() {
     "",
     "## Endpoints",
     "",
+    `- OpenAPI contract: ${base}/openapi.json`,
     `- Discovery (machine-readable): ${base}/.well-known/mpp.json`,
     `- LLM overview: ${base}/llms.txt`,
     `- Paid content (per item, $${PER_CONTENT_PRICE_USD} via MPP): ${base}/api/content/{id}`,
     `- Per-item markdown (metadata + teaser): ${base}/agents/{id}`,
-    `- Subscribe (unlimited): ${base}/subscribe`,
+    `- Subscribe (unlimited): ${site}/subscribe`,
     "",
     "## How to pay",
     "",

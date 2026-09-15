@@ -1,11 +1,14 @@
-import { appUrl, PER_CONTENT_PRICE_USD, SITE } from "@/lib/config";
+import { apiUrl, appUrl, PER_CONTENT_PRICE_USD, SITE } from "@/lib/config";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 /** Human-readable MPP instructions (served at /.well-known/mpp.md). */
 export async function GET() {
-  const base = appUrl();
+  // Endpoints an agent calls must name the origin the MPP realm names, or the
+  // challenge it gets back won't match the host it dialled.
+  const base = apiUrl();
+  const site = appUrl();
   const body = `# Machine Payments on ${SITE.name}
 
 This service accepts machine payments via the Machine Payments Protocol (MPP,
@@ -31,13 +34,14 @@ The \`mppx\` client (https://www.npmjs.com/package/mppx) implements this flow.
 
 ## Discover content
 
+- OpenAPI contract: ${base}/openapi.json
 - Machine-readable config: ${base}/.well-known/mpp.json
 - Agent directory: ${base}/agents
 - LLM overview: ${base}/llms.txt
 
 ## Subscribe instead
 
-Unlimited access is available at ${base}/subscribe ($5/month or $50/year).
+Unlimited access is available at ${site}/subscribe ($5/month or $50/year).
 `;
 
   return new Response(body, {

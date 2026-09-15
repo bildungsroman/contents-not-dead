@@ -1,12 +1,21 @@
 import { getAllPreviews } from "@/lib/content";
-import { appUrl, PER_CONTENT_PRICE_USD, SITE, SUBSCRIPTION } from "@/lib/config";
+import {
+  apiUrl,
+  appUrl,
+  PER_CONTENT_PRICE_USD,
+  SITE,
+  SUBSCRIPTION,
+} from "@/lib/config";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 /** Machine-readable MPP discovery document (served at /.well-known/mpp.json). */
 export async function GET() {
-  const base = appUrl();
+  // Agent-callable resources must sit on the origin the MPP realm names;
+  // subscribing is a human flow and stays on the site origin.
+  const base = apiUrl();
+  const site = appUrl();
   const previews = getAllPreviews();
 
   const doc = {
@@ -29,7 +38,7 @@ export async function GET() {
       ],
     },
     subscription: {
-      url: `${base}/subscribe`,
+      url: `${site}/subscribe`,
       description: "Unlimited access to all content.",
       plans: [
         { interval: "month", amount: SUBSCRIPTION.monthly.amount, currency: "usd" },
@@ -37,6 +46,7 @@ export async function GET() {
       ],
     },
     discovery: {
+      openapi: `${base}/openapi.json`,
       agents_directory: `${base}/agents`,
       llms: `${base}/llms.txt`,
       instructions: `${base}/.well-known/mpp.md`,

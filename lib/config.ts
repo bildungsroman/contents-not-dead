@@ -58,3 +58,34 @@ export function appUrl(): string {
     "http://localhost:3000"
   );
 }
+
+/**
+ * The public origin agents call: the one advertised in `/openapi.json`, used
+ * for paid resource URLs, and echoed as the MPP challenge realm. It is split
+ * from `appUrl()` so the agent surface can live on its own hostname while
+ * human pages stay where they are. Falls back to `appUrl()` for clones that
+ * serve both from a single origin.
+ */
+export function apiUrl(): string {
+  return process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") || appUrl();
+}
+
+/**
+ * Hostname of `apiUrl()`, used as the MPP `WWW-Authenticate` realm.
+ *
+ * This must be derived from the public origin rather than left to mppx's env
+ * fallback chain, which would otherwise resolve `VERCEL_URL` to the internal
+ * per-deployment hostname and produce a realm agents can't match.
+ */
+export function apiRealm(): string {
+  try {
+    return new URL(apiUrl()).host;
+  } catch {
+    return apiUrl();
+  }
+}
+
+/** Contact address published in `/openapi.json`, enabling origin ownership verification. */
+export function contactEmail(): string | undefined {
+  return process.env.MPP_CONTACT_EMAIL || undefined;
+}
