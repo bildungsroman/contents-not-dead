@@ -89,3 +89,20 @@ export function apiRealm(): string {
 export function contactEmail(): string | undefined {
   return process.env.MPP_CONTACT_EMAIL || undefined;
 }
+
+/**
+ * Origins allowed to present a Clerk session.
+ *
+ * Clerk's Frontend API accepts requests from any subdomain of its instance's
+ * root domain by default, so a compromised sibling subdomain could mint
+ * sessions for this app. Restricting the list to the origins actually served
+ * closes that off. Vercel's deployment hostnames are included because previews
+ * are legitimate origins that aren't known at configuration time.
+ */
+export function authorizedOrigins(): string[] {
+  const origins = new Set([appUrl(), apiUrl()]);
+  for (const host of [process.env.VERCEL_URL, process.env.VERCEL_BRANCH_URL]) {
+    if (host) origins.add(`https://${host}`);
+  }
+  return [...origins];
+}

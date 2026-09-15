@@ -1,5 +1,6 @@
 import { createRequire } from "node:module";
 import type { clerkMiddleware as ClerkMiddleware } from "@clerk/nextjs/server";
+import { authorizedOrigins } from "@/lib/config";
 
 // Clerk's middleware pulls in Node built-ins (crypto, safe-node-apis) that the
 // Edge runtime rejects on Vercel ("referencing unsupported modules"), so we run
@@ -18,7 +19,12 @@ const { clerkMiddleware } = require("@clerk/nextjs/server") as {
 // pages (e.g. /account) render an in-page prompt when signed out — so agents
 // and anonymous visitors can browse and pay everywhere. Keys are read from the
 // standard Clerk env vars.
-export default clerkMiddleware();
+//
+// `authorizedParties` is an allowlist of origins a session may be presented
+// from. A production Clerk instance on the root domain shares sessions across
+// every subdomain, so without it a compromised sibling subdomain could mint
+// sessions this app would honor.
+export default clerkMiddleware({ authorizedParties: authorizedOrigins() });
 
 export const config = {
   // Run on all routes except Next internals so Clerk's auth context is always
