@@ -30,6 +30,10 @@
       ],
       "variables": [
         {
+          "variableName": "api-url",
+          "envKey": "NEXT_PUBLIC_API_URL"
+        },
+        {
           "variableName": "app-url",
           "envKey": "NEXT_PUBLIC_APP_URL"
         },
@@ -66,6 +70,10 @@
           "envKey": "NEXT_PUBLIC_IS_DEMO"
         },
         {
+          "variableName": "mpp-contact-email",
+          "envKey": "MPP_CONTACT_EMAIL"
+        },
+        {
           "variableName": "mpp-secret-key",
           "envKey": "MPP_SECRET_KEY"
         },
@@ -89,6 +97,10 @@
     }
   },
   "variables": {
+    "api-url": {
+      "name": "api-url",
+      "backendId": "fprjvar_61VPBDQwH9R3XVGFs16UnJFA1ASQPm3cWejUZAGYqQtU"
+    },
     "app-url": {
       "name": "app-url",
       "backendId": "fprjvar_61V45sOpiU8yWxlkk16UnJFA1ASQPm3cWejUZAGYqSga"
@@ -124,6 +136,10 @@
     "is-demo": {
       "name": "is-demo",
       "backendId": "fprjvar_61V45sQg2HDVzkWkW16UnJFA1ASQPm3cWejUZAGYqC0u"
+    },
+    "mpp-contact-email": {
+      "name": "mpp-contact-email",
+      "backendId": "fprjvar_61VPBDG4Hbv2bsJue16UnJFA1ASQPm3cWejUZAGYqIhE"
     },
     "mpp-secret-key": {
       "name": "mpp-secret-key",

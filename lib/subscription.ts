@@ -146,9 +146,18 @@ export const getViewerState = cache(async (): Promise<ViewerState> => {
       state: { stripeCustomerId: customerId, ...derived },
       entitlements,
     };
-  } catch {
+  } catch (error) {
     // Stripe is unreachable or misconfigured — fall back to whatever we cached
     // rather than failing the page. Worst case the caller sees the paywall.
+    //
+    // Every cause (a price id from the wrong mode, a key without entitlements
+    // access, a missing product) reaches the reader as an ordinary paywall, so
+    // this has to be loud in the logs or it is undiagnosable from the symptom.
+    console.error(
+      `[subscription] could not resolve entitlements for ${userId} — serving ` +
+        "cached state, so the caller sees the paywall",
+      error,
+    );
     return { userId, state: cached.state, entitlements: cached.entitlements };
   }
 });
@@ -269,6 +278,15 @@ async function fetchEntitlementsWithRetry(
   }
   // Give up and cache the empty set; `needsRevalidation` will retry later and
   // the entitlements webhook will correct it as soon as Stripe emits one.
+  //
+  // Lasting emptiness is not lag: it means the subscribed product carries no
+  // attached features, which locks every article for every signed-in user.
+  console.warn(
+    `[subscription] customer ${customerId} has a subscription but no ` +
+      `entitlements after ${attempts} attempts — check that the features ` +
+      "(cnd_free_content, cnd_paid_content) exist in this Stripe account and " +
+      "mode, and are attached to the subscribed products",
+  );
   return new Set();
 }
 
