@@ -14,7 +14,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@bildungsroman/content-generator": "^0.1.1",
+    "@bildungsroman/content-generator": "^0.1.2",
     "@clerk/nextjs": "^7.9.2",
     "@modelcontextprotocol/sdk": "^1.30.0",
     "@upstash/redis": "^1.38.4",
