@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { getSessionPost, type GeneratedPost } from "@/lib/session-posts";
+import { stripLeadingH1 } from "@/lib/post-markdown";
 import { Markdown } from "./Markdown";
 import { ButtonLink } from "./Button";
 import { Panel } from "./Panel";
@@ -51,7 +52,7 @@ export function SessionPostView({ id }: { id: string }) {
         // eslint-disable-next-line @next/next/no-img-element
         <img src={post.image} alt={post.title} />
       ) : null}
-      <Markdown>{post.contents}</Markdown>
+      <Markdown>{stripLeadingH1(post.contents)}</Markdown>
     </article>
   );
 }

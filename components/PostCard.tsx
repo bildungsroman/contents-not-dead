@@ -55,9 +55,13 @@ export function PostCard({ post }: { post: CardData }) {
           <p>{post.summary}</p>
         </>
       )}
-      {post.tags.length > 0 || post.access ? (
+      {post.tags.length > 0 || post.access || post.session ? (
         <span className={styles.tagRow}>
-          {post.access ? (
+          {post.session ? (
+            <span className={`${styles.tag} ${styles.accessTag}`}>
+              Generated
+            </span>
+          ) : post.access ? (
             <span className={`${styles.tag} ${styles.accessTag}`}>
               {TIER_BADGE[post.access]}
             </span>
