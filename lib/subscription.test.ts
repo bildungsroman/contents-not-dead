@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
   type CachedMetadata,
   deriveFromSubscription,
+  hasActivePaidSubscription,
   isActive,
   isPaidPlan,
   needsRevalidation,
@@ -114,6 +115,68 @@ describe("isActive", () => {
     );
     expect(isActive({ status: "active", currentPeriodEnd: past })).toBe(false);
     expect(isActive(null)).toBe(false);
+  });
+});
+
+/**
+ * The guard `/api/stripe/checkout` runs before opening a session. Stripe will
+ * open a second subscription on the same price without complaint, and nothing
+ * downstream merges them, so a false negative here bills the customer twice.
+ */
+describe("hasActivePaidSubscription", () => {
+  const future = Math.floor(Date.now() / 1000) + 3600;
+  const past = Math.floor(Date.now() / 1000) - 3600;
+
+  it("blocks a caller who is already paying", () => {
+    expect(
+      hasActivePaidSubscription({
+        status: "active",
+        plan: "monthly",
+        currentPeriodEnd: future,
+      }),
+    ).toBe(true);
+    expect(
+      hasActivePaidSubscription({
+        status: "active",
+        plan: "annual",
+        currentPeriodEnd: future,
+      }),
+    ).toBe(true);
+  });
+
+  // The whole point of checkout: everyone signed in holds an active $0 plan,
+  // so treating that as "already subscribed" would block every purchase.
+  it("lets the free tier through", () => {
+    expect(
+      hasActivePaidSubscription({
+        status: "active",
+        plan: "free",
+        currentPeriodEnd: future,
+      }),
+    ).toBe(false);
+  });
+
+  it("lets a lapsed paid subscriber buy again", () => {
+    expect(
+      hasActivePaidSubscription({
+        status: "canceled",
+        plan: "monthly",
+        currentPeriodEnd: future,
+      }),
+    ).toBe(false);
+    expect(
+      hasActivePaidSubscription({
+        status: "active",
+        plan: "monthly",
+        currentPeriodEnd: past,
+      }),
+    ).toBe(false);
+  });
+
+  it("treats an absent subscription as not subscribed", () => {
+    expect(hasActivePaidSubscription(null)).toBe(false);
+    expect(hasActivePaidSubscription(undefined)).toBe(false);
+    expect(hasActivePaidSubscription({ status: "none" })).toBe(false);
   });
 });
 

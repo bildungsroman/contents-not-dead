@@ -8,6 +8,7 @@ import {
   fetchEntitlements,
   fetchSubscriptionFromStripe,
   getOrCreateStripeCustomer,
+  hasActivePaidSubscription,
   isActive,
   isPaidPlan,
   writeSubscriptionState,
@@ -65,6 +66,8 @@ describe.skipIf(!enabled)("free tier provisioning (integration)", () => {
       expect(isActive(derived)).toBe(true);
       // A $0 subscription is active but must never read as a purchase.
       expect(isPaidPlan(derived.plan)).toBe(false);
+      // ...so checkout must still be open to them.
+      expect(hasActivePaidSubscription(derived)).toBe(false);
 
       // The gate every call site runs.
       expect(entitlements.has(TIER_FEATURE.free)).toBe(true);
@@ -130,6 +133,8 @@ describe.skipIf(!enabled)("free tier provisioning (integration)", () => {
       const derived = (await fetchSubscriptionFromStripe(customerId))!;
       expect(derived.plan).toBe("monthly");
       expect(isPaidPlan(derived.plan)).toBe(true);
+      // And checkout now refuses to open a second, duplicate subscription.
+      expect(hasActivePaidSubscription(derived)).toBe(true);
     },
     180_000,
   );

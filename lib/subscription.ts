@@ -53,6 +53,20 @@ export function isPaidPlan(plan: SubscriptionPlan | undefined): boolean {
   return plan === "monthly" || plan === "annual";
 }
 
+/**
+ * Whether the caller is already paying for a live plan.
+ *
+ * Checkout must refuse these callers. Stripe will happily open a second
+ * subscription on the same price, and nothing downstream merges them — the
+ * webhook sweep only retires the $0 plan — so a back button or a second visit
+ * to /subscribe silently bills the customer twice.
+ */
+export function hasActivePaidSubscription(
+  state: SubscriptionState | null | undefined,
+): boolean {
+  return isActive(state) && isPaidPlan(state?.plan);
+}
+
 export interface CachedMetadata {
   state: SubscriptionState;
   entitlements: Set<string>;

@@ -2,7 +2,11 @@ import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { z } from "zod";
 import { getStripe, isStripeConfigured } from "@/lib/stripe";
-import { getOrCreateStripeCustomer } from "@/lib/subscription";
+import {
+  fetchSubscriptionFromStripe,
+  getOrCreateStripeCustomer,
+  hasActivePaidSubscription,
+} from "@/lib/subscription";
 import { appUrl } from "@/lib/config";
 
 export const runtime = "nodejs";
@@ -48,6 +52,18 @@ export async function POST(req: Request) {
 
   const stripe = getStripe();
   const customerId = await getOrCreateStripeCustomer(userId);
+
+  // Read Stripe rather than the Clerk cache: the cache can lag a webhook, and
+  // being wrong here means billing someone a second time.
+  if (hasActivePaidSubscription(await fetchSubscriptionFromStripe(customerId))) {
+    return NextResponse.json(
+      {
+        error:
+          "You already have an active subscription. Manage or change your plan from your account.",
+      },
+      { status: 409 },
+    );
+  }
 
   const session = await stripe.checkout.sessions.create({
     mode: "subscription",
