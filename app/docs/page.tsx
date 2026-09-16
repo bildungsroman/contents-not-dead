@@ -186,8 +186,8 @@ Your Markdown body here.`}
           <code>bookworm</code>, and <code>maximalist</code>. Light and dark
           follow the browser automatically, and a <code>data-scheme</code>{" "}
           attribute can force one. Set the starting theme with{" "}
-          <code>NEXT_PUBLIC_DEFAULT_THEME</code>; the in-app theme switcher
-          appears only in demo mode.
+          <code>NEXT_PUBLIC_DEFAULT_THEME</code>; the in-app theme switcher lets
+          visitors override it for their session.
         </p>
         <p>
           Styles live in two places. <code>app/globals.css</code> holds the
@@ -309,7 +309,38 @@ Your Markdown body here.`}
           <code>SiteHeader</code> does with <code>navButton</code>.
         </p>
 
-        <h2>6. Agent parity</h2>
+        <h2>6. Optional add-ons</h2>
+        <p>
+          Features that aren&rsquo;t part of the core platform attach through{" "}
+          <code>lib/extras.ts</code> instead of edits to the components
+          themselves, so they survive upgrades. The registry ships empty:
+        </p>
+        <CodeBlock
+          code={`// lib/extras.ts
+export interface Extras {
+  useExtraCards?: () => CardData[];
+  GridActions?: ComponentType;
+  UnknownPost?: ComponentType<{ id: string }>;
+}
+
+export const extras: Extras = {};`}
+        />
+        <p>
+          <code>useExtraCards</code> prepends cards to the home grid for content
+          the server doesn&rsquo;t store, <code>GridActions</code> renders
+          controls beneath that grid, and <code>UnknownPost</code> takes over{" "}
+          <code>/post/[id]</code> when the content store has no such id (the
+          default is a &ldquo;not found&rdquo; panel). Assign whichever you
+          need; the rest stay inert.
+        </p>
+        <p className="meta">
+          <code>useExtraCards</code> is called on every render of the grid, so
+          it must obey the rules of hooks. This is how the{" "}
+          <code>contentsnotdead.com</code> deployment adds AI generation without
+          carrying a patch against core.
+        </p>
+
+        <h2>7. Agent parity</h2>
         <p>
           Every piece of content is equally available to agents — including
           posts marked <code>access: free</code>, which still cost $0.50 because
@@ -359,7 +390,7 @@ Your Markdown body here.`}
           preserve the header and leave the realm alone.
         </p>
 
-        <h2>7. Deploy</h2>
+        <h2>8. Deploy</h2>
         <p>
           Deploy to Vercel. Set all env vars in the project settings and point{" "}
           <code>NEXT_PUBLIC_APP_URL</code> at your domain. Run{" "}
@@ -394,9 +425,9 @@ curl -sI https://api.your-domain.com/api/content/<id> | grep -i www-authenticate
           changes only reach the app through the slower revalidation fallback.
         </p>
         <p className="meta">
-          This demo and its AI content generator are only
-          enabled on the official <code>contentsnotdead.com</code> deployment;
-          clones run as a normal content platform without them.
+          The <code>contentsnotdead.com</code> deployment adds AI content
+          generation on top of this codebase. It lives in a separate private
+          repository and is not part of the open-source app.
         </p>
       </article>
     </main>

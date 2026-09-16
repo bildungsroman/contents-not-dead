@@ -1,0 +1,90 @@
+{
+  "version": 1,
+  "project": {
+    "catalog": "prod",
+    "initializedAt": "2026-07-10T00:54:02.528Z",
+    "merchantDisplayName": "SpyszProjects",
+    "merchantId": "acct_1TdvHoAHWuLXIZ36",
+    "projectId": "project_61V0qewML3ggnf9C716UnJFA1ASQPm3cWejUZAGYqObI",
+    "projectName": "contents-not-dead"
+  },
+  "providers": {
+    "clerk": {
+      "accountRequestId": "fprvcnn_61UnTufwgCWYKGW8B16UnJFA1ASQPm3cWejUZAGYqBEG",
+      "configuration": {},
+      "linkedAt": "2026-06-03T03:59:01.627Z",
+      "providerId": "prvdr_61UGOeSW4e0T9Etwn537w",
+      "providerName": "Clerk",
+      "redirectUrl": null,
+      "requestedAt": "2026-06-03T03:59:01.627Z",
+      "status": "complete"
+    },
+    "openrouter": {
+      "accountRequestId": "fprvcnn_61UoCC0ig6wwecbWh16UnJFA1ASQPm3cWejUZAGYqUQK",
+      "configuration": {},
+      "linkedAt": "2026-06-05T03:15:52.830Z",
+      "providerId": "prvdr_61URImmFACEuDHEx651IO",
+      "providerName": "OpenRouter",
+      "redirectUrl": null,
+      "requestedAt": "2026-06-05T03:15:52.830Z",
+      "status": "complete"
+    }
+  },
+  "resources": {
+    "clerk-plan": {
+      "configuration": {},
+      "createdAt": "2026-07-18T23:35:20.010Z",
+      "lastRevealedAt": "2026-07-18T23:35:20.182Z",
+      "lastStatus": "complete",
+      "name": "clerk-plan",
+      "providerId": "prvdr_61UGOeSW4e0T9Etwn537w",
+      "providerName": "Clerk",
+      "resourceId": "fres_61V45iggfs2V1efio16UnJFA1ASQPm3cWejUZAGYqSTg",
+      "serviceId": "hobby"
+    },
+    "Contents Not Dead": {
+      "configuration": {
+        "app_name": "Contents Not Dead"
+      },
+      "createdAt": "2026-07-18T23:35:32.038Z",
+      "lastRevealedAt": "2026-07-18T23:35:32.199Z",
+      "lastStatus": "complete",
+      "name": "Contents Not Dead",
+      "providerId": "prvdr_61UGOeSW4e0T9Etwn537w",
+      "providerName": "Clerk",
+      "resourceId": "fres_61V45isrWMqNTCkvC16UnJFA1ASQPm3cWejUZAGYq0P2",
+      "serviceId": "auth"
+    },
+    "openrouter-plan": {
+      "configuration": {},
+      "createdAt": "2026-07-18T23:38:40.142Z",
+      "lastRevealedAt": "2026-07-18T23:38:40.320Z",
+      "lastStatus": "complete",
+      "name": "openrouter-plan",
+      "providerId": "prvdr_61URImmFACEuDHEx651IO",
+      "providerName": "OpenRouter",
+      "resourceId": "fres_61V45lvJNuFq0e3Hj16UnJFA1ASQPm3cWejUZAGYqFiq",
+      "serviceId": "free"
+    }
+  },
+  "managedProjectVariableEnvKeys": {
+    ".env": [
+      "CLERK_ENCRYPTION_KEY",
+      "CLERK_SECRET_KEY",
+      "CONTENT_ASSET_SECRET",
+      "CONTENT_GENERATOR_IMAGE_MODELS",
+      "CONTENT_GENERATOR_TEXT_MODELS",
+      "DEMO_HOST",
+      "MPP_CONTACT_EMAIL",
+      "MPP_SECRET_KEY",
+      "NEXT_PUBLIC_API_URL",
+      "NEXT_PUBLIC_APP_URL",
+      "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY",
+      "NEXT_PUBLIC_IS_DEMO",
+      "STRIPE_PRICE_ANNUAL",
+      "STRIPE_PRICE_FREE",
+      "STRIPE_PRICE_MONTHLY",
+      "STRIPE_SECRET_KEY"
+    ]
+  }
+}

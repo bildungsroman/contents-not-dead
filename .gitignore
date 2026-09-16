@@ -14,7 +14,9 @@ wireframe.png
 # Projects
 .vercel
 
-.projects/state.local.json
+# Stripe Projects state is per-developer: it records live resource and variable
+# IDs for whoever provisioned them. Fork setup goes through the `--from` link
+# in the README, which provisions a fresh project instead.
 
 .projects/cache
 .projects/vault
