@@ -12,6 +12,8 @@ wireframe.png
 .cursor/
 
 # Projects
+# The rest of .projects/ is ignored by .projects/.gitignore, which the
+# Projects CLI leaves alone. Adding rules for it here does not stick.
 .vercel
 
 .projects/cache
@@ -21,9 +23,3 @@ wireframe.png
 .env
 .env.*
 !.env.example
-
-# Ignore the rest of .projects/ too: state.json and state.local.json record
-# live resource and variable IDs belonging to whoever provisioned them.
-# This sits below the block above deliberately — the Projects CLI rewrites
-# that block and drops anything it doesn't recognize.
-.projects/
