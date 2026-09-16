@@ -1,50 +1,20 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { PostCard, type CardData } from "./PostCard";
-import { GenerateModal } from "./GenerateModal";
-import { getSessionPosts } from "@/lib/session-posts";
-import { Button } from "./Button";
+import { extras, useExtraCards } from "@/lib/extras";
 import styles from "./PostGrid.module.css";
 
 const BATCH = 6;
 
-export function PostGrid({
-  initial,
-  isDemo,
-}: {
-  initial: CardData[];
-  isDemo: boolean;
-}) {
-  const [sessionCards, setSessionCards] = useState<CardData[]>([]);
+export function PostGrid({ initial }: { initial: CardData[] }) {
   const [visible, setVisible] = useState(BATCH);
-  const [modalOpen, setModalOpen] = useState(false);
   const sentinel = useRef<HTMLDivElement | null>(null);
 
-  const refreshSession = useCallback(() => {
-    const cards: CardData[] = getSessionPosts().map((p) => ({
-      id: p.id,
-      title: p.title,
-      summary: p.summary,
-      tags: p.tags,
-      type: p.type,
-      preview: p.image,
-      session: true,
-    }));
-    setSessionCards(cards);
-  }, []);
-
-  useEffect(() => {
-    refreshSession();
-    const handler = () => refreshSession();
-    window.addEventListener("cnd:session-posts-changed", handler);
-    return () =>
-      window.removeEventListener("cnd:session-posts-changed", handler);
-  }, [refreshSession]);
-
+  const extraCards = useExtraCards();
   const all = useMemo(
-    () => [...sessionCards, ...initial],
-    [sessionCards, initial],
+    () => [...extraCards, ...initial],
+    [extraCards, initial],
   );
 
   // Infinite scroll: reveal more cards as the sentinel enters the viewport.
@@ -61,6 +31,7 @@ export function PostGrid({
   }, [all.length]);
 
   const shown = all.slice(0, visible);
+  const GridActions = extras.GridActions;
 
   return (
     <>
@@ -76,18 +47,7 @@ export function PostGrid({
         </div>
       ) : null}
 
-      {isDemo ? (
-        <div className="center">
-          <Button onClick={() => setModalOpen(true)}>Generate content</Button>
-        </div>
-      ) : null}
-
-      {modalOpen ? (
-        <GenerateModal
-          onClose={() => setModalOpen(false)}
-          onGenerated={refreshSession}
-        />
-      ) : null}
+      {GridActions ? <GridActions /> : null}
     </>
   );
 }

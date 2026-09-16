@@ -5,7 +5,8 @@ import { canRead } from "@/lib/access";
 import { resolveInlineAssets, signedAssetPath } from "@/lib/assets";
 import { Markdown } from "@/components/Markdown";
 import { Paywall } from "@/components/Paywall";
-import { SessionPostView } from "@/components/SessionPostView";
+import { extras } from "@/lib/extras";
+import { NotFound } from "@/components/NotFound";
 
 // Paid content must always be evaluated per-request and never cached.
 export const dynamic = "force-dynamic";
@@ -29,11 +30,12 @@ export default async function PostPage({
   const { id } = await params;
   const post = getPost(id);
 
-  // Unknown to the server → likely a demo session-generated post.
+  // Unknown to the server. An add-on may still be able to render it.
   if (!post) {
+    const UnknownPost = extras.UnknownPost;
     return (
       <main className="container">
-        <SessionPostView id={id} />
+        {UnknownPost ? <UnknownPost id={id} /> : <NotFound />}
       </main>
     );
   }

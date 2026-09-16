@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { AVAILABLE_THEMES, DEFAULT_THEME, type Theme } from "@/lib/config";
+import { THEMES, DEFAULT_THEME, type Theme } from "@/lib/config";
 import { THEME_COOKIE } from "@/lib/theme-shared";
 import styles from "./ThemeSwitcher.module.css";
 
-/** Demo-only control that switches the active theme and persists it. */
+/** Switches the active theme and persists the choice. */
 export function ThemeSwitcher() {
   const [theme, setTheme] = useState<Theme>(DEFAULT_THEME);
 
@@ -31,7 +31,7 @@ export function ThemeSwitcher() {
         value={theme}
         onChange={(e) => change(e.target.value as Theme)}
       >
-        {AVAILABLE_THEMES.map((t) => (
+        {THEMES.map((t) => (
           <option key={t} value={t}>
             {t}
           </option>

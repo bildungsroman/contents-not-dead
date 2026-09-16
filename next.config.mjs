@@ -1,16 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  // The optional `@bildungsroman/content-generator` package is loaded at
-  // runtime only in demo builds. Keeping it external prevents the bundler from
-  // trying to resolve it when clones install without it.
-  serverExternalPackages: ["@bildungsroman/content-generator"],
-  // `loadGenerator()` imports that package through a variable specifier, which
-  // output file tracing can't follow, so the files are never copied into the
-  // serverless function and the runtime import fails. Include them explicitly.
-  outputFileTracingIncludes: {
-    "/api/generate": ["./node_modules/@bildungsroman/content-generator/**/*"],
-  },
   async rewrites() {
     // Serve dynamic discovery docs from dotted .well-known paths (Next route
     // segments can't start with a dot).
