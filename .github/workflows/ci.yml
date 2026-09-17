@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      # Fails if the lockfile drifts from package.json, which is what catches a
+      # demo-only dependency being reintroduced.
+      - run: npm ci
+
+      - run: npm run lint
+      - run: npm test
+      # No env vars: the build must work for a fresh clone with no credentials.
+      - run: npm run build
+
+  no-demo-code:
+    runs-on: ubuntu-latest
+    # Only meaningful upstream. Forks and the private demo overlay legitimately
+    # carry these names, and this file is inherited by both.
+    if: github.repository == 'bildungsroman/contents-not-dead'
+    steps:
+      - uses: actions/checkout@v5
+
+      # The demo lives in a private overlay repo. These names must never
+      # reappear here, and nothing above would necessarily fail if they did.
+      - name: Check for demo-only references
+        run: |
+          if git grep -nIE 'content-generator|@upstash/redis|OPENROUTER|NEXT_PUBLIC_IS_DEMO|IS_DEMO|DEMO_HOST' \
+               -- . ':!.github/workflows/ci.yml'; then
+            echo "::error::Demo-only reference found. It belongs in the private overlay repo."
+            exit 1
+          fi

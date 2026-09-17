@@ -6,30 +6,12 @@
 export const THEMES = ["minimalist", "bookworm", "maximalist"] as const;
 export type Theme = (typeof THEMES)[number];
 
-/**
- * Demo mode. When on, the maximalist theme + theme switcher + on-demand
- * content generation become available. This is a public flag so the client can
- * render the switcher; server-only generation is additionally host-gated (see
- * `isGenerationAllowed`).
- */
-export const IS_DEMO = process.env.NEXT_PUBLIC_IS_DEMO === "true";
-
-/**
- * Default theme. Override with NEXT_PUBLIC_DEFAULT_THEME. Falls back to the
- * maximalist theme on the demo site, and minimalist for open-source clones.
- */
-export const DEFAULT_THEME: Theme =
-  (process.env.NEXT_PUBLIC_DEFAULT_THEME as Theme | undefined) &&
-  THEMES.includes(process.env.NEXT_PUBLIC_DEFAULT_THEME as Theme)
-    ? (process.env.NEXT_PUBLIC_DEFAULT_THEME as Theme)
-    : IS_DEMO
-      ? "maximalist"
-      : "minimalist";
-
-/** Themes selectable in the UI. The maximalist theme is demo-only. */
-export const AVAILABLE_THEMES: readonly Theme[] = IS_DEMO
-  ? THEMES
-  : THEMES.filter((t) => t !== "maximalist");
+/** Default theme. Override with NEXT_PUBLIC_DEFAULT_THEME. */
+export const DEFAULT_THEME: Theme = THEMES.includes(
+  process.env.NEXT_PUBLIC_DEFAULT_THEME as Theme,
+)
+  ? (process.env.NEXT_PUBLIC_DEFAULT_THEME as Theme)
+  : "minimalist";
 
 /** Per-content price charged to agents over MPP, in USD. */
 export const PER_CONTENT_PRICE_USD = "0.50";

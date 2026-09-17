@@ -25,7 +25,7 @@ theme and you have a working paid content site.
 
 ## Quick start
 
-This project provisions its third-party services (auth) with
+This project provisions its third-party services (auth, hosting) with
 [Stripe Projects](https://projects.dev) — the Stripe CLI is the source of truth
 for credentials and writes them straight into a git-ignored `.env`. No manual
 key copying.
@@ -36,12 +36,17 @@ npm install
 # Stripe CLI + Projects plugin (see https://docs.stripe.com/stripe-cli/install)
 stripe plugin install projects
 
-# Create the project and provision the full stack (Clerk auth) from the shared
-# stack link, syncing keys into a git-ignored .env:
+# Create the project and provision Clerk auth from the shared stack link,
+# syncing keys into a git-ignored .env:
 stripe projects init --from "https://projects.dev/s/v1:Clerk~auth"
+
+# Hosting. The deployable needs its plan first, same as Clerk:
+stripe projects add vercel/hobby
+stripe projects add vercel/project
 ```
 
-That single `--from` import provisions every provider this app needs.
+That covers every provider this app needs. Nothing else is required — the app
+has no AI, queue, or cache dependencies.
 
 Store the self-managed secrets and app config as project variables (these
 aren't tied to a provisioned provider). Regenerate the MPP secrets with
@@ -99,7 +104,7 @@ stripe projects env --json      # env var names (never values)
 | `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY` | `stripe projects add clerk/auth` |
 | `MPP_SECRET_KEY`, `CONTENT_ASSET_SECRET`, `NEXT_PUBLIC_APP_URL` | project variables |
 | `NEXT_PUBLIC_API_URL`, `MPP_CONTACT_EMAIL` | optional self-managed env vars (agent discovery; see below) |
-| `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` | optional self-managed env vars (rate limiting; in-memory fallback if unset) |
+| `NEXT_PUBLIC_DEFAULT_THEME` | optional self-managed env var (starting theme) |
 
 `NEXT_PUBLIC_API_URL` is the public origin agents call. It sets `servers[0].url`
 in `/openapi.json`, the paid resource URLs in `/.well-known/mpp.json`, and the
@@ -293,8 +298,9 @@ first. A selector can also only reference classes from its own module; to
 restyle a component defined elsewhere, pass a class through its `className`
 prop, which is what `SiteHeader` does with `navButton`.
 
-Set the starting theme with `NEXT_PUBLIC_DEFAULT_THEME`. The in-app switcher
-only appears in demo mode (`NEXT_PUBLIC_IS_DEMO`).
+Set the starting theme with `NEXT_PUBLIC_DEFAULT_THEME` (defaults to
+`minimalist`). The in-app switcher lets visitors override it, persisted in a
+cookie and honored on the next server render.
 
 ## Routes
 

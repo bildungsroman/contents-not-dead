@@ -12,9 +12,9 @@ wireframe.png
 .cursor/
 
 # Projects
+# The rest of .projects/ is ignored by .projects/.gitignore, which the
+# Projects CLI leaves alone. Adding rules for it here does not stick.
 .vercel
-
-.projects/state.local.json
 
 .projects/cache
 .projects/vault

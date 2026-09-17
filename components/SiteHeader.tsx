@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Show, SignInButton, UserButton } from "@clerk/nextjs";
-import { IS_DEMO, SITE } from "@/lib/config";
+import { SITE } from "@/lib/config";
 import { Logo } from "./Logo";
 import { ThemeSwitcher } from "./ThemeSwitcher";
 import { SchemeToggle } from "./SchemeToggle";
@@ -44,7 +44,7 @@ export function SiteHeader() {
                 </Button>
               </SignInButton>
             </Show>
-            {IS_DEMO ? <ThemeSwitcher /> : null}
+            <ThemeSwitcher />
           </div>
         </nav>
       </div>

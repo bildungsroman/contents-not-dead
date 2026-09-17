@@ -1,0 +1,8 @@
+# Everything in this directory is per-developer live project state: state.json
+# and state.local.json record resource and variable IDs belonging to whoever
+# provisioned them. Fork setup provisions a fresh project instead.
+#
+# This lives here rather than in the root .gitignore because the Stripe
+# Projects CLI rewrites its block there and strips rules it does not own.
+*
+!.gitignore

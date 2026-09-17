@@ -1,5 +1,4 @@
 import { getAllPreviews } from "@/lib/content";
-import { IS_DEMO } from "@/lib/config";
 import { PostGrid } from "@/components/PostGrid";
 import type { CardData } from "@/components/PostCard";
 
@@ -17,7 +16,7 @@ export default function HomePage() {
 
   return (
     <main className="container">
-      <PostGrid initial={cards} isDemo={IS_DEMO} />
+      <PostGrid initial={cards} />
     </main>
   );
 }
