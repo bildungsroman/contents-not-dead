@@ -281,7 +281,8 @@ function warnMissingFreePrice() {
   console.warn(
     "[subscription] STRIPE_PRICE_FREE is not set — the free tier is disabled " +
       "and all content will require a paid subscription or MPP payment. " +
-      "Run `npm run setup:stripe` and set the printed STRIPE_PRICE_FREE.",
+      "Run `node --env-file=.env scripts/setup-stripe.mjs` and set the " +
+      "printed STRIPE_PRICE_FREE.",
   );
 }
 

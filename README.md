@@ -38,11 +38,7 @@ stripe plugin install projects
 
 # Create the project and provision Clerk auth from the shared stack link,
 # syncing keys into a git-ignored .env:
-stripe projects init --from "https://projects.dev/s/v1:Clerk~auth"
-
-# Hosting. The deployable needs its plan first, same as Clerk:
-stripe projects add vercel/hobby
-stripe projects add vercel/project
+stripe projects init --from "https://projects.dev/s/v1:Clerk~auth,Vercel~project"
 ```
 
 That covers every provider this app needs. Nothing else is required — the app
@@ -181,7 +177,7 @@ on their next request.
 
 ```bash
 npm test        # unit tests (Vitest)
-npm run typecheck
+npm run lint    # tsc --noEmit
 ```
 
 The suite covers tier defaulting, the tier-to-entitlement mapping, plan
@@ -309,6 +305,7 @@ cookie and honored on the next server render.
 - `/subscribe`, `/account` — plans (Free, monthly, annual) + billing management
 - `/payments` — MPP guide for agents
 - `/docs` — setup, theming, adding content
+- `/about` — what the project is
 - `/agents`, `/agents/[id]` — markdown for agents
 - `/api/content/[id]` — MPP-protected machine endpoint
 - `/.well-known/mpp.json`, `/.well-known/mpp.md`, `/llms.txt` — discovery
