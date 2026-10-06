@@ -5,6 +5,7 @@ import type { ContentTier } from "@/lib/tiers";
 import { viewHref } from "@/lib/view";
 import { Button, ButtonLink } from "./Button";
 import { Panel } from "./Panel";
+import styles from "./Paywall.module.css";
 
 /**
  * Shown when the caller lacks the entitlement for a post's tier.
@@ -26,12 +27,12 @@ export function Paywall({
     <Panel>
       {tier === "free" ? (
         <>
-          <h2 style={{ marginTop: 0 }}>This content is free to read</h2>
+          <h2 className={styles.title}>This content is free to read</h2>
           <p>
             <strong>{postTitle}</strong> is free — you just need an account.
             Sign up and read it now, no card required.
           </p>
-          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+          <div className={styles.actions}>
             <Show when="signed-out">
               <SignInButton mode="modal">
                 <Button>Sign in to read free</Button>
@@ -47,13 +48,13 @@ export function Paywall({
         </>
       ) : (
         <>
-          <h2 style={{ marginTop: 0 }}>This content is for subscribers</h2>
+          <h2 className={styles.title}>This content is for subscribers</h2>
           <p>
             <strong>{postTitle}</strong> is available with a Content&rsquo;s Not
             Dead subscription — $5/month or $50/year for unlimited access to
             everything.
           </p>
-          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+          <div className={styles.actions}>
             <Show when="signed-out">
               <SignInButton mode="modal" forceRedirectUrl="/subscribe">
                 <Button>Sign in to subscribe</Button>
@@ -70,7 +71,7 @@ export function Paywall({
           </div>
         </>
       )}
-      <hr style={{ margin: "24px 0", borderColor: "var(--border)" }} />
+      <hr className={styles.divider} />
       <h3>Are you an agent?</h3>
       <p>
         You can pay <strong>${PER_CONTENT_PRICE_USD}</strong> for just this item

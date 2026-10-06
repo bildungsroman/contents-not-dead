@@ -27,6 +27,24 @@
   color: var(--text);
   border-color: var(--border);
 }
+/* Maximalist: pixel-font slabs that lift onto a hard shadow on hover. */
+[data-theme="maximalist"] .btn {
+  border-width: 2px;
+  font-size: 18px;
+  line-height: normal;
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+}
+/* :where() keeps these at single-class specificity so call-site overrides
+   (e.g. the header's sign-in button) still win. */
+[data-theme="maximalist"] .btn:where(:not(.secondary):hover:not(:disabled)) {
+  opacity: 1;
+  transform: translate(-2px, -2px);
+  box-shadow: 4px 4px 0 0 var(--text);
+}
+[data-theme="maximalist"] .secondary:where(:hover:not(:disabled)) {
+  opacity: 1;
+  background: color-mix(in srgb, var(--text) 10%, transparent);
+}
 .block {
   width: 100%;
   justify-content: center;

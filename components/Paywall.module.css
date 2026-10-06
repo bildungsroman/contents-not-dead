@@ -1,0 +1,21 @@
+.title {
+  margin-top: 0;
+}
+.actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.divider {
+  margin: 24px 0;
+  border: 0;
+  border-top: 1px solid var(--border);
+}
+
+[data-theme="maximalist"] .actions {
+  gap: 16px;
+}
+[data-theme="maximalist"] .divider {
+  margin: 32px 0;
+  border-top: 2px dashed var(--border);
+}

@@ -5,7 +5,25 @@
   background: var(--overlay);
   color: var(--text);
 }
+
+/* Maximalist: the same yellow slab + magenta shadow as the post cards. The
+   palette is re-pointed at the card colors inside the panel so everything
+   that reads these variables (prose headings, secondary buttons, code
+   blocks, rules) stays legible on yellow in both schemes. */
 [data-theme="maximalist"] .panel {
-  color: #121212;
-  border-width: 2px;
+  --bg: var(--card-bg);
+  --text: var(--card-text);
+  --muted: var(--card-text);
+  --border: var(--card-text);
+  --brand: var(--card-text);
+  border: 6px solid var(--card-border);
+  border-radius: 0;
+  padding: 32px clamp(18px, 4vw, 32px);
+  background: var(--card-bg);
+  color: var(--card-text);
+  box-shadow: 10px 12px 0 0 var(--accent);
+}
+[data-theme="maximalist"] .panel :is(h2, h3) {
+  font-size: 24px;
+  line-height: normal;
 }

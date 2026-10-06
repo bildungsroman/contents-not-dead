@@ -357,7 +357,8 @@ main.container {
   font-weight: 400;
   color: var(--brand);
 }
-[data-theme="maximalist"] .prose a {
+/* Plain links only; classed links (e.g. ButtonLink) carry their own styles. */
+[data-theme="maximalist"] .prose a:not([class]) {
   color: var(--accent);
   text-decoration: underline;
   text-underline-offset: 3px;
