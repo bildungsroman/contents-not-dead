@@ -3,6 +3,7 @@ import Link from "next/link";
 import { SITE } from "@/lib/config";
 import { viewHref } from "@/lib/view";
 import { CodeBlock } from "@/components/CodeBlock";
+import { ExternalLink } from "@/components/ExternalLink";
 
 export const metadata: Metadata = {
   title: "Docs",
@@ -17,15 +18,32 @@ export default function DocsPage() {
         <p>
           {SITE.name} is an open-source, cloneable content platform. Sell your
           own writing and art with Stripe subscriptions and per-item{" "}
-          <Link href={viewHref("agent")}>agent payments (MPP)</Link>.
+          <Link href={viewHref("agent")}>agent payments (MPP)</Link>. The
+          source is on <ExternalLink href={SITE.repo}>GitHub</ExternalLink>.
         </p>
 
         <h2>1. Clone &amp; install</h2>
+        <p>
+          Clone the <ExternalLink href={SITE.repo}>repository</ExternalLink> and
+          install
+          dependencies:
+        </p>
         <CodeBlock
-          code={`git clone <your-fork> my-content-site
+          code={`git clone ${SITE.repo}.git my-content-site
 cd my-content-site
 npm install
 cp .env.example .env.local`}
+        />
+        <p>
+          Planning to deploy your own site?{" "}
+          <ExternalLink href={`${SITE.repo}/fork`}>Fork it</ExternalLink> first
+          and clone your fork instead, so you can push changes and
+          connect the repo to Vercel. To keep pulling upstream fixes, add the
+          original as a remote:
+        </p>
+        <CodeBlock
+          code={`git remote add upstream ${SITE.repo}.git
+git pull upstream main`}
         />
 
         <h2>2. Configure environment</h2>
@@ -71,7 +89,10 @@ cp .env.example .env.local`}
         </ul>
         <p>
           Using{" "}
-          <a href="https://docs.stripe.com/stripe-cli">Stripe Projects</a>? Most
+          <ExternalLink href="https://docs.stripe.com/stripe-cli">
+            Stripe Projects
+          </ExternalLink>
+          ? Most
           of this is provisioned for you — run{" "}
           <code>stripe projects env --pull</code>.
         </p>
@@ -155,8 +176,11 @@ Your Markdown body here.`}
           MPP flow.
         </p>
         <p>
-          Two <a href="https://docs.stripe.com/billing/entitlements">Stripe
-          entitlement features</a> do the gating:{" "}
+          Two{" "}
+          <ExternalLink href="https://docs.stripe.com/billing/entitlements">
+            Stripe entitlement features
+          </ExternalLink>{" "}
+          do the gating:{" "}
           <code>cnd_free_content</code> and <code>cnd_paid_content</code>. The
           Free product ($0/month) grants the first; the Unlimited product grants
           both. Signing in subscribes you to the $0 plan automatically, so every

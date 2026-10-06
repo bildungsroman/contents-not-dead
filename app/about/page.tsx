@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { SITE } from "@/lib/config";
+import { ExternalLink } from "@/components/ExternalLink";
 
 export const metadata: Metadata = {
   title: "About",
@@ -55,7 +56,9 @@ export default function AboutPage() {
             content is discovered programmatically.
           </li>
           <li>
-            View the <a href={SITE.repo}>source repository</a> to inspect,
+            View the{" "}
+            <ExternalLink href={SITE.repo}>source repository</ExternalLink> to
+            inspect,
             clone, or contribute to the project.
           </li>
         </ul>

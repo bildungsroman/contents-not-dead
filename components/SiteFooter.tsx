@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { SITE } from "@/lib/config";
 import { viewHref } from "@/lib/view";
+import { ExternalLink } from "./ExternalLink";
 import styles from "./SiteFooter.module.css";
 
 export function SiteFooter() {
@@ -25,7 +26,15 @@ export function SiteFooter() {
           <div className={styles.footerGroup}>
             <p className={styles.footerGroupTitle}>Project</p>
             <Link href="/docs">Docs</Link>
-            <a href={SITE.repo}>Source</a>
+            <ExternalLink href={SITE.repo}>Source</ExternalLink>
+          </div>
+          <div className={styles.footerGroup}>
+            <p className={styles.footerGroupTitle}>Built with</p>
+            <ExternalLink href="https://stripe.com">Stripe</ExternalLink>
+            <ExternalLink href="https://tempo.xyz">Tempo</ExternalLink>
+            <ExternalLink href="https://mpp.dev">
+              Machine Payments Protocol
+            </ExternalLink>
           </div>
         </div>
       </div>

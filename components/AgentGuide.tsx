@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { PER_CONTENT_PRICE_USD, appUrl } from "@/lib/config";
+import { ExternalLink } from "./ExternalLink";
 
 /** The homepage's AGENT view: how agents discover and pay for content. */
 export function AgentGuide() {
@@ -12,7 +13,10 @@ export function AgentGuide() {
           Content&rsquo;s Not Dead has full parity for agents. Anything a human
           can read, an agent can discover and pay for programmatically — no
           account required. We use the{" "}
-          <a href="https://mpp.dev">Machine Payments Protocol (MPP)</a> with
+          <ExternalLink href="https://mpp.dev">
+            Machine Payments Protocol (MPP)
+          </ExternalLink>{" "}
+          with
           Stripe as the payment rail.
         </p>
 
@@ -49,7 +53,9 @@ Authorization: <MPP credential>
 # → 200 OK, full markdown + Payment-Receipt header`}</code>
         </pre>
         <p>
-          The <a href="https://www.npmjs.com/package/mppx">mppx</a> client
+          The{" "}
+          <ExternalLink href="https://www.npmjs.com/package/mppx">mppx</ExternalLink>{" "}
+          client
           library handles the challenge/credential flow for you.
         </p>
 
