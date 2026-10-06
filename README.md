@@ -104,7 +104,7 @@ stripe projects env --json      # env var names (never values)
 
 | Env var | Managed by |
 | --- | --- |
-| `STRIPE_SECRET_KEY`, `STRIPE_PRICE_MONTHLY`, `STRIPE_PRICE_ANNUAL`, `STRIPE_PRICE_FREE` | Stripe / project variables |
+| `STRIPE_SECRET_KEY`, `STRIPE_PROFILE_ID`, `STRIPE_PRICE_MONTHLY`, `STRIPE_PRICE_ANNUAL`, `STRIPE_PRICE_FREE` | Stripe / project variables |
 | `STRIPE_WEBHOOK_SECRET` | project variable (see webhooks below) |
 | `CLERK_ENVIRONMENTS` | `stripe projects init` (Clerk keys as one JSON var; `lib/clerk-keys.ts` unpacks it) |
 | `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY` | optional — set these instead if you configure Clerk by hand; they take precedence |
@@ -121,6 +121,27 @@ from `NEXT_PUBLIC_APP_URL`; set it when agents use a dedicated hostname. It
 must name the origin agents actually reach — a realm pointing at an internal
 or per-deployment host fails agent discovery. `MPP_CONTACT_EMAIL` is optional
 and published in `/openapi.json` for origin ownership verification.
+
+### Set the per-item price
+
+The starter has one global machine-payment price for every content item. Change
+`PER_CONTENT_PRICE_USD` in `lib/config.ts`:
+
+```ts
+export const PER_CONTENT_PRICE_USD = "0.50";
+```
+
+Use a decimal USD amount. The same value drives the runtime challenge, agent
+guides, OpenAPI, and MPP discovery, and mppx converts it to each rail's minor
+units (`"0.50"` becomes `50` cents for Stripe and `500000` units for a
+6-decimal Tempo token). Because the endpoint offers card/Link SPTs, keep the
+price at or above Stripe's $0.50 minimum. Tempo stablecoins alone support
+amounts down to $0.01.
+
+Pricing is global, not frontmatter-driven: this starter does not currently
+support a different price for each post. Per-post pricing would require adding
+a validated price field to content frontmatter and passing that value through
+`chargeForContent` and every discovery representation.
 
 ### Tempo payments
 
@@ -385,6 +406,50 @@ stripe projects env use production
 stripe projects variables set app-url --env-key NEXT_PUBLIC_APP_URL --value https://your-domain.com
 ```
 
+### Enable live machine payments
+
+The bundled demo uses a Stripe sandbox. A deployment switches to real payments
+when `STRIPE_SECRET_KEY` is a live `sk_live_...` or `rk_live_...` key; mppx then
+offers live Stripe SPTs and, when a live deposit address is configured, Tempo
+mainnet (`chainId` 4217, USDC.e). Keep test and live keys, deposit addresses,
+and MPP secrets in separate environments.
+
+1. In the Stripe Dashboard's **live mode**, enable **Stablecoins and Crypto**
+   under Payment methods and complete any requested review. Create a live
+   restricted key with the permissions listed above, including Crypto Deposit
+   Addresses read/write when Tempo is enabled.
+2. Claim or configure the account's Stripe Business Profile, retrieve its
+   `profile_...` ID, and set `STRIPE_PROFILE_ID`. Stripe scopes live Shared
+   Payment Tokens to this profile:
+
+   ```bash
+   curl https://api.stripe.com/v2/network/business_profiles/me \
+     -u "$STRIPE_SECRET_KEY:" \
+     -H "Stripe-Version: 2026-07-29.preview"
+
+   stripe projects variables set stripe-profile-id \
+     --env-key STRIPE_PROFILE_ID --value profile_...
+   ```
+
+3. With the live key and profile loaded, provision production resources:
+
+   ```bash
+   node --env-file=.env.production scripts/setup-stripe.mjs
+   ```
+
+   Store the printed live `TEMPO_DEPOSIT_ADDRESS` in the production
+   environment. Never reuse the sandbox deposit address. If Tempo is omitted,
+   live card and Link payments still work.
+4. Deploy, then validate the public agent origin:
+
+   ```bash
+   npx mppx@latest validate https://api.your-domain.com
+   ```
+
+   Live validation and `tempo request` can move real funds. Start with a small
+   purchase and confirm both the MPP receipt and the PaymentIntent in the live
+   Stripe Dashboard.
+
 If agents call a dedicated hostname, attach it to the deployment and set
 `NEXT_PUBLIC_API_URL` to it (e.g. `https://api.your-domain.com`). Verify both
 halves of discovery agree before registering anywhere:
@@ -396,9 +461,8 @@ curl -sI https://api.your-domain.com/api/content/<id> | grep -i www-authenticate
 
 The `realm` in that header must be the same host you registered.
 
-Run `node --env-file=.env.production scripts/setup-stripe.mjs` against the
-production Stripe account so the features, products, and prices exist there
-too, then sync the generated values into your host's env (Vercel, etc.).
+Sync every generated production value into your host's environment (Vercel,
+etc.).
 
 Add a Stripe webhook endpoint at `/api/stripe/webhook` subscribed to:
 

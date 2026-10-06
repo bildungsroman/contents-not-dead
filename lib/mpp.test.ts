@@ -2,8 +2,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { Challenge } from "mppx";
 import {
   chargeForContent,
+  isMppConfigured,
   mppMethods,
   resetMppxForTests,
+  TEMPO_MAINNET_CHAIN_ID,
   TEMPO_TESTNET_CHAIN_ID,
   tempoRail,
 } from "./mpp";
@@ -33,6 +35,7 @@ describe("MPP challenge", () => {
 
   afterEach(() => {
     delete process.env.TEMPO_DEPOSIT_ADDRESS;
+    delete process.env.STRIPE_PROFILE_ID;
     vi.restoreAllMocks();
   });
 
@@ -67,5 +70,30 @@ describe("MPP challenge", () => {
     expect(challenges.map((c) => c.method)).toEqual(["stripe"]);
     expect(mppMethods()).toEqual(["stripe"]);
     expect(error).toHaveBeenCalledTimes(1);
+  });
+
+  it("uses the Business Profile and Tempo mainnet with a live key", async () => {
+    process.env.STRIPE_SECRET_KEY = "sk_live_fake";
+    process.env.STRIPE_PROFILE_ID = "profile_live_example";
+    process.env.TEMPO_DEPOSIT_ADDRESS = DEPOSIT;
+
+    const challenges = challengesOf(await unpaid());
+    const stripe = challenges.find((c) => c.method === "stripe")!;
+    const tempo = challenges.find((c) => c.method === "tempo")!;
+
+    expect(
+      (stripe.request.methodDetails as { networkId?: string }).networkId,
+    ).toBe("profile_live_example");
+    expect((tempo.request.methodDetails as { chainId?: number }).chainId).toBe(
+      TEMPO_MAINNET_CHAIN_ID,
+    );
+  });
+
+  it("requires a Business Profile when a live key is configured", () => {
+    process.env.STRIPE_SECRET_KEY = "sk_live_fake";
+    expect(isMppConfigured()).toBe(false);
+
+    process.env.STRIPE_PROFILE_ID = "profile_live_example";
+    expect(isMppConfigured()).toBe(true);
   });
 });

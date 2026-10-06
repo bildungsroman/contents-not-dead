@@ -187,7 +187,9 @@ async function findOrCreateTempoDepositAddress() {
     return await mppxStripe
       .create({
         client: stripe,
-        networkId: "internal",
+        // Deposit-address lookup does not use the MPP network id, but
+        // stripe.create requires one. Live request handling uses the profile id.
+        networkId: process.env.STRIPE_PROFILE_ID || "internal",
         livemode: !key.includes("_test_"),
       })
       .findOrCreateDepositAddress("tempo");

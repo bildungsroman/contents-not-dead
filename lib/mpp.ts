@@ -36,6 +36,18 @@ function isLivemode(): boolean {
 }
 
 /**
+ * Stripe's public MPP network id is the account's Business Profile id. The
+ * internal fallback keeps existing sandbox/demo setups working, but live mode
+ * requires the real profile so SPTs are scoped to the accepting business.
+ */
+function stripeNetworkId(): string {
+  const profileId = process.env.STRIPE_PROFILE_ID?.trim();
+  if (profileId) return profileId;
+  if (!isLivemode()) return "internal";
+  throw new Error("STRIPE_PROFILE_ID must be set for live-mode MPP payments");
+}
+
+/**
  * The Tempo rail, when `TEMPO_DEPOSIT_ADDRESS` holds a valid address.
  *
  * An invalid value disables only this rail, so a typo can't take card
@@ -121,7 +133,7 @@ function buildMppx() {
   const tempo = tempoRail();
   const machinePayments = mppxStripe.create({
     client: getStripe(),
-    networkId: "internal",
+    networkId: stripeNetworkId(),
     livemode: isLivemode(),
     ...(tempo && { depositAddresses: { tempo: tempo.recipient } }),
   });
@@ -169,7 +181,8 @@ export function isMppConfigured(): boolean {
   return Boolean(
     process.env.MPP_SECRET_KEY &&
     process.env.MPP_SECRET_KEY.length >= 32 &&
-    process.env.STRIPE_SECRET_KEY,
+    process.env.STRIPE_SECRET_KEY &&
+    (!isLivemode() || process.env.STRIPE_PROFILE_ID?.trim()),
   );
 }
 

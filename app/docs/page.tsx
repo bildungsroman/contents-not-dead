@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { SITE } from "@/lib/config";
+import { PER_CONTENT_PRICE_USD, SITE } from "@/lib/config";
 import { viewHref } from "@/lib/view";
 import { CodeBlock } from "@/components/CodeBlock";
 import { ExternalLink } from "@/components/ExternalLink";
@@ -59,7 +59,9 @@ git pull upstream main`}
             and $50/yr prices. Copy the printed{" "}
             <code>STRIPE_PRICE_MONTHLY</code>, <code>STRIPE_PRICE_ANNUAL</code>,
             and <code>STRIPE_PRICE_FREE</code> into your env. The script is
-            idempotent, so re-running it is safe.
+            idempotent, so re-running it is safe. Live MPP payments also require
+            the account&rsquo;s <code>STRIPE_PROFILE_ID</code>; sandbox demos
+            may use the bundled internal fallback.
           </li>
           <li>
             <strong>Clerk</strong> —{" "}
@@ -165,10 +167,10 @@ Your Markdown body here.`}
             <tr>
               <td>Not signed in (human or agent)</td>
               <td>
-                <code>402</code> → pay $0.50
+                <code>402</code> → pay ${PER_CONTENT_PRICE_USD}
               </td>
               <td>
-                <code>402</code> → pay $0.50
+                <code>402</code> → pay ${PER_CONTENT_PRICE_USD}
               </td>
             </tr>
             <tr>
@@ -381,9 +383,9 @@ export const extras: Extras = {};`}
         <h2>7. Agent parity</h2>
         <p>
           Every piece of content is equally available to agents — including
-          posts marked <code>access: free</code>, which still cost $0.50 because
-          the free tier is a perk for having an account rather than a public
-          giveaway:
+          posts marked <code>access: free</code>, which still cost{" "}
+          <strong>${PER_CONTENT_PRICE_USD}</strong> because the free tier is a
+          perk for having an account rather than a public giveaway:
         </p>
         <ul>
           <li>
@@ -429,6 +431,28 @@ export const extras: Extras = {};`}
           Payment-service failures return <code>503</code>; known transient
           provider failures also include <code>Retry-After: 30</code>.
         </p>
+        <h3>Set the per-item price</h3>
+        <p>
+          This starter uses one global machine-payment price for every content
+          item. Change <code>PER_CONTENT_PRICE_USD</code> in{" "}
+          <code>lib/config.ts</code>:
+        </p>
+        <CodeBlock
+          code={`export const PER_CONTENT_PRICE_USD = "${PER_CONTENT_PRICE_USD}";`}
+        />
+        <p>
+          Use a decimal USD amount. That constant drives the runtime challenge,
+          agent guides, OpenAPI, and MPP discovery; mppx converts it to the
+          minor units for Stripe and Tempo. Keep it at or above $0.50 while
+          card/Link SPTs are enabled. Tempo stablecoins alone support amounts
+          down to $0.01.
+        </p>
+        <p>
+          Pricing is global, not frontmatter-driven. Supporting a different
+          price for each post requires adding a validated frontmatter field and
+          passing it through <code>chargeForContent</code> and every discovery
+          representation.
+        </p>
         <p>
           The runtime <code>402</code> is the final source of truth, and the
           part that most often goes wrong is the <code>realm</code> in the{" "}
@@ -448,6 +472,48 @@ export const extras: Extras = {};`}
           <code>scripts/setup-stripe.mjs</code> against the production Stripe
           account so the features, products, and prices exist there too. Vercel
           Web Analytics and Speed Insights are already wired up.
+        </p>
+        <h3>Enable live machine payments</h3>
+        <p>
+          The demo starts with a Stripe sandbox. Supplying a live{" "}
+          <code>sk_live_...</code> or <code>rk_live_...</code> key switches mppx
+          to real Stripe SPT payments and, when a live deposit address is
+          configured, Tempo mainnet (chain ID 4217, USDC.e). Keep test and live
+          keys, MPP secrets, and deposit addresses in separate environments.
+        </p>
+        <ol>
+          <li>
+            In the Stripe Dashboard&rsquo;s live mode, enable{" "}
+            <strong>Stablecoins and Crypto</strong> under Payment methods and
+            complete any requested review. Create a live restricted key with the
+            app permissions listed above, plus Crypto Deposit Addresses
+            read/write.
+          </li>
+          <li>
+            Claim or configure the Stripe Business Profile, retrieve its{" "}
+            <code>profile_...</code> ID, and set <code>STRIPE_PROFILE_ID</code>.
+            Live Shared Payment Tokens are scoped to this profile.
+          </li>
+          <li>
+            Run <code>scripts/setup-stripe.mjs</code> with the live environment
+            and store the printed live <code>TEMPO_DEPOSIT_ADDRESS</code> in
+            Vercel. Never reuse the sandbox deposit address.
+          </li>
+          <li>
+            Deploy, make a small purchase, and confirm both the MPP receipt and
+            its PaymentIntent in the live Stripe Dashboard.
+          </li>
+        </ol>
+        <CodeBlock
+          code={`curl https://api.stripe.com/v2/network/business_profiles/me \\
+  -u "$STRIPE_SECRET_KEY:" \\
+  -H "Stripe-Version: 2026-07-29.preview"
+
+node --env-file=.env.production scripts/setup-stripe.mjs
+npx mppx@latest validate https://api.your-domain.com`}
+        />
+        <p className="meta">
+          Live validation and <code>tempo request</code> can move real funds.
         </p>
         <p>
           If agents call a dedicated hostname, attach it to the deployment and

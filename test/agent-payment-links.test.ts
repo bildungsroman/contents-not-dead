@@ -27,7 +27,10 @@ describe("agent payment links", () => {
     expect(html).toContain(`${API}/api/content/{id}`);
     expect(html).toContain(`${API}/.well-known/mpp.json`);
     expect(html).toContain(`${API}/.well-known/mpp.md#troubleshooting`);
+    expect(html).toContain("@stripe/link-cli mpp pay");
+    expect(html).toContain("tempo request");
     expect(html).not.toContain(`${SITE}/api/content/`);
+    expect(html).not.toContain("/subscribe");
   });
 
   it("uses the agent API origin for signed assets in paid markdown", () => {

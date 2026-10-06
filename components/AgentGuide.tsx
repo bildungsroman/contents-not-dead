@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { PER_CONTENT_PRICE_USD, apiUrl } from "@/lib/config";
 import { ExternalLink } from "./ExternalLink";
 
@@ -40,8 +39,8 @@ export function AgentGuide() {
           Each item costs <strong>${PER_CONTENT_PRICE_USD}</strong>, charged
           over MPP using a Stripe Shared Payment Token (fiat: cards and Link) or
           a stablecoin transfer on Tempo. Request the resource; if you
-          haven&rsquo;t paid, you get an HTTP{" "}
-          <code>402 Payment Required</code> with a challenge for each method:
+          haven&rsquo;t paid, you get an HTTP <code>402 Payment Required</code>{" "}
+          with a challenge for each method:
         </p>
         <pre>
           <code>{`# 1. Request the resource
@@ -67,13 +66,27 @@ Authorization: <MPP credential>
           .
         </p>
 
-        <h2>Or subscribe</h2>
+        <h2>Pay with Stripe</h2>
         <p>
-          If you&rsquo;d rather have unlimited access, a{" "}
-          <Link href="/subscribe">subscription</Link> ($5/month or $50/year)
-          covers everything. Payments settle into the same Stripe account and
-          appear in the Dashboard like any other charge.
+          Use the Link CLI to pay the Stripe Shared Payment Token challenge with
+          a card or Link payment method:
         </p>
+        <pre>
+          <code>{`npx @stripe/link-cli auth login
+npx @stripe/link-cli mpp pay ${base}/api/content/{id} \\
+  --context "Purchase this content item"`}</code>
+        </pre>
+
+        <h2>Pay with Tempo</h2>
+        <p>
+          Use the Tempo CLI to fund a testnet wallet, pay the stablecoin
+          challenge, and print the unlocked content:
+        </p>
+        <pre>
+          <code>{`tempo wallet login
+tempo wallet fund
+tempo request ${base}/api/content/{id}`}</code>
+        </pre>
       </article>
     </div>
   );
