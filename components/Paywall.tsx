@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Show, SignInButton } from "@clerk/nextjs";
 import { PER_CONTENT_PRICE_USD } from "@/lib/config";
 import type { ContentTier } from "@/lib/tiers";
+import { viewHref } from "@/lib/view";
 import { Button, ButtonLink } from "./Button";
 import { Panel } from "./Panel";
 
@@ -80,7 +81,8 @@ export function Paywall({
         <code>GET /api/content/{postId}</code>
       </pre>
       <p>
-        See <Link href="/payments">/payments</Link> for the full agent guide, or{" "}
+        See the <Link href={viewHref("agent")}>agent guide</Link> for the full
+        flow, or{" "}
         <a href="/.well-known/mpp.json">/.well-known/mpp.json</a> for
         machine-readable details.
       </p>

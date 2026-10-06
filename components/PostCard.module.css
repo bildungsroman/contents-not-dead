@@ -65,17 +65,64 @@
   opacity: 1;
 }
 
-/* Maximalist: rotate bold card backgrounds like the wireframe. */
+/* Maximalist: yellow slabs with a hard magenta drop shadow. */
 [data-theme="maximalist"] .postCard {
-  --card-bg: #7c4dff;
-  border-width: 2px;
+  margin-bottom: 52px;
+  padding: 26px 17px 32px;
+  border-width: 6px;
+  box-shadow: 10px 12px 0 0 var(--accent);
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
 }
-[data-theme="maximalist"] .postCard:nth-child(4n + 2) {
-  --card-bg: #e0431f;
+[data-theme="maximalist"] .postCard:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 12px 14px 0 0 var(--accent);
 }
-[data-theme="maximalist"] .postCard:nth-child(4n + 3) {
-  --card-bg: #ec3fa0;
+[data-theme="maximalist"] .postCard h2 {
+  margin: 0 0 16px;
+  font-family: var(--font-accent);
+  font-weight: 400;
+  font-size: 24px;
+  line-height: normal;
 }
-[data-theme="maximalist"] .postCard:nth-child(4n + 4) {
-  --card-bg: #5cc46a;
+[data-theme="maximalist"] .postCard p {
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
+  opacity: 1;
+}
+[data-theme="maximalist"] .postImageFrame {
+  border-radius: 0;
+}
+[data-theme="maximalist"] .tagRow {
+  margin-top: 26px;
+  gap: 12px 20px;
+}
+[data-theme="maximalist"] .tag {
+  padding: 2px 8px;
+  border: 1px solid #ffffff;
+  border-radius: 20px;
+  background: var(--accent);
+  color: #ffffff;
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: normal;
+  opacity: 1;
+}
+@media (max-width: 520px) {
+  [data-theme="maximalist"] .postCard {
+    margin-bottom: 36px;
+    padding: 20px 14px 24px;
+  }
+  [data-theme="maximalist"] .postCard h2 {
+    font-size: 20px;
+  }
+  [data-theme="maximalist"] .postCard p,
+  [data-theme="maximalist"] .tag {
+    font-size: 14px;
+  }
+}
+[data-theme="maximalist"] .accessTag {
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
 }

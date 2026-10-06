@@ -1,0 +1,68 @@
+.navMenu {
+  display: contents;
+}
+.menuButton {
+  display: none;
+}
+
+/* Narrow screens: page links move into a dropdown panel. */
+@media (max-width: 860px) {
+  .navMenu {
+    display: block;
+    position: relative;
+    order: 1;
+  }
+  .menuButton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 1px solid var(--text-header);
+    border-radius: var(--radius);
+    background: transparent;
+    color: var(--text-header);
+    cursor: pointer;
+  }
+  .menuButton:hover {
+    background: color-mix(in srgb, var(--text-header) 12%, transparent);
+  }
+  /* Outranks the header's `.navLinks` flex row (same element, later rule). */
+  .panel.panel {
+    display: none;
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    z-index: 20;
+    min-width: 200px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 18px 20px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg);
+    box-shadow: 0 8px 24px rgb(0 0 0 / 0.18);
+  }
+  .panel.panel[data-open="true"] {
+    display: flex;
+  }
+
+  [data-theme="maximalist"] .menuButton {
+    width: 32px;
+    height: 32px;
+    border: 2px solid var(--brand);
+    border-radius: 2px;
+    background: var(--bg);
+    color: var(--brand);
+  }
+  [data-theme="maximalist"] .menuButton:hover {
+    background: color-mix(in srgb, var(--brand) 18%, var(--bg));
+  }
+  [data-theme="maximalist"] .panel.panel {
+    border: 2px solid var(--brand);
+    border-radius: 0;
+    box-shadow: 8px 10px 0 0 var(--accent);
+  }
+}

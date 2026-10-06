@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { SITE } from "@/lib/config";
+import { viewHref } from "@/lib/view";
 import { CodeBlock } from "@/components/CodeBlock";
 
 export const metadata: Metadata = {
@@ -16,7 +17,7 @@ export default function DocsPage() {
         <p>
           {SITE.name} is an open-source, cloneable content platform. Sell your
           own writing and art with Stripe subscriptions and per-item{" "}
-          <Link href="/payments">agent payments (MPP)</Link>.
+          <Link href={viewHref("agent")}>agent payments (MPP)</Link>.
         </p>
 
         <h2>1. Clone &amp; install</h2>
@@ -242,7 +243,7 @@ Your Markdown body here.`}
   --card-text: #1a1a1a;
   --card-border: #e0ddd3;
 
-  /* Optional: --radius, --maxw, --gap, --header-skew */
+  /* Optional: --radius, --maxw, --gap */
   --radius: 2px;
 }`}
         />

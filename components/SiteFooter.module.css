@@ -43,14 +43,25 @@
   opacity: 1;
 }
 [data-theme="maximalist"] .footer {
-  background: #1e1e1e;
-  color: #fcff54;
-  border-top: 4px solid var(--accent);
+  background: var(--bg);
+  color: var(--text-header);
+  border-top: 2px solid var(--brand);
 }
 [data-theme="maximalist"] .footerLead {
-  font-family: var(--font-body);
+  font-family: var(--font-accent);
+  font-size: 20px;
+}
+[data-theme="maximalist"] .footerGroupTitle {
+  font-family: var(--font-accent);
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--brand);
+  opacity: 1;
 }
 [data-theme="maximalist"] .footerGroup a {
+  font-family: var(--font-accent);
+  font-size: 18px;
+  opacity: 1;
   border-bottom: 2px solid transparent;
   padding-bottom: 1px;
 }

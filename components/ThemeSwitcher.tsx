@@ -26,6 +26,7 @@ export function ThemeSwitcher() {
   return (
     <label className={styles.themeSwitcher}>
       <span className="hidden">Theme</span>
+      <PaletteIcon className={styles.icon} />
       <select
         aria-label="Theme"
         value={theme}
@@ -38,5 +39,23 @@ export function ThemeSwitcher() {
         ))}
       </select>
     </label>
+  );
+}
+
+function PaletteIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 16 16"
+      width="20"
+      height="20"
+      aria-hidden="true"
+    >
+      <path
+        fill="currentColor"
+        fillRule="evenodd"
+        d="M5 1h6v1h2v1h1v2h1v4h-1v1h-3v1h-1v2h-1v1H8v1H5v-1H3v-1H2v-1H1V5h1V3h1V2h2V1Zm0 3v2h2V4H5Zm4 0v2h2V4H9Zm-5 4v2h2V8H4Z"
+      />
+    </svg>
   );
 }

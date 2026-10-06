@@ -1,3 +1,6 @@
+/* Every theme shares the same row: skull home icon + view toggle on the
+   left, page links and actions on the right. The homepage hero carries the
+   site name, so the header never repeats it. */
 .siteHeader {
   background: var(--bg-header);
   color: var(--text-header);
@@ -11,56 +14,13 @@
   flex-direction: column;
   gap: 14px;
 }
-.headerTop {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-}
-.brandLink {
-  color: var(--text-header);
-  text-decoration: none;
-  flex: 1 1 auto;
-  min-width: 0;
-}
-.brandLink:hover {
-  text-decoration: none;
-}
-.brandTitle {
-  display: flex;
-  align-items: center;
-  gap: 0;
-  font-family: var(--font-header);
-  font-weight: 400;
-  font-size: clamp(2.2rem, 9vw, 5rem);
-  transform: rotate(var(--header-skew));
-  transform-origin: left center;
-  line-height: 1;
-  margin: 0;
-}
-.brandLogo {
-  display: none;
-}
-[data-theme="maximalist"] .brandLogo {
-  display: inline-block;
-  flex: 0 0 auto;
-  width: 1.5em;
-  height: 1.5em;
-  rotate: 10deg;
-  filter: drop-shadow(2px 0 var(--accent)) drop-shadow(-2px 0 #38bdf8);
-}
-[data-theme="maximalist"] .brandTitle {
-  rotate: -2deg;
-  font-size: clamp(2.2rem, 9vw, 8rem);
-  margin: 0 .5em;
-}
 .siteNav {
   display: flex;
-  gap: 18px;
+  gap: 18px 40px;
   align-items: center;
-  justify-content: space-between;
   flex-wrap: wrap;
 }
+.navStart,
 .navLinks,
 .navActions {
   display: flex;
@@ -68,26 +28,33 @@
   align-items: center;
   flex-wrap: wrap;
 }
-.siteNav a {
+.navStart {
+  margin-right: auto;
+}
+.navLinks a,
+.navActions a {
   color: var(--text-header);
   font-size: 0.95rem;
   opacity: 0.9;
 }
-.siteNav a:hover {
+.navLinks a:hover,
+.navActions a:hover {
   opacity: 1;
 }
-[data-theme="maximalist"] .navLinks a {
-  font-family: var(--font-accent);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  font-weight: 700;
-  opacity: 1;
-  padding-bottom: 2px;
-  border-bottom: 3px solid transparent;
+.homeIcon {
+  display: inline-flex;
+  color: var(--text-header);
 }
-[data-theme="maximalist"] .navLinks a:hover {
-  text-decoration: none;
-  border-bottom-color: var(--accent);
+.homeIcon:hover {
+  opacity: 0.8;
+}
+.homeIcon svg {
+  width: 32px;
+  height: 32px;
+}
+/* The hero already shows the site name, so drop the icon on hero pages. */
+body:has([data-hero]) .homeIcon {
+  display: none;
 }
 
 /* The sign-in button. Qualified by the element so it outranks Button's own
@@ -97,19 +64,108 @@ button.navButton {
   padding: 0 8px;
   line-height: 1.4;
 }
-[data-theme="maximalist"] button.navButton {
-  background: var(--text-header);
-  color: var(--bg-header);
-  border: 1px solid var(--text-header);
-  border-radius: var(--radius);
+.signInIcon {
+  display: none;
+}
+
+/* Narrow screens: one tight row; the page links collapse into NavMenu's
+   hamburger, which sits at the far right. */
+@media (max-width: 860px) {
+  .siteNav,
+  .navStart,
+  .navActions {
+    flex-wrap: nowrap;
+    gap: 12px;
+  }
+}
+
+/* ------------------------------- MAXIMALIST ------------------------------- */
+/* Transparent over the page mesh, with a brand-colored skull. */
+[data-theme="maximalist"] .siteHeader {
+  border-bottom: 0;
+}
+[data-theme="maximalist"] .inner {
+  max-width: none;
+  padding: 21px 50px;
+}
+[data-theme="maximalist"] .siteNav {
+  gap: 24px 75px;
+}
+[data-theme="maximalist"] .navStart {
+  gap: 16px;
+}
+[data-theme="maximalist"] .navLinks {
+  gap: 30px;
+}
+[data-theme="maximalist"] .navActions {
+  gap: 20px;
+}
+[data-theme="maximalist"] .navLinks a,
+[data-theme="maximalist"] .navActions a {
   font-family: var(--font-accent);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  font-weight: 700;
+  font-size: 20px;
+  line-height: normal;
+  opacity: 1;
+  border-bottom: 2px solid transparent;
+}
+[data-theme="maximalist"] .navLinks a:hover,
+[data-theme="maximalist"] .navActions a:hover {
+  text-decoration: none;
+  border-bottom-color: var(--accent);
+}
+[data-theme="maximalist"] .homeIcon {
+  color: var(--brand);
+}
+[data-theme="maximalist"] .homeIcon:hover {
+  opacity: 1;
+  filter: drop-shadow(0 0 6px var(--accent));
+}
+[data-theme="maximalist"] .homeIcon svg {
+  width: 36px;
+  height: 36px;
+}
+[data-theme="maximalist"] button.navButton {
+  height: 28px;
+  gap: 5px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  color: var(--brand);
+  font-family: var(--font-accent);
+  font-size: 20px;
+  line-height: normal;
 }
 [data-theme="maximalist"] button.navButton:hover {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: var(--accent-contrast);
   opacity: 1;
+  text-decoration: underline;
+  text-decoration-color: var(--accent);
+  text-underline-offset: 4px;
+}
+[data-theme="maximalist"] .signInIcon {
+  display: block;
+  margin: 0 6px;
+}
+@media (max-width: 860px) {
+  [data-theme="maximalist"] .inner {
+    padding: 16px 20px;
+  }
+  [data-theme="maximalist"] .siteNav,
+  [data-theme="maximalist"] .navStart,
+  [data-theme="maximalist"] .navActions {
+    gap: 12px;
+  }
+}
+/* Phones: the key icon alone stands in for "Sign in" (label kept for AT). */
+@media (max-width: 520px) {
+  [data-theme="maximalist"] .signInLabel {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  [data-theme="maximalist"] .signInIcon {
+    margin: 0 4px;
+  }
 }

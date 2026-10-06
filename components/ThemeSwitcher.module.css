@@ -13,3 +13,60 @@
   background: transparent;
   color: inherit;
 }
+.icon {
+  display: none;
+}
+[data-theme="maximalist"] .themeSwitcher select {
+  height: 32px;
+  border: 2px solid var(--brand);
+  border-radius: 2px;
+  background: var(--bg);
+  color: var(--brand);
+  font-family: var(--font-accent);
+  font-size: 18px;
+}
+
+/* Narrower screens: collapse to a palette icon. The native select stays on
+   top (transparent) so it still opens the system picker. */
+@media (max-width: 1100px) {
+  .themeSwitcher {
+    position: relative;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--text-header);
+    border-radius: var(--radius);
+    color: var(--text-header);
+  }
+  .themeSwitcher:hover {
+    background: color-mix(in srgb, var(--text-header) 12%, transparent);
+  }
+  .themeSwitcher:has(select:focus-visible) {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .icon {
+    display: block;
+  }
+  .themeSwitcher select,
+  [data-theme="maximalist"] .themeSwitcher select {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  [data-theme="maximalist"] .themeSwitcher {
+    width: 32px;
+    height: 32px;
+    border: 2px solid var(--brand);
+    border-radius: 2px;
+    background: var(--bg);
+    color: var(--brand);
+  }
+  [data-theme="maximalist"] .themeSwitcher:hover {
+    background: color-mix(in srgb, var(--brand) 18%, var(--bg));
+  }
+}

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { SITE } from "@/lib/config";
+import { viewHref } from "@/lib/view";
 import styles from "./SiteFooter.module.css";
 
 export function SiteFooter() {
@@ -16,7 +17,7 @@ export function SiteFooter() {
           </div>
           <div className={styles.footerGroup}>
             <p className={styles.footerGroupTitle}>Agents</p>
-            <Link href="/payments">MPP payments</Link>
+            <Link href={viewHref("agent")}>MPP payments</Link>
             <a href="/llms.txt">llms.txt</a>
             <a href="/.well-known/mpp.json">.well-known/mpp.json</a>
             <Link href="/agents">/agents</Link>

@@ -2,6 +2,9 @@
   columns: 2;
   column-gap: var(--gap);
 }
+[data-theme="maximalist"] .postGrid {
+  column-gap: clamp(32px, 6vw, 80px);
+}
 @media (max-width: 720px) {
   .postGrid {
     columns: 1;

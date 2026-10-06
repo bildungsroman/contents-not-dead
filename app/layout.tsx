@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import { Rubik_Glitch, Space_Mono, Doto } from "next/font/google";
+import { Rubik_Glitch, Space_Mono, Pixelify_Sans } from "next/font/google";
 import { DEFAULT_THEME, SITE, THEMES, type Theme } from "@/lib/config";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -23,9 +23,9 @@ const spaceMono = Space_Mono({
   variable: "--font-space-mono",
   display: "swap",
 });
-const doto = Doto({
+const pixelifySans = Pixelify_Sans({
   subsets: ["latin"],
-  variable: "--font-doto",
+  variable: "--font-pixelify",
   display: "swap",
 });
 
@@ -59,7 +59,7 @@ export default async function RootLayout({
 
   // The maximalist theme's display faces. `next/font` self-hosts them, so
   // themes that don't reference the variables cost nothing to serve.
-  const fontVars = `${rubikGlitch.variable} ${spaceMono.variable} ${doto.variable}`;
+  const fontVars = `${rubikGlitch.variable} ${spaceMono.variable} ${pixelifySans.variable}`;
 
   const clerkKeys = getClerkKeys();
 

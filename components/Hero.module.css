@@ -1,0 +1,55 @@
+/* Homepage masthead. Layout and sizing are shared by every theme; the
+   maximalist theme adds the skull, brand color, and glow. */
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 30px;
+  padding: clamp(40px, 9vw, 24px) 0 clamp(64px, 12vw, 24px);
+  text-align: center;
+}
+.logo {
+  display: none;
+}
+.title {
+  margin: 0;
+  font-family: var(--font-header);
+  font-weight: 400;
+  font-size: clamp(2.5rem, 7.6vw, 6rem);
+  line-height: 1.1;
+  text-wrap: balance;
+  color: var(--text);
+}
+.subtitle {
+  max-width: 1036px;
+  margin: 0;
+  font-family: var(--font-accent);
+  font-size: clamp(1.1rem, 2vw, 1.5rem);
+  line-height: normal;
+  text-wrap: balance;
+  color: var(--muted);
+}
+@media (max-width: 520px) {
+  .hero {
+    gap: 20px;
+  }
+}
+
+[data-theme="maximalist"] .logo {
+  display: block;
+  width: clamp(72px, 10vw, 128px);
+  height: auto;
+  color: var(--brand);
+  filter: drop-shadow(6px 2px 18px rgba(245, 27, 173, 0.8));
+  rotate: -8deg;
+}
+[data-theme="maximalist"] .title {
+  line-height: normal;
+  text-transform: uppercase;
+  color: var(--brand);
+  text-shadow: 10px 2px 32px rgba(245, 27, 173, 0.8);
+  mix-blend-mode: var(--brand-blend);
+}
+[data-theme="maximalist"] .subtitle {
+  color: var(--text);
+}

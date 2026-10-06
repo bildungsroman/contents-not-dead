@@ -1,6 +1,11 @@
+import { useId } from "react";
+
 /** Graffiti-style skull-and-crossbones mark. Uses currentColor so it adapts
- * to the active theme's header text color. */
+ * to the surrounding text color; the eyes and nose are masked out so whatever
+ * sits behind the logo shows through. */
 export function Logo({ className }: { className?: string }) {
+  // useId's output can contain characters that break `url(#…)` references.
+  const maskId = `skull-cutouts-${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
   return (
     <svg
       className={className}
@@ -10,6 +15,18 @@ export function Logo({ className }: { className?: string }) {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
+      <defs>
+        <mask id={maskId} maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64">
+          <rect width="64" height="64" fill="white" />
+          <g stroke="black" strokeWidth="3.4" strokeLinecap="round">
+            <line x1="18" y1="22" x2="26" y2="30" />
+            <line x1="26" y1="22" x2="18" y2="30" />
+            <line x1="38" y1="22" x2="46" y2="30" />
+            <line x1="46" y1="22" x2="38" y2="30" />
+          </g>
+          <path d="M32 34l-3 6h6l-3-6Z" fill="black" />
+        </mask>
+      </defs>
       {/* crossbones */}
       <g
         stroke="currentColor"
@@ -24,25 +41,11 @@ export function Logo({ className }: { className?: string }) {
         <circle cx="12" cy="62" r="3.4" fill="currentColor" stroke="none" />
         <circle cx="52" cy="62" r="3.4" fill="currentColor" stroke="none" />
       </g>
-      {/* skull */}
+      {/* skull, with x eyes + nose cut out */}
       <path
         d="M32 4C18.8 4 9 13.6 9 26.4c0 6.1 2.6 10.4 6.4 13.2 1.5 1.1 2.2 2 2.4 3.6l.6 4.3c.2 1.6 1.6 2.7 3.2 2.7h20.8c1.6 0 3-1.1 3.2-2.7l.6-4.3c.2-1.6.9-2.5 2.4-3.6C54.4 36.8 57 32.5 57 26.4 57 13.6 45.2 4 32 4Z"
         fill="currentColor"
-      />
-      {/* x eyes + nose, punched out via theme header bg */}
-      <g
-        stroke="var(--bg-header)"
-        strokeWidth="3.4"
-        strokeLinecap="round"
-      >
-        <line x1="18" y1="22" x2="26" y2="30" />
-        <line x1="26" y1="22" x2="18" y2="30" />
-        <line x1="38" y1="22" x2="46" y2="30" />
-        <line x1="46" y1="22" x2="38" y2="30" />
-      </g>
-      <path
-        d="M32 34l-3 6h6l-3-6Z"
-        fill="var(--bg-header)"
+        mask={`url(#${maskId})`}
       />
     </svg>
   );

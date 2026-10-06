@@ -1,0 +1,63 @@
+.viewToggle {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 3px;
+  border: 2px solid var(--text-header);
+  border-radius: var(--radius);
+  font-family: var(--font-accent);
+}
+/* Qualified by the element so it outranks the header's `.siteNav a` rules. */
+a.segment {
+  padding: 2px 6px;
+  border-radius: calc(var(--radius) - 4px);
+  color: var(--text-header);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  line-height: 1.4;
+  opacity: 1;
+}
+a.segment:hover {
+  text-decoration: none;
+  background: color-mix(in srgb, var(--text-header) 12%, transparent);
+}
+a.segment[data-active] {
+  background: var(--text-header);
+  color: var(--bg-header);
+}
+
+/* Maximalist: the Figma pixel switch. */
+[data-theme="maximalist"] .viewToggle {
+  gap: 6px;
+  padding: 2px 3px;
+  border-color: var(--brand);
+  border-radius: 2px;
+  background: var(--bg);
+  overflow: hidden;
+}
+[data-theme="maximalist"] a.segment {
+  padding: 2px 4px;
+  border-radius: 2px;
+  color: var(--brand);
+  font-size: 20px;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: normal;
+}
+[data-theme="maximalist"] a.segment:hover {
+  background: color-mix(in srgb, var(--brand) 18%, transparent);
+}
+[data-theme="maximalist"] a.segment[data-active] {
+  background: var(--brand);
+  color: var(--on-brand);
+}
+@media (max-width: 520px) {
+  [data-theme="maximalist"] .viewToggle {
+    gap: 4px;
+  }
+  [data-theme="maximalist"] a.segment {
+    font-size: 16px;
+  }
+}

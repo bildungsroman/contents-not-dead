@@ -31,7 +31,6 @@
   --card-bg: #f6f7f9;
   --card-text: #16181d;
   --card-border: #e4e7ec;
-  --header-skew: 0deg;
 }
 
 /* ------------------------------- MINIMALIST ------------------------------- */
@@ -135,52 +134,55 @@
 }
 
 /* ------------------------------- MAXIMALIST ------------------------------- */
-/* Demo-only */
+/* Demo-only. `--brand` is the scheme's signature color (magenta on light,
+   yellow on dark) and `--on-brand` is text drawn on top of it. Cards are
+   yellow with a magenta shadow in both schemes. */
 [data-theme="maximalist"] {
   --font-body: var(--font-space-mono), "Space Mono", ui-monospace, monospace;
   --font-header: var(--font-rubik-glitch), "Rubik Glitch", system-ui;
-  --font-accent: var(--font-doto), "Doto", sans-serif;
-  --bg: rgb(219, 219, 219);
-  --text: #121212;
-  --muted: #3d3d3d;
-  --border: #121212;
-  --bg-header: #fcff54;
-  --text-header: #121212;
-  --accent: #e2314f;
+  --font-accent: var(--font-pixelify), "Pixelify Sans", sans-serif;
+  --bg: #ffffff;
+  --text: #1a2c44;
+  --muted: #4a5a70;
+  --border: #f51bad;
+  --bg-header: transparent;
+  --text-header: #1a2c44;
+  --accent: #f51bad;
   --accent-contrast: #ffffff;
-  --overlay: #fcff54;
-  --card-text: #ffffff;
-  --card-border: #121212;
-  --header-skew: 0deg;
-  --radius: 6px;
+  --overlay: #f4f1fb;
+  --card-bg: #fcff54;
+  --card-text: #1a2c44;
+  --card-border: #fcff54;
+  --brand: #f51bad;
+  --on-brand: #ffffff;
+  --brand-blend: darken;
+  --radius: 2px;
+  /* Two 580px cards + an 80px gutter, plus the container's side padding. */
+  --maxw: 1280px;
 }
 @media (prefers-color-scheme: dark) {
   [data-theme="maximalist"]:not([data-scheme="light"]) {
-    --bg: #121212;
+    --bg: #16152f;
     --text: #ffffff;
-    --muted: #c4c4c4;
+    --muted: #c4c4d4;
     --border: #fcff54;
-    --bg-header: #fcff54;
-    --text-header: #121212;
-    --accent: #e2314f;
-    --accent-contrast: #ffffff;
-    --overlay: #fcff54;
-    --card-text: #ffffff;
-    --card-border: #fcff54;
+    --text-header: #f5f5f5;
+    --overlay: #22214a;
+    --brand: #fcff54;
+    --on-brand: #1a2c44;
+    --brand-blend: lighten;
   }
 }
 [data-theme="maximalist"][data-scheme="dark"] {
-  --bg: #121212;
+  --bg: #16152f;
   --text: #ffffff;
-  --muted: #c4c4c4;
+  --muted: #c4c4d4;
   --border: #fcff54;
-  --bg-header: #fcff54;
-  --text-header: #121212;
-  --accent: #e2314f;
-  --accent-contrast: #ffffff;
-  --overlay: #fcff54;
-  --card-text: #ffffff;
-  --card-border: #fcff54;
+  --text-header: #f5f5f5;
+  --overlay: #22214a;
+  --brand: #fcff54;
+  --on-brand: #1a2c44;
+  --brand-blend: lighten;
 }
 
 /* ------------------------------- base styles ------------------------------ */
@@ -214,6 +216,28 @@ body {
 }
 body > main {
   flex: 1 1 auto;
+}
+/* The Figma mesh, pre-composed so the 1440x1267 design frame sits at its
+   center; the same line art works over both schemes' backgrounds. */
+[data-theme="maximalist"] body {
+  background: var(--bg) url("/maximalist/mesh.svg") center / max(2300px, 100vw)
+    auto fixed;
+}
+@media (max-width: 720px) {
+  [data-theme="maximalist"] body {
+    background-size: 1400px auto;
+  }
+}
+/* Content pages (anything without the homepage hero) and the homepage's
+   agent guide sit on a translucent panel so text stays readable over the
+   mesh. */
+[data-theme="maximalist"] body:not(:has([data-hero])) > main.container,
+[data-theme="maximalist"] .content-panel {
+  padding: 40px clamp(20px, 4vw, 48px) 64px;
+  background: color-mix(in srgb, var(--bg) 90%, transparent);
+}
+[data-theme="maximalist"] body:not(:has([data-hero])) > main.container {
+  margin-top: 24px;
 }
 a {
   color: var(--accent);
@@ -324,6 +348,19 @@ main.container {
   background: color-mix(in srgb, currentColor 10%, transparent);
   padding: 0.12em 0.4em;
   border-radius: 4px;
+}
+
+[data-theme="maximalist"] .prose h1,
+[data-theme="maximalist"] .prose h2,
+[data-theme="maximalist"] .prose h3 {
+  font-family: var(--font-accent);
+  font-weight: 400;
+  color: var(--brand);
+}
+[data-theme="maximalist"] .prose a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 /* -------------------------------- utilities ------------------------------- */

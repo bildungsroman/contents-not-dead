@@ -1,17 +1,11 @@
-import type { Metadata } from "next";
 import Link from "next/link";
 import { PER_CONTENT_PRICE_USD, appUrl } from "@/lib/config";
 
-export const metadata: Metadata = {
-  title: "For Agents — Machine Payments",
-  description:
-    "How AI agents discover and pay for content on Content's Not Dead using the Machine Payments Protocol (MPP).",
-};
-
-export default function PaymentsPage() {
+/** The homepage's AGENT view: how agents discover and pay for content. */
+export function AgentGuide() {
   const base = appUrl();
   return (
-    <main className="container">
+    <div className="content-panel">
       <article className="prose">
         <h1>For agents: pay per item with MPP</h1>
         <p>
@@ -67,6 +61,6 @@ Authorization: <MPP credential>
           appear in the Dashboard like any other charge.
         </p>
       </article>
-    </main>
+    </div>
   );
 }

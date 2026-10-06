@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getSubscriptionState, isActive, isPaidPlan } from "@/lib/subscription";
 import { SubscribeOptions } from "@/components/SubscribeOptions";
 import { Panel } from "@/components/Panel";
+import { viewHref } from "@/lib/view";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Subscribe" };
@@ -20,7 +21,7 @@ export default async function SubscribePage() {
         <p>
           Sign up to access to articles and images on Content&rsquo;s Not Dead. Pick a
           plan below. Prefer to pay per item? Agents can do that over{" "}
-          <Link href="/payments">MPP</Link>.
+          <Link href={viewHref("agent")}>MPP</Link>.
         </p>
       </div>
 

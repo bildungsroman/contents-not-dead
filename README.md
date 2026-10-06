@@ -13,11 +13,13 @@ pay for — with full parity between them.
   Payment Tokens, fiat rail), served through an HTTP `402` challenge flow.
   Agents pay for **every** item, including posts that are free to signed-in
   humans — "free" is a perk for having an account, not a public giveaway.
-- **Agent-native discovery** — `/.well-known/mpp.json`, `/llms.txt`, and a
-  markdown `/agents` directory. Anything a human can read, an agent can
-  discover and pay for.
+- **Agent-native discovery** — `/.well-known/mpp.json`, `/llms.txt`,
+  `/openapi.json`, and a markdown `/agents` directory. Anything a human can
+  read, an agent can discover and pay for. The header's HUMAN/AGENT toggle
+  switches the homepage between the post grid and the agent payment guide.
 - **Three themes** (minimalist, bookworm, maximalist) via CSS variables with
-  automatic light/dark — no CSS framework, just CSS Modules.
+  light/dark that follows the OS or a header toggle — no CSS framework, just
+  CSS Modules.
 - **File-based content** — drop Markdown into `content/`.
 
 It's built to be **cloned and personalized**: bring your own content, keys, and
@@ -86,8 +88,8 @@ Then open http://localhost:3000.
 
 ### Environment
 
-`stripe projects init` and the `add` commands above generate a git-ignored
-`.env` — don't hand-edit it. Inspect what's wired up with:
+`stripe projects init` and the `variables set` commands above generate a
+git-ignored `.env` — don't hand-edit it. Inspect what's wired up with:
 
 ```bash
 stripe projects status --json   # provisioned resources
@@ -97,10 +99,13 @@ stripe projects env --json      # env var names (never values)
 | Env var | Managed by |
 | --- | --- |
 | `STRIPE_SECRET_KEY`, `STRIPE_PRICE_MONTHLY`, `STRIPE_PRICE_ANNUAL`, `STRIPE_PRICE_FREE` | Stripe / project variables |
-| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY` | `stripe projects add clerk/auth` |
+| `STRIPE_WEBHOOK_SECRET` | project variable (see webhooks below) |
+| `CLERK_ENVIRONMENTS` | `stripe projects init` (Clerk keys as one JSON var; `lib/clerk-keys.ts` unpacks it) |
+| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY` | optional — set these instead if you configure Clerk by hand; they take precedence |
 | `MPP_SECRET_KEY`, `CONTENT_ASSET_SECRET`, `NEXT_PUBLIC_APP_URL` | project variables |
 | `NEXT_PUBLIC_API_URL`, `MPP_CONTACT_EMAIL` | optional self-managed env vars (agent discovery; see below) |
 | `NEXT_PUBLIC_DEFAULT_THEME` | optional self-managed env var (starting theme) |
+| `LOCAL_FULL_ACCESS` | optional; set to `false` to test the paywall locally (see [Access tiers](#access-tiers)) |
 
 `NEXT_PUBLIC_API_URL` is the public origin agents call. It sets `servers[0].url`
 in `/openapi.json`, the paid resource URLs in `/.well-known/mpp.json`, and the
@@ -129,7 +134,8 @@ stripe projects variables set stripe-webhook-secret --env-key STRIPE_WEBHOOK_SEC
 | Subscriptions | Stripe Checkout (`mode: subscription`) + Billing Portal. Every signed-in user holds a real subscription — the $0 one is created on first page load, and Checkout replaces it on upgrade. Stripe is the source of truth; no database required. |
 | Agent payments | `mppx` (`mppx/server`) with the Stripe SPT method. `GET /api/content/{id}` returns a `402` challenge, then the full markdown + a `Payment-Receipt` on success. Applies to every post regardless of tier. |
 | Paid images | Full assets live in `content/assets/` (outside `public/`) and are served via `/api/content/{id}/asset` only to entitled sessions or with a short-lived HMAC-signed URL. Low-detail previews in `public/previews/` stay public. |
-| Themes | CSS variables keyed on `data-theme`; light/dark via `prefers-color-scheme`. See [Theming](#theming). |
+| Themes | CSS variables keyed on `data-theme`; light/dark follows `prefers-color-scheme` unless the header toggle forces `data-scheme`. Both choices persist in cookies. See [Theming](#theming). |
+| Homepage view | `/?view=agent` swaps the post grid for the agent payment guide. The HUMAN/AGENT toggle in the header links between the two; every other page counts as HUMAN. |
 | Styles | `app/globals.css` for theme variables, base elements, layout/typography, and shared utilities. Component-specific styles are co-located CSS Modules. |
 
 ## Access tiers
@@ -181,7 +187,9 @@ npm run lint    # tsc --noEmit
 ```
 
 The suite covers tier defaulting, the tier-to-entitlement mapping, plan
-resolution from price IDs, and the access matrix above.
+resolution from price IDs, the access matrix above, the agent discovery
+documents (`/openapi.json`, `/.well-known/mpp.json`), post markdown rendering,
+and homepage view parsing.
 
 There is also an opt-in integration test that creates and deletes real Clerk
 users and Stripe customers to verify the whole provisioning path — free tier on
@@ -222,16 +230,16 @@ to the `:root` defaults:
 ```css
 [data-theme="newsprint"] {
   --font-body: "Iowan Old Style", Georgia, serif;
-  --font-header: var(--font-body);
-  --font-accent: var(--font-body);
+  --font-header: var(--font-body);   /* hero title + headings */
+  --font-accent: var(--font-body);   /* hero subtitle, HUMAN/AGENT toggle, buttons */
 
   --bg: #fffdf7;             /* page background */
-  --text: #1a1a1a;           /* body copy */
-  --muted: #5f5f5f;          /* .meta secondary text */
+  --text: #1a1a1a;           /* body copy + hero title */
+  --muted: #5f5f5f;          /* .meta text + hero subtitle */
   --border: #e0ddd3;
 
   --bg-header: #1a1a1a;      /* header bar */
-  --text-header: #fffdf7;
+  --text-header: #fffdf7;    /* nav links, skull home icon, header controls */
 
   --accent: #9b1d20;         /* links + primary buttons */
   --accent-contrast: #ffffff;
@@ -241,7 +249,7 @@ to the `:root` defaults:
   --card-text: #1a1a1a;
   --card-border: #e0ddd3;
 
-  /* Optional: --radius, --maxw, --gap, --header-skew */
+  /* Optional: --radius, --maxw, --gap */
   --radius: 2px;
 }
 ```
@@ -300,15 +308,17 @@ cookie and honored on the next server render.
 
 ## Routes
 
-- `/` — home grid of previews (lazy-loaded), each card badged Free or Members
+- `/` — hero plus a grid of previews (lazy-loaded), each card badged Free or Members
+- `/?view=agent` — the same hero plus the MPP guide for agents (the header's HUMAN/AGENT toggle)
 - `/post/[id]` — full content for entitled readers, otherwise a tier-aware paywall
 - `/subscribe`, `/account` — plans (Free, monthly, annual) + billing management
-- `/payments` — MPP guide for agents
 - `/docs` — setup, theming, adding content
 - `/about` — what the project is
 - `/agents`, `/agents/[id]` — markdown for agents
 - `/api/content/[id]` — MPP-protected machine endpoint
-- `/.well-known/mpp.json`, `/.well-known/mpp.md`, `/llms.txt` — discovery
+- `/.well-known/mpp.json`, `/.well-known/mpp.md`, `/llms.txt`, `/openapi.json` — discovery
+- `/api/content/[id]/asset` — full-resolution images for entitled sessions or signed URLs
+- `/api/stripe/checkout`, `/api/stripe/portal`, `/api/stripe/webhook` — billing
 
 See [`/docs`](http://localhost:3000/docs) for the full guide.
 
@@ -320,7 +330,7 @@ credentials stay isolated from local dev:
 ```bash
 stripe projects env create production --output .env.production
 stripe projects env use production
-# re-run the `add` / `variables set` steps for production, then point
+# re-run the `variables set` steps for production, then point
 # NEXT_PUBLIC_APP_URL at your domain
 stripe projects variables set app-url --env-key NEXT_PUBLIC_APP_URL --value https://your-domain.com
 ```
