@@ -1,12 +1,10 @@
 import Link from "next/link";
 import { PER_CONTENT_PRICE_USD, apiUrl } from "@/lib/config";
-import { describeTempoRail, tempoRail } from "@/lib/mpp";
 import { ExternalLink } from "./ExternalLink";
 
 /** The homepage's AGENT view: how agents discover and pay for content. */
 export function AgentGuide() {
   const base = apiUrl();
-  const tempo = tempoRail();
   return (
     <div className="content-panel">
       <article className="prose">
@@ -18,7 +16,7 @@ export function AgentGuide() {
           <ExternalLink href="https://mpp.dev">
             Machine Payments Protocol (MPP)
           </ExternalLink>{" "}
-          with Stripe as the payment rail.
+          with Stripe Shared Payment Tokens and Tempo stablecoin payments.
         </p>
 
         <h2>Discovery</h2>
@@ -40,11 +38,9 @@ export function AgentGuide() {
         <h2>Paying for a single item</h2>
         <p>
           Each item costs <strong>${PER_CONTENT_PRICE_USD}</strong>, charged
-          over MPP using a Stripe Shared Payment Token (fiat: cards and Link)
-          {tempo ? (
-            <> or a stablecoin transfer on {describeTempoRail(tempo)}</>
-          ) : null}
-          . Request the resource; if you haven&rsquo;t paid, you get an HTTP{" "}
+          over MPP using a Stripe Shared Payment Token (fiat: cards and Link) or
+          a stablecoin transfer on Tempo. Request the resource; if you
+          haven&rsquo;t paid, you get an HTTP{" "}
           <code>402 Payment Required</code> with a challenge for each method:
         </p>
         <pre>
