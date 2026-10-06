@@ -145,18 +145,9 @@ button.navButton {
   display: block;
   margin: 0 6px;
 }
-@media (max-width: 860px) {
-  [data-theme="maximalist"] .inner {
-    padding: 16px 20px;
-  }
-  [data-theme="maximalist"] .siteNav,
-  [data-theme="maximalist"] .navStart,
-  [data-theme="maximalist"] .navActions {
-    gap: 12px;
-  }
-}
-/* Phones: the key icon alone stands in for "Sign in" (label kept for AT). */
-@media (max-width: 520px) {
+/* Maximalist's wider pixel font wraps the row onto two lines just above the
+   hamburger breakpoint, so it goes icon-only earlier than other themes. */
+@media (max-width: 960px) {
   [data-theme="maximalist"] .signInLabel {
     position: absolute;
     width: 1px;
@@ -167,5 +158,58 @@ button.navButton {
   }
   [data-theme="maximalist"] .signInIcon {
     margin: 0 4px;
+  }
+}
+@media (max-width: 860px) {
+  [data-theme="maximalist"] .inner {
+    padding: 16px 20px;
+  }
+  [data-theme="maximalist"] .siteNav,
+  [data-theme="maximalist"] .navStart,
+  [data-theme="maximalist"] .navActions {
+    gap: 12px;
+  }
+}
+/* Phones: tighter gaps and 32px controls so the row fits a 360px screen;
+   the key icon alone stands in for "Sign in" (label kept for AT). */
+@media (max-width: 520px) {
+  .siteNav,
+  .navStart,
+  [data-theme="maximalist"] .siteNav,
+  [data-theme="maximalist"] .navStart {
+    gap: 8px;
+  }
+  .navActions,
+  [data-theme="maximalist"] .navActions {
+    gap: 6px;
+  }
+  .homeIcon svg {
+    width: 28px;
+    height: 28px;
+  }
+  button.navButton {
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+  }
+  .signInLabel {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .signInIcon {
+    display: block;
+    width: auto;
+    height: 20px;
+  }
+  [data-theme="maximalist"] button.navButton {
+    width: auto;
+  }
+  [data-theme="maximalist"] .signInIcon {
+    height: 28px;
   }
 }

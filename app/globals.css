@@ -9,8 +9,9 @@
    ========================================================================== */
 
 :root {
-  --font-body: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
-    Helvetica, Arial, sans-serif;
+  --font-body:
+    ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif;
   --font-header: var(--font-body);
   --font-accent: var(--font-body);
 
@@ -35,8 +36,9 @@
 
 /* ------------------------------- MINIMALIST ------------------------------- */
 [data-theme="minimalist"] {
-  --font-body: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
-    Helvetica, Arial, sans-serif;
+  --font-body:
+    ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif;
   --font-header: var(--font-body);
   --font-accent: var(--font-body);
   --bg: #ffffff;
@@ -85,7 +87,8 @@
 
 /* -------------------------------- BOOKWORM -------------------------------- */
 [data-theme="bookworm"] {
-  --font-body: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia,
+  --font-body:
+    "Iowan Old Style", "Palatino Linotype", Palatino, Georgia,
     "Times New Roman", serif;
   --font-header: var(--font-body);
   --font-accent: var(--font-body);
@@ -246,8 +249,11 @@ a {
 a:hover {
   text-decoration: underline;
 }
+/* As a child of the flex-column body, the auto margins make main shrink to
+   fit its content, whose min-content (e.g. a long code line) can exceed a
+   phone's width — the 100% cap keeps it inside the viewport. */
 .container {
-  max-width: var(--maxw);
+  max-width: min(var(--maxw), 100%);
   margin: 0 auto;
   padding: 0 20px;
 }
@@ -306,8 +312,8 @@ main.container {
   border: 1px solid var(--border);
   border-radius: 8px;
   overflow-x: auto;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono",
-    monospace;
+  font-family:
+    ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
   font-size: 0.85rem;
   line-height: 1.6;
   -webkit-font-smoothing: auto;
@@ -332,7 +338,9 @@ main.container {
   height: 9px;
   border-radius: 50%;
   background: #ff5f56;
-  box-shadow: 16px 0 #ffbd2e, 32px 0 #27c93f;
+  box-shadow:
+    16px 0 #ffbd2e,
+    32px 0 #27c93f;
 }
 .prose pre code {
   background: none;
@@ -342,12 +350,13 @@ main.container {
   color: inherit;
 }
 .prose code {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono",
-    monospace;
+  font-family:
+    ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
   font-size: 0.88em;
   background: color-mix(in srgb, currentColor 10%, transparent);
   padding: 0.12em 0.4em;
   border-radius: 4px;
+  overflow-wrap: anywhere;
 }
 
 [data-theme="maximalist"] .prose h1,

@@ -70,3 +70,9 @@
     background: color-mix(in srgb, var(--brand) 18%, var(--bg));
   }
 }
+@media (max-width: 520px) {
+  .themeSwitcher {
+    width: 32px;
+    height: 32px;
+  }
+}

@@ -12,7 +12,9 @@
   color: var(--text-header);
   cursor: pointer;
   opacity: 0.85;
-  transition: opacity 0.1s ease, background 0.1s ease;
+  transition:
+    opacity 0.1s ease,
+    background 0.1s ease;
 }
 .schemeToggle:hover {
   opacity: 1;
@@ -29,4 +31,10 @@
 }
 [data-theme="maximalist"] .schemeToggle:hover {
   background: color-mix(in srgb, var(--brand) 18%, var(--bg));
+}
+@media (max-width: 520px) {
+  .schemeToggle {
+    width: 32px;
+    height: 32px;
+  }
 }

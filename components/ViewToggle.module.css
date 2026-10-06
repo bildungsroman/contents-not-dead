@@ -54,6 +54,11 @@ a.segment[data-active] {
   color: var(--on-brand);
 }
 @media (max-width: 520px) {
+  a.segment {
+    padding: 2px 4px;
+    font-size: 0.75rem;
+    letter-spacing: 0;
+  }
   [data-theme="maximalist"] .viewToggle {
     gap: 4px;
   }
