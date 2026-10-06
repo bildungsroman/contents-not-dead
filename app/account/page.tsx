@@ -60,8 +60,7 @@ export default async function AccountPage() {
                   {" "}
                   {state.status === "canceled"
                     ? "Access ends"
-                    : "Renews"}{" "}
-                  on <strong>{renews}</strong>.
+                    : "Renews"} on <strong>{renews}</strong>.
                 </>
               ) : null}
             </p>

@@ -39,7 +39,8 @@ export async function GET(
 
   const search = new URL(request.url).searchParams;
   // `file` requests an inline asset; without it, the post's own image.
-  const file = search.get("file") || (post.type === "image" ? post.image : null);
+  const file =
+    search.get("file") || (post.type === "image" ? post.image : null);
   if (!file || !postOwnsAsset(post, file)) {
     return new Response("Not found", { status: 404 });
   }

@@ -78,8 +78,9 @@ describe("deriveFromSubscription", () => {
 
   it("carries the subscription status through", () => {
     expect(
-      deriveFromSubscription(subscription({ priceId: FREE, status: "past_due" }))
-        .status,
+      deriveFromSubscription(
+        subscription({ priceId: FREE, status: "past_due" }),
+      ).status,
     ).toBe("past_due");
   });
 });
@@ -216,9 +217,9 @@ describe("needsRevalidation", () => {
     expect(needsRevalidation(cached({ stripeCustomerId: undefined }))).toBe(
       true,
     );
-    expect(needsRevalidation(cached({ entitlementsUpdatedAt: undefined }))).toBe(
-      true,
-    );
+    expect(
+      needsRevalidation(cached({ entitlementsUpdatedAt: undefined })),
+    ).toBe(true);
   });
 
   it("revalidates when the cached subscription is not live", () => {
@@ -231,9 +232,9 @@ describe("needsRevalidation", () => {
     expect(needsRevalidation(cached({ entitlements: [], ageSeconds: 5 }))).toBe(
       false,
     );
-    expect(needsRevalidation(cached({ entitlements: [], ageSeconds: 31 }))).toBe(
-      true,
-    );
+    expect(
+      needsRevalidation(cached({ entitlements: [], ageSeconds: 31 })),
+    ).toBe(true);
   });
 
   it("trusts a freshly written entitlement set", () => {

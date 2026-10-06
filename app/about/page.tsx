@@ -41,8 +41,8 @@ export default function AboutPage() {
         </p>
         <p>
           This creates one content platform with two paths to access: a
-          subscription for people and open, programmatic payments for agents.
-          In both cases, the creator is paid for the work being consumed.
+          subscription for people and open, programmatic payments for agents. In
+          both cases, the creator is paid for the work being consumed.
         </p>
 
         <h2>Learn more</h2>
@@ -58,8 +58,7 @@ export default function AboutPage() {
           <li>
             View the{" "}
             <ExternalLink href={SITE.repo}>source repository</ExternalLink> to
-            inspect,
-            clone, or contribute to the project.
+            inspect, clone, or contribute to the project.
           </li>
         </ul>
       </article>

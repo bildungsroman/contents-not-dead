@@ -12,10 +12,7 @@ export function PostGrid({ initial }: { initial: CardData[] }) {
   const sentinel = useRef<HTMLDivElement | null>(null);
 
   const extraCards = useExtraCards();
-  const all = useMemo(
-    () => [...extraCards, ...initial],
-    [extraCards, initial],
-  );
+  const all = useMemo(() => [...extraCards, ...initial], [extraCards, initial]);
 
   // Infinite scroll: reveal more cards as the sentinel enters the viewport.
   useEffect(() => {

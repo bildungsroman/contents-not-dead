@@ -73,7 +73,9 @@ export interface CachedMetadata {
   entitlementsUpdatedAt?: number;
 }
 
-function fromMetadata(meta: Record<string, unknown> | undefined): CachedMetadata {
+function fromMetadata(
+  meta: Record<string, unknown> | undefined,
+): CachedMetadata {
   const sub = (meta?.subscription ?? {}) as Record<string, unknown>;
   const ent = (meta?.entitlements ?? {}) as Record<string, unknown>;
   const keys = Array.isArray(ent.keys) ? (ent.keys as unknown[]) : [];
@@ -209,7 +211,9 @@ interface StripeDerivedState {
   currentPeriodEnd?: number;
 }
 
-function planFromPriceId(priceId: string | undefined): SubscriptionPlan | undefined {
+function planFromPriceId(
+  priceId: string | undefined,
+): SubscriptionPlan | undefined {
   if (!priceId) return undefined;
   if (priceId === process.env.STRIPE_PRICE_ANNUAL) return "annual";
   if (priceId === process.env.STRIPE_PRICE_MONTHLY) return "monthly";

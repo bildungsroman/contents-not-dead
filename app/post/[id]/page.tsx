@@ -45,11 +45,7 @@ export default async function PostPage({
   if (!unlocked) {
     return (
       <main className="container">
-        <Paywall
-          postId={post.id}
-          postTitle={post.title}
-          tier={post.access}
-        />
+        <Paywall postId={post.id} postTitle={post.title} tier={post.access} />
       </main>
     );
   }

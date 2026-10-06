@@ -11,10 +11,7 @@ export async function register() {
   if (keys.secretKey && !process.env.CLERK_SECRET_KEY) {
     process.env.CLERK_SECRET_KEY = keys.secretKey;
   }
-  if (
-    keys.publishableKey &&
-    !process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
-  ) {
+  if (keys.publishableKey && !process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY) {
     process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY = keys.publishableKey;
   }
 }

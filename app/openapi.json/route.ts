@@ -80,7 +80,8 @@ export async function GET() {
     name: "id",
     in: "path",
     required: true,
-    description: "Content item id, as listed in /agents or /.well-known/mpp.json.",
+    description:
+      "Content item id, as listed in /agents or /.well-known/mpp.json.",
     schema: {
       type: "string",
       ...(previews.length > 0 ? { enum: previews.map((p) => p.id) } : {}),

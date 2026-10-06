@@ -41,8 +41,16 @@ export async function GET() {
       url: `${site}/subscribe`,
       description: "Unlimited access to all content.",
       plans: [
-        { interval: "month", amount: SUBSCRIPTION.monthly.amount, currency: "usd" },
-        { interval: "year", amount: SUBSCRIPTION.annual.amount, currency: "usd" },
+        {
+          interval: "month",
+          amount: SUBSCRIPTION.monthly.amount,
+          currency: "usd",
+        },
+        {
+          interval: "year",
+          amount: SUBSCRIPTION.annual.amount,
+          currency: "usd",
+        },
       ],
     },
     discovery: {

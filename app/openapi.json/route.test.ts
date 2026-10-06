@@ -81,7 +81,9 @@ describe("/openapi.json", () => {
 
     it("resolves the declared security scheme", async () => {
       const doc = await fetchDoc();
-      const name = Object.keys(doc.paths["/api/content/{id}"].get.security[0])[0];
+      const name = Object.keys(
+        doc.paths["/api/content/{id}"].get.security[0],
+      )[0];
       expect(doc.components.securitySchemes[name]).toBeDefined();
     });
   });

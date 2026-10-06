@@ -29,5 +29,5 @@ export default clerkMiddleware({ authorizedParties: authorizedOrigins() });
 export const config = {
   // Run on all routes except Next internals so Clerk's auth context is always
   // available to the layout (including on not-found pages).
-  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"]
+  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
 };

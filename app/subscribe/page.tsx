@@ -19,8 +19,8 @@ export default async function SubscribePage() {
       <div className="prose">
         <h1>Subscribe</h1>
         <p>
-          Sign up to access to articles and images on Content&rsquo;s Not Dead. Pick a
-          plan below. Prefer to pay per item? Agents can do that over{" "}
+          Sign up to access to articles and images on Content&rsquo;s Not Dead.
+          Pick a plan below. Prefer to pay per item? Agents can do that over{" "}
           <Link href={viewHref("agent")}>MPP</Link>.
         </p>
       </div>

@@ -83,8 +83,7 @@ export function Paywall({
       </pre>
       <p>
         See the <Link href={viewHref("agent")}>agent guide</Link> for the full
-        flow, or{" "}
-        <a href="/.well-known/mpp.json">/.well-known/mpp.json</a> for
+        flow, or <a href="/.well-known/mpp.json">/.well-known/mpp.json</a> for
         machine-readable details.
       </p>
     </Panel>

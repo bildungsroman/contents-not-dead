@@ -51,91 +51,79 @@ describe.skipIf(!enabled)("free tier provisioning (integration)", () => {
     if (userId) await clerk.users.deleteUser(userId);
   }, 60_000);
 
-  it(
-    "gives a brand new user the free entitlement and nothing more",
-    async () => {
-      customerId = await getOrCreateStripeCustomer(userId);
-      const created = await ensureFreeSubscription(customerId);
-      expect(created).toBe(true);
+  it("gives a brand new user the free entitlement and nothing more", async () => {
+    customerId = await getOrCreateStripeCustomer(userId);
+    const created = await ensureFreeSubscription(customerId);
+    expect(created).toBe(true);
 
-      const entitlements = await waitForEntitlements(customerId, 1);
-      const derived = (await fetchSubscriptionFromStripe(customerId))!;
-      await writeSubscriptionState(userId, customerId, derived, entitlements);
+    const entitlements = await waitForEntitlements(customerId, 1);
+    const derived = (await fetchSubscriptionFromStripe(customerId))!;
+    await writeSubscriptionState(userId, customerId, derived, entitlements);
 
-      expect(derived.plan).toBe("free");
-      expect(isActive(derived)).toBe(true);
-      // A $0 subscription is active but must never read as a purchase.
-      expect(isPaidPlan(derived.plan)).toBe(false);
-      // ...so checkout must still be open to them.
-      expect(hasActivePaidSubscription(derived)).toBe(false);
+    expect(derived.plan).toBe("free");
+    expect(isActive(derived)).toBe(true);
+    // A $0 subscription is active but must never read as a purchase.
+    expect(isPaidPlan(derived.plan)).toBe(false);
+    // ...so checkout must still be open to them.
+    expect(hasActivePaidSubscription(derived)).toBe(false);
 
-      // The gate every call site runs.
-      expect(entitlements.has(TIER_FEATURE.free)).toBe(true);
-      expect(entitlements.has(TIER_FEATURE.paid)).toBe(false);
+    // The gate every call site runs.
+    expect(entitlements.has(TIER_FEATURE.free)).toBe(true);
+    expect(entitlements.has(TIER_FEATURE.paid)).toBe(false);
 
-      // And it survives the round trip through Clerk's metadata cache.
-      const user = await clerk.users.getUser(userId);
-      const meta = user.publicMetadata as Record<string, any>;
-      expect(meta.stripeCustomerId).toBe(customerId);
-      expect(meta.entitlements.keys).toEqual([TIER_FEATURE.free]);
-      expect(meta.subscription.plan).toBe("free");
-    },
-    120_000,
-  );
+    // And it survives the round trip through Clerk's metadata cache.
+    const user = await clerk.users.getUser(userId);
+    const meta = user.publicMetadata as Record<string, any>;
+    expect(meta.stripeCustomerId).toBe(customerId);
+    expect(meta.entitlements.keys).toEqual([TIER_FEATURE.free]);
+    expect(meta.subscription.plan).toBe("free");
+  }, 120_000);
 
-  it(
-    "is idempotent — a second sign-in does not create another subscription",
-    async () => {
-      expect(await ensureFreeSubscription(customerId)).toBe(false);
-      const subs = await getStripe().subscriptions.list({
-        customer: customerId,
-        status: "active",
-        limit: 20,
-      });
-      expect(subs.data.length).toBe(1);
-    },
-    60_000,
-  );
+  it("is idempotent — a second sign-in does not create another subscription", async () => {
+    expect(await ensureFreeSubscription(customerId)).toBe(false);
+    const subs = await getStripe().subscriptions.list({
+      customer: customerId,
+      status: "active",
+      limit: 20,
+    });
+    expect(subs.data.length).toBe(1);
+  }, 60_000);
 
-  it(
-    "upgrades to paid, grants both tiers, and drops the redundant free sub",
-    async () => {
-      const stripe = getStripe();
-      const pm = await stripe.paymentMethods.create({
-        type: "card",
-        card: { token: "tok_visa" },
-      });
-      await stripe.paymentMethods.attach(pm.id, { customer: customerId });
-      await stripe.customers.update(customerId, {
-        invoice_settings: { default_payment_method: pm.id },
-      });
-      await stripe.subscriptions.create({
-        customer: customerId,
-        items: [{ price: process.env.STRIPE_PRICE_MONTHLY! }],
-      });
+  it("upgrades to paid, grants both tiers, and drops the redundant free sub", async () => {
+    const stripe = getStripe();
+    const pm = await stripe.paymentMethods.create({
+      type: "card",
+      card: { token: "tok_visa" },
+    });
+    await stripe.paymentMethods.attach(pm.id, { customer: customerId });
+    await stripe.customers.update(customerId, {
+      invoice_settings: { default_payment_method: pm.id },
+    });
+    await stripe.subscriptions.create({
+      customer: customerId,
+      items: [{ price: process.env.STRIPE_PRICE_MONTHLY! }],
+    });
 
-      const entitlements = await waitForEntitlements(customerId, 2);
-      expect(entitlements.has(TIER_FEATURE.free)).toBe(true);
-      expect(entitlements.has(TIER_FEATURE.paid)).toBe(true);
+    const entitlements = await waitForEntitlements(customerId, 2);
+    expect(entitlements.has(TIER_FEATURE.free)).toBe(true);
+    expect(entitlements.has(TIER_FEATURE.paid)).toBe(true);
 
-      // What the webhook does on upgrade.
-      await cancelRedundantFreeSubscriptions(customerId);
-      const live = await stripe.subscriptions.list({
-        customer: customerId,
-        status: "active",
-        limit: 20,
-      });
-      expect(live.data.length).toBe(1);
-      expect(live.data[0].items.data[0].price.id).toBe(
-        process.env.STRIPE_PRICE_MONTHLY,
-      );
+    // What the webhook does on upgrade.
+    await cancelRedundantFreeSubscriptions(customerId);
+    const live = await stripe.subscriptions.list({
+      customer: customerId,
+      status: "active",
+      limit: 20,
+    });
+    expect(live.data.length).toBe(1);
+    expect(live.data[0].items.data[0].price.id).toBe(
+      process.env.STRIPE_PRICE_MONTHLY,
+    );
 
-      const derived = (await fetchSubscriptionFromStripe(customerId))!;
-      expect(derived.plan).toBe("monthly");
-      expect(isPaidPlan(derived.plan)).toBe(true);
-      // And checkout now refuses to open a second, duplicate subscription.
-      expect(hasActivePaidSubscription(derived)).toBe(true);
-    },
-    180_000,
-  );
+    const derived = (await fetchSubscriptionFromStripe(customerId))!;
+    expect(derived.plan).toBe("monthly");
+    expect(isPaidPlan(derived.plan)).toBe(true);
+    // And checkout now refuses to open a second, duplicate subscription.
+    expect(hasActivePaidSubscription(derived)).toBe(true);
+  }, 180_000);
 });

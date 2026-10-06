@@ -18,15 +18,14 @@ export default function DocsPage() {
         <p>
           {SITE.name} is an open-source, cloneable content platform. Sell your
           own writing and art with Stripe subscriptions and per-item{" "}
-          <Link href={viewHref("agent")}>agent payments (MPP)</Link>. The
-          source is on <ExternalLink href={SITE.repo}>GitHub</ExternalLink>.
+          <Link href={viewHref("agent")}>agent payments (MPP)</Link>. The source
+          is on <ExternalLink href={SITE.repo}>GitHub</ExternalLink>.
         </p>
 
         <h2>1. Clone &amp; install</h2>
         <p>
           Clone the <ExternalLink href={SITE.repo}>repository</ExternalLink> and
-          install
-          dependencies:
+          install dependencies:
         </p>
         <CodeBlock
           code={`git clone ${SITE.repo}.git my-content-site
@@ -37,9 +36,9 @@ cp .env.example .env.local`}
         <p>
           Planning to deploy your own site?{" "}
           <ExternalLink href={`${SITE.repo}/fork`}>Fork it</ExternalLink> first
-          and clone your fork instead, so you can push changes and
-          connect the repo to Vercel. To keep pulling upstream fixes, add the
-          original as a remote:
+          and clone your fork instead, so you can push changes and connect the
+          repo to Vercel. To keep pulling upstream fixes, add the original as a
+          remote:
         </p>
         <CodeBlock
           code={`git remote add upstream ${SITE.repo}.git
@@ -47,7 +46,9 @@ git pull upstream main`}
         />
 
         <h2>2. Configure environment</h2>
-        <p>Fill in <code>.env.local</code>:</p>
+        <p>
+          Fill in <code>.env.local</code>:
+        </p>
         <ul>
           <li>
             <strong>Stripe</strong> — <code>STRIPE_SECRET_KEY</code> (with
@@ -61,20 +62,24 @@ git pull upstream main`}
             idempotent, so re-running it is safe.
           </li>
           <li>
-            <strong>Clerk</strong> — <code>NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY</code>{" "}
-            and <code>CLERK_SECRET_KEY</code> (free tier is fine).
+            <strong>Clerk</strong> —{" "}
+            <code>NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY</code> and{" "}
+            <code>CLERK_SECRET_KEY</code> (free tier is fine).
           </li>
           <li>
             <strong>MPP</strong> — <code>MPP_SECRET_KEY</code> (stable, ≥32
             bytes) and <code>CONTENT_ASSET_SECRET</code>. Generate with{" "}
             <code>
-              node -e &quot;console.log(require(&apos;crypto&apos;).randomBytes(32).toString(&apos;base64&apos;))&quot;
+              node -e
+              &quot;console.log(require(&apos;crypto&apos;).randomBytes(32).toString(&apos;base64&apos;))&quot;
             </code>
             .
           </li>
           <li>
             <strong>Webhook</strong> — run{" "}
-            <code>stripe listen --forward-to localhost:3000/api/stripe/webhook</code>{" "}
+            <code>
+              stripe listen --forward-to localhost:3000/api/stripe/webhook
+            </code>{" "}
             and set <code>STRIPE_WEBHOOK_SECRET</code>.
           </li>
           <li>
@@ -92,8 +97,7 @@ git pull upstream main`}
           <ExternalLink href="https://docs.stripe.com/stripe-cli">
             Stripe Projects
           </ExternalLink>
-          ? Most
-          of this is provisioned for you — run{" "}
+          ? Most of this is provisioned for you — run{" "}
           <code>stripe projects env --pull</code>.
         </p>
 
@@ -122,9 +126,9 @@ Your Markdown body here.`}
           <code>public/</code>) and are served only after payment or a
           subscription via a short-lived signed URL. Put a low-detail preview in{" "}
           <code>public/previews/</code>. To place an image inside a post body,
-          link it as{" "}
-          <code>![alt](/content/assets/my-diagram.png)</code> — that path is
-          rewritten to the same signed, access-checked URL when the post renders.
+          link it as <code>![alt](/content/assets/my-diagram.png)</code> — that
+          path is rewritten to the same signed, access-checked URL when the post
+          renders.
         </p>
 
         <h2>4. Access tiers</h2>
@@ -132,8 +136,8 @@ Your Markdown body here.`}
           The <code>access</code> field answers one question:{" "}
           <em>what does a signed-in human need in order to read this post?</em>{" "}
           It is not a &ldquo;free to the world&rdquo; switch — callers without a
-          session pay per item either way. Omitting it means{" "}
-          <code>paid</code>, so new content is never published by accident.
+          session pay per item either way. Omitting it means <code>paid</code>,
+          so new content is never published by accident.
         </p>
         <table>
           <thead>
@@ -180,13 +184,13 @@ Your Markdown body here.`}
           <ExternalLink href="https://docs.stripe.com/billing/entitlements">
             Stripe entitlement features
           </ExternalLink>{" "}
-          do the gating:{" "}
-          <code>cnd_free_content</code> and <code>cnd_paid_content</code>. The
-          Free product ($0/month) grants the first; the Unlimited product grants
-          both. Signing in subscribes you to the $0 plan automatically, so every
-          signed-in user holds a real Stripe subscription and Checkout simply
-          swaps it for a paid one. Because the mapping lives in Stripe, changing
-          who can read what is a config change rather than a deploy.
+          do the gating: <code>cnd_free_content</code> and{" "}
+          <code>cnd_paid_content</code>. The Free product ($0/month) grants the
+          first; the Unlimited product grants both. Signing in subscribes you to
+          the $0 plan automatically, so every signed-in user holds a real Stripe
+          subscription and Checkout simply swaps it for a paid one. Because the
+          mapping lives in Stripe, changing who can read what is a config change
+          rather than a deploy.
         </p>
         <p>
           What stays public: titles, summaries, and tags — agents need them to
@@ -205,9 +209,9 @@ Your Markdown body here.`}
 
         <h2>5. Theming</h2>
         <p>
-          A theme is a block of CSS variables keyed on a{" "}
-          <code>data-theme</code> attribute set on <code>&lt;html&gt;</code>.
-          Three ship in <code>app/globals.css</code>: <code>minimalist</code>,{" "}
+          A theme is a block of CSS variables keyed on a <code>data-theme</code>{" "}
+          attribute set on <code>&lt;html&gt;</code>. Three ship in{" "}
+          <code>app/globals.css</code>: <code>minimalist</code>,{" "}
           <code>bookworm</code>, and <code>maximalist</code>. Light and dark
           follow the browser automatically, and a <code>data-scheme</code>{" "}
           attribute can force one. Set the starting theme with{" "}
@@ -216,13 +220,12 @@ Your Markdown body here.`}
         </p>
         <p>
           Styles live in two places. <code>app/globals.css</code> holds the
-          theme variables, base element styles, the page{" "}
-          <code>.container</code>, and the <code>.prose</code> block that styles
-          rendered Markdown, plus the shared <code>.meta</code>,{" "}
-          <code>.center</code>, <code>.warn</code>, and <code>.hidden</code>{" "}
-          utilities. Component-specific rules live in CSS Modules next to the
-          components that own them, like{" "}
-          <code>components/PostCard.module.css</code>.
+          theme variables, base element styles, the page <code>.container</code>
+          , and the <code>.prose</code> block that styles rendered Markdown,
+          plus the shared <code>.meta</code>, <code>.center</code>,{" "}
+          <code>.warn</code>, and <code>.hidden</code> utilities.
+          Component-specific rules live in CSS Modules next to the components
+          that own them, like <code>components/PostCard.module.css</code>.
         </p>
 
         <h3>Register the name</h3>
@@ -388,8 +391,8 @@ export const extras: Extras = {};`}
             <Link href="/agents">/agents</Link> — markdown directory
           </li>
           <li>
-            <code>/api/content/&#123;id&#125;</code> — paid endpoint (<code>HTTP 402 →
-            pay → full markdown</code>)
+            <code>/api/content/&#123;id&#125;</code> — paid endpoint (
+            <code>HTTP 402 → pay → full markdown</code>)
           </li>
         </ul>
         <p>
@@ -409,10 +412,10 @@ export const extras: Extras = {};`}
           <code>WWW-Authenticate</code> header. It has to name the origin agents
           actually dialled. Left to its own devices the MPP library will resolve
           a host from the environment — on Vercel, the internal per-deployment
-          hostname — so the realm is pinned to{" "}
-          <code>NEXT_PUBLIC_API_URL</code> instead, and every discovery document
-          above advertises that same origin. A proxy in front of the app must
-          preserve the header and leave the realm alone.
+          hostname — so the realm is pinned to <code>NEXT_PUBLIC_API_URL</code>{" "}
+          instead, and every discovery document above advertises that same
+          origin. A proxy in front of the app must preserve the header and leave
+          the realm alone.
         </p>
 
         <h2>8. Deploy</h2>

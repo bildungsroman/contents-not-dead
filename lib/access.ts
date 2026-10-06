@@ -4,12 +4,7 @@ import { headers } from "next/headers";
 import { hasFeature } from "./subscription";
 import { type ContentTier, TIER_FEATURE } from "./tiers";
 
-const LOCAL_HOSTNAMES = new Set([
-  "localhost",
-  "127.0.0.1",
-  "[::1]",
-  "0.0.0.0",
-]);
+const LOCAL_HOSTNAMES = new Set(["localhost", "127.0.0.1", "[::1]", "0.0.0.0"]);
 
 /**
  * True when the request is being served to a local developer machine, so paid

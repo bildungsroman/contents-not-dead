@@ -10,7 +10,9 @@ type HomeProps = {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 };
 
-async function viewFrom(searchParams: HomeProps["searchParams"]): Promise<View> {
+async function viewFrom(
+  searchParams: HomeProps["searchParams"],
+): Promise<View> {
   return parseView((await searchParams)[VIEW_PARAM]);
 }
 

@@ -16,8 +16,7 @@ export function AgentGuide() {
           <ExternalLink href="https://mpp.dev">
             Machine Payments Protocol (MPP)
           </ExternalLink>{" "}
-          with
-          Stripe as the payment rail.
+          with Stripe as the payment rail.
         </p>
 
         <h2>Discovery</h2>
@@ -54,9 +53,10 @@ Authorization: <MPP credential>
         </pre>
         <p>
           The{" "}
-          <ExternalLink href="https://www.npmjs.com/package/mppx">mppx</ExternalLink>{" "}
-          client
-          library handles the challenge/credential flow for you.
+          <ExternalLink href="https://www.npmjs.com/package/mppx">
+            mppx
+          </ExternalLink>{" "}
+          client library handles the challenge/credential flow for you.
         </p>
 
         <h2>Or subscribe</h2>

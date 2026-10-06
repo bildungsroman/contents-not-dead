@@ -16,7 +16,14 @@ export function Logo({ className }: { className?: string }) {
       xmlns="http://www.w3.org/2000/svg"
     >
       <defs>
-        <mask id={maskId} maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64">
+        <mask
+          id={maskId}
+          maskUnits="userSpaceOnUse"
+          x="0"
+          y="0"
+          width="64"
+          height="64"
+        >
           <rect width="64" height="64" fill="white" />
           <g stroke="black" strokeWidth="3.4" strokeLinecap="round">
             <line x1="18" y1="22" x2="26" y2="30" />

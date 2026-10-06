@@ -69,9 +69,7 @@ function parseFile(filePath: string, id: string): Post {
 /** Returns all posts sorted by date, newest first. Server-only. */
 export function getAllPosts(): Post[] {
   if (!fs.existsSync(CONTENT_DIR)) return [];
-  const files = fs
-    .readdirSync(CONTENT_DIR)
-    .filter((f) => f.endsWith(".md"));
+  const files = fs.readdirSync(CONTENT_DIR).filter((f) => f.endsWith(".md"));
   const posts = files.map((f) =>
     parseFile(path.join(CONTENT_DIR, f), f.replace(/\.md$/, "")),
   );

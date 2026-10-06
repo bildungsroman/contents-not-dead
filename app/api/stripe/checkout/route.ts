@@ -29,7 +29,10 @@ const INTEGRATION_IDENTIFIER = "cnd_subscribe_qzvdhrkm";
 
 export async function POST(req: Request) {
   if (!isStripeConfigured()) {
-    return NextResponse.json({ error: "Stripe is not configured" }, { status: 503 });
+    return NextResponse.json(
+      { error: "Stripe is not configured" },
+      { status: 503 },
+    );
   }
 
   const { userId } = await auth();
@@ -55,7 +58,9 @@ export async function POST(req: Request) {
 
   // Read Stripe rather than the Clerk cache: the cache can lag a webhook, and
   // being wrong here means billing someone a second time.
-  if (hasActivePaidSubscription(await fetchSubscriptionFromStripe(customerId))) {
+  if (
+    hasActivePaidSubscription(await fetchSubscriptionFromStripe(customerId))
+  ) {
     return NextResponse.json(
       {
         error:

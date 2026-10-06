@@ -9,7 +9,10 @@ export const dynamic = "force-dynamic";
 
 export async function POST() {
   if (!isStripeConfigured()) {
-    return NextResponse.json({ error: "Stripe is not configured" }, { status: 503 });
+    return NextResponse.json(
+      { error: "Stripe is not configured" },
+      { status: 503 },
+    );
   }
   const { userId } = await auth();
   if (!userId) {

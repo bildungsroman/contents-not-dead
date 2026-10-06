@@ -1,6 +1,6 @@
 {
   "name": "contents-not-dead",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
   "description": "An open-source, themeable, agent-native content platform monetized with Stripe subscriptions and MPP per-content payments.",
@@ -9,10 +9,11 @@
     "node": ">=24"
   },
   "scripts": {
-    "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "dev": "next dev",
+    "fix": "prettier \"**/*.{js,jsx,ts,tsx,mjs,cjs,json}\" --write",
     "lint": "tsc --noEmit",
+    "start": "next start",
     "test": "vitest run"
   },
   "dependencies": {

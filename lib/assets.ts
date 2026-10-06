@@ -6,7 +6,11 @@ const ASSET_TTL_SECONDS = 60 * 10; // 10 minutes
 
 /** Issues a short-lived signed access token for a paid image asset. */
 export function issueAssetToken(contentId: string): string {
-  return signToken(contentId, requireSecret("CONTENT_ASSET_SECRET"), ASSET_TTL_SECONDS);
+  return signToken(
+    contentId,
+    requireSecret("CONTENT_ASSET_SECRET"),
+    ASSET_TTL_SECONDS,
+  );
 }
 
 /** Returns true if `token` grants access to `contentId`. */

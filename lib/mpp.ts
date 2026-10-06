@@ -50,8 +50,8 @@ export function getMppx() {
 export function isMppConfigured(): boolean {
   return Boolean(
     process.env.MPP_SECRET_KEY &&
-      process.env.MPP_SECRET_KEY.length >= 32 &&
-      process.env.STRIPE_SECRET_KEY,
+    process.env.MPP_SECRET_KEY.length >= 32 &&
+    process.env.STRIPE_SECRET_KEY,
   );
 }
 
