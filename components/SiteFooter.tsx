@@ -37,6 +37,12 @@ export function SiteFooter() {
             </ExternalLink>
           </div>
         </div>
+        <p className={styles.copyright}>
+          ©{new Date().getFullYear()} Stripe | Site design by{" "}
+          <ExternalLink href="https://larissawaterman.com">
+            Larissa Waterman
+          </ExternalLink>
+        </p>
       </div>
     </footer>
   );
