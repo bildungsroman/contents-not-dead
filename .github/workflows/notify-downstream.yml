@@ -1,0 +1,22 @@
+name: Notify downstream
+
+on:
+  push:
+    branches: [main]
+
+permissions: {}
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    # Unset in forks, so this is a no-op anywhere but the canonical repo.
+    if: vars.DOWNSTREAM_REPO != ''
+    steps:
+      - name: Send repository_dispatch
+        env:
+          GH_TOKEN: ${{ secrets.DOWNSTREAM_DISPATCH_TOKEN }}
+          DOWNSTREAM_REPO: ${{ vars.DOWNSTREAM_REPO }}
+        run: |
+          gh api "repos/$DOWNSTREAM_REPO/dispatches" \
+            -f event_type=upstream-main-updated \
+            -f "client_payload[sha]=$GITHUB_SHA"
