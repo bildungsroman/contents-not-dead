@@ -61,7 +61,7 @@ export function apiUrl(): string {
  */
 export function apiRealm(): string {
   try {
-    return new URL(apiUrl()).host;
+    return new URL(apiUrl()).hostname;
   } catch {
     return apiUrl();
   }

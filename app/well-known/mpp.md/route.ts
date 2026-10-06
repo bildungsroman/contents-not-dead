@@ -1,4 +1,6 @@
 import { apiUrl, appUrl, PER_CONTENT_PRICE_USD, SITE } from "@/lib/config";
+import { describeAcceptedMethods } from "@/lib/mpp";
+import { troubleshootingMarkdown } from "@/lib/payment-errors";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -9,11 +11,15 @@ export async function GET() {
   // challenge it gets back won't match the host it dialled.
   const base = apiUrl();
   const site = appUrl();
+  const methods = describeAcceptedMethods()
+    .map((m) => `- ${m}`)
+    .join("\n");
   const body = `# Machine Payments on ${SITE.name}
 
 This service accepts machine payments via the Machine Payments Protocol (MPP,
-https://mpp.dev) using Stripe as the payment rail (Shared Payment Tokens — fiat
-cards and Link).
+https://mpp.dev). Accepted methods:
+
+${methods}
 
 ## Pay per item ($${PER_CONTENT_PRICE_USD})
 
@@ -21,16 +27,28 @@ cards and Link).
 
    GET ${base}/api/content/{id}
 
-2. If payment is required, you receive HTTP 402 with a \`WWW-Authenticate\`
-   challenge describing the amount and accepted method (\`stripe\`).
+2. If payment is required, you receive HTTP 402 with one \`WWW-Authenticate\`
+   challenge per accepted method, describing the amount and how to pay.
 
-3. Create a Stripe Shared Payment Token for the challenge, then retry the
-   request with the MPP credential in the \`Authorization\` header.
+3. Pay one challenge, then retry the request with the MPP credential in the
+   \`Authorization\` header.
 
 4. On success you receive HTTP 200 with the full markdown body and a
    \`Payment-Receipt\` header.
 
-The \`mppx\` client (https://www.npmjs.com/package/mppx) implements this flow.
+The \`mppx\` client (https://www.npmjs.com/package/mppx) implements this flow,
+and the Tempo CLI (\`tempo request ${base}/api/content/{id}\`) pays the Tempo
+challenge directly.
+
+## Troubleshooting
+
+Every failed payment returns \`application/problem+json\` with \`detail\`
+(what happened), \`hint\` (what to do), and \`charged\` (\`no\`, \`unlikely\`, or
+\`possible\`). A 402 always carries a fresh \`WWW-Authenticate\` challenge to
+pay next. When \`charged\` isn't \`no\`, check your wallet or statement before
+paying again; the \`support\` field says who to contact.
+
+${troubleshootingMarkdown()}
 
 ## Discover content
 

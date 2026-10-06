@@ -1,5 +1,6 @@
 import { getAllPreviews } from "@/lib/content";
 import { apiUrl, appUrl, PER_CONTENT_PRICE_USD, SITE } from "@/lib/config";
+import { describeAcceptedMethods } from "@/lib/mpp";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -32,10 +33,14 @@ export async function GET() {
     "",
     "## How to pay",
     "",
-    `Request \`GET ${base}/api/content/{id}\`. If unpaid you receive HTTP 402 with an MPP`,
-    "`WWW-Authenticate` challenge. Create a Stripe Shared Payment Token for the",
-    "challenge amount and retry with the credential in the `Authorization` header.",
-    "The response body is the full markdown; a `Payment-Receipt` header is included.",
+    `Request \`GET ${base}/api/content/{id}\`. If unpaid you receive HTTP 402 with one MPP`,
+    "`WWW-Authenticate` challenge per accepted method. Pay one and retry with the",
+    "credential in the `Authorization` header. The response body is the full",
+    "markdown; a `Payment-Receipt` header is included. Accepted methods:",
+    "",
+    ...describeAcceptedMethods().map((m) => `- ${m}`),
+    "",
+    `If a payment fails, the 402 body explains why: ${base}/.well-known/mpp.md#troubleshooting`,
     "",
     "## Content",
     "",

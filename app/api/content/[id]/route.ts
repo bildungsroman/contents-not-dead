@@ -3,6 +3,11 @@ import { hasFeature } from "@/lib/subscription";
 import { TIER_FEATURE } from "@/lib/tiers";
 import { chargeForContent, isMppConfigured } from "@/lib/mpp";
 import { renderPaidMarkdown } from "@/lib/agent-format";
+import {
+  enrichChallenge,
+  paymentServiceError,
+  paymentsNotConfigured,
+} from "@/lib/payment-errors";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -14,7 +19,7 @@ const MD_HEADERS = {
 
 /**
  * MPP-protected machine endpoint. Delivers a post's full markdown only after:
- *   - a valid MPP payment credential ($0.50 SPT), or
+ *   - a valid MPP payment credential ($0.50 by SPT or Tempo stablecoin), or
  *   - a session holding the entitlement for this post's tier.
  *
  * Otherwise it returns an HTTP 402 challenge. Note that `access: free` posts
@@ -38,15 +43,21 @@ export async function GET(
   }
 
   if (!isMppConfigured()) {
-    return Response.json(
-      { error: "Machine payments are not configured on this server." },
-      { status: 503 },
-    );
+    return paymentsNotConfigured();
   }
 
-  const result = await chargeForContent(request, id);
+  let result: Awaited<ReturnType<typeof chargeForContent>>;
+  try {
+    result = await chargeForContent(request, id);
+  } catch (error) {
+    return paymentServiceError(error, {
+      hadCredential: /^Payment\s/i.test(
+        request.headers.get("authorization") ?? "",
+      ),
+    });
+  }
   if (result.status === 402) {
-    return result.challenge;
+    return enrichChallenge(result.challenge);
   }
 
   return result.withReceipt(

@@ -64,7 +64,13 @@ node --env-file=.env scripts/setup-stripe.mjs
 stripe projects variables set stripe-price-monthly --env-key STRIPE_PRICE_MONTHLY --value price_...
 stripe projects variables set stripe-price-annual  --env-key STRIPE_PRICE_ANNUAL  --value price_...
 stripe projects variables set stripe-price-free    --env-key STRIPE_PRICE_FREE    --value price_...
+# Optional: lets agents pay in stablecoins on Tempo (see "Tempo payments" below)
+stripe projects variables set tempo-deposit-address --env-key TEMPO_DEPOSIT_ADDRESS --value 0x...
 ```
+
+The script also finds or creates a Stripe crypto deposit address on Tempo and
+prints it as `TEMPO_DEPOSIT_ADDRESS`. If your account can't create one yet, it
+prints a warning instead and everything else still succeeds.
 
 It creates two entitlement features, `cnd_free_content` and `cnd_paid_content`,
 and attaches them to the products that grant them:
@@ -104,16 +110,57 @@ stripe projects env --json      # env var names (never values)
 | `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY` | optional — set these instead if you configure Clerk by hand; they take precedence |
 | `MPP_SECRET_KEY`, `CONTENT_ASSET_SECRET`, `NEXT_PUBLIC_APP_URL` | project variables |
 | `NEXT_PUBLIC_API_URL`, `MPP_CONTACT_EMAIL` | optional self-managed env vars (agent discovery; see below) |
+| `TEMPO_DEPOSIT_ADDRESS` | optional project variable (Tempo stablecoin payments; see below) |
 | `NEXT_PUBLIC_DEFAULT_THEME` | optional self-managed env var (starting theme) |
 | `LOCAL_FULL_ACCESS` | optional; set to `false` to test the paywall locally (see [Access tiers](#access-tiers)) |
 
 `NEXT_PUBLIC_API_URL` is the public origin agents call. It sets `servers[0].url`
-in `/openapi.json`, the paid resource URLs in `/.well-known/mpp.json`, and the
-MPP `WWW-Authenticate` realm. Leave it unset to serve the agent surface from
-`NEXT_PUBLIC_APP_URL`; set it when agents use a dedicated hostname. It must name
-the origin agents actually reach — a realm pointing at an internal or
-per-deployment host fails agent discovery. `MPP_CONTACT_EMAIL` is optional and
-published in `/openapi.json` for origin ownership verification.
+in `/openapi.json`, every paid-resource link in agent teasers and guides, and
+the MPP `WWW-Authenticate` realm. Leave it unset to serve the agent surface
+from `NEXT_PUBLIC_APP_URL`; set it when agents use a dedicated hostname. It
+must name the origin agents actually reach — a realm pointing at an internal
+or per-deployment host fails agent discovery. `MPP_CONTACT_EMAIL` is optional
+and published in `/openapi.json` for origin ownership verification.
+
+### Tempo payments
+
+With `TEMPO_DEPOSIT_ADDRESS` set, every `402` offers a second MPP challenge,
+`method="tempo"`, next to the Stripe card/Link one. It is built by mppx's
+`stripe.create()`: with a sandbox key (`sk_test_`/`rk_test_`) the challenge
+names Tempo testnet (`chainId` 42431, pathUSD); with a live key, Tempo mainnet.
+Payments land at the deposit address, are recorded as PaymentIntents, and
+settle into your Stripe balance. Leave the variable unset to accept cards and
+Link only. An invalid address disables just the Tempo rail and logs one error.
+`/.well-known/mpp.json` keeps rail and currency metadata under
+`payment.method_details` for each method: Stripe uses the `spt`/USD rail, while
+Tempo uses TIP-20 on the configured network and token.
+
+Try it against a local server (with `LOCAL_FULL_ACCESS=false`):
+
+```bash
+curl -fsSL https://tempo.xyz/install | bash
+tempo wallet login && tempo wallet fund     # funds a testnet wallet
+tempo request http://localhost:3000/api/content/a-quiet-machine
+```
+
+Replay protection for Tempo uses mppx's in-memory store, so on a
+multi-instance deployment a used transaction hash is only rejected by the
+instance that consumed it.
+
+### Payment errors
+
+Every payment-related failure from `/api/content/{id}` is an
+`application/problem+json` body that says what went wrong, whether the caller
+was charged (`charged`: `no`, `unlikely`, or `possible`), and what to do next.
+Ordinary routing errors such as an unknown content id remain JSON `404`
+responses. The `WWW-Authenticate` challenges mppx sets are always kept, so
+wallets can retry directly. The full list is served at
+`/.well-known/mpp.md#troubleshooting`. Server logs carry one
+`[mpp] payment failed` or `[mpp] payment succeeded` line per attempt, with the
+challenge id and the Tempo transaction hash or PaymentIntent id for
+reconciliation. Payment-service failures return `503`; known provider outages
+also include `Retry-After: 30`, while unexpected server faults tell callers
+that retrying is unlikely to help.
 
 Forward Stripe webhooks while developing and store the signing secret:
 
@@ -123,7 +170,10 @@ stripe projects variables set stripe-webhook-secret --env-key STRIPE_WEBHOOK_SEC
 ```
 
 > The Stripe restricted key needs write access to Products, Prices, Checkout
-> Sessions, Customers, Billing Portal, PaymentIntents, and Entitlements.
+> Sessions, Customers, Billing Portal, PaymentIntents, and Entitlements. For
+> Tempo payments it also needs Crypto Deposit Addresses read and write
+> (`crypto_deposit_address_read`/`_write`), or `setup-stripe.mjs` skips the
+> deposit address with a permission warning.
 
 ## How it works
 
@@ -132,7 +182,7 @@ stripe projects variables set stripe-webhook-secret --env-key STRIPE_WEBHOOK_SEC
 | Auth | Clerk. Subscription state and entitlement keys are written to the user's `publicMetadata` by Stripe webhooks and revalidated against Stripe when stale. |
 | Access control | Stripe Entitlements. Each post declares `access: free` or `access: paid`; every gate resolves to `hasFeature(TIER_FEATURE[post.access])`. Changing who can read what is a Stripe config change, not a deploy. |
 | Subscriptions | Stripe Checkout (`mode: subscription`) + Billing Portal. Every signed-in user holds a real subscription — the $0 one is created on first page load, and Checkout replaces it on upgrade. Stripe is the source of truth; no database required. |
-| Agent payments | `mppx` (`mppx/server`) with the Stripe SPT method. `GET /api/content/{id}` returns a `402` challenge, then the full markdown + a `Payment-Receipt` on success. Applies to every post regardless of tier. |
+| Agent payments | `mppx` (`mppx/server`) via `stripe.create()`: the Stripe SPT method, plus Tempo stablecoins when `TEMPO_DEPOSIT_ADDRESS` is set. `GET /api/content/{id}` returns a `402` with one challenge per method, then the full markdown + a `Payment-Receipt` on success. Applies to every post regardless of tier. |
 | Paid images | Full assets live in `content/assets/` (outside `public/`) and are served via `/api/content/{id}/asset` only to entitled sessions or with a short-lived HMAC-signed URL. Low-detail previews in `public/previews/` stay public. |
 | Themes | CSS variables keyed on `data-theme`; light/dark follows `prefers-color-scheme` unless the header toggle forces `data-scheme`. Both choices persist in cookies. See [Theming](#theming). |
 | Homepage view | `/?view=agent` swaps the post grid for the agent payment guide. The HUMAN/AGENT toggle in the header links between the two; every other page counts as HUMAN. |

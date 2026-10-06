@@ -6,9 +6,11 @@
  * Run with the Stripe key loaded from your env file (never printed):
  *   node --env-file=.env scripts/setup-stripe.mjs
  *
- * Prints the price IDs so they can be stored as project variables.
+ * Prints the price IDs, plus a Tempo deposit address for stablecoin MPP
+ * payments, so they can be stored as project variables.
  */
 import Stripe from "stripe";
+import { stripe as mppxStripe } from "mppx/server";
 
 const key = process.env.STRIPE_SECRET_KEY;
 if (!key) {
@@ -170,6 +172,35 @@ async function main() {
   console.log("STRIPE_PRICE_ANNUAL=" + annual.id);
   console.log("STRIPE_PRICE_FREE=" + free.id);
   console.log("PORTAL_CONFIG_ID=" + portal.id);
+
+  const tempoAddress = await findOrCreateTempoDepositAddress();
+  if (tempoAddress) console.log("TEMPO_DEPOSIT_ADDRESS=" + tempoAddress);
+}
+
+/**
+ * Reuses the account's Tempo crypto deposit address, creating one only if none
+ * exists. Optional: an account without crypto deposits enabled still gets the
+ * subscription setup, and agents can pay by card and Link only.
+ */
+async function findOrCreateTempoDepositAddress() {
+  try {
+    return await mppxStripe
+      .create({
+        client: stripe,
+        networkId: "internal",
+        livemode: !key.includes("_test_"),
+      })
+      .findOrCreateDepositAddress("tempo");
+  } catch (err) {
+    console.warn(
+      "Skipping TEMPO_DEPOSIT_ADDRESS: could not find or create a Tempo deposit " +
+        "address (" +
+        (err?.message ?? err) +
+        "). Crypto deposits may not be enabled on this account; agents can " +
+        "still pay by card and Link.",
+    );
+    return null;
+  }
 }
 
 main().catch((err) => {

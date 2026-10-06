@@ -1,10 +1,12 @@
 import Link from "next/link";
-import { PER_CONTENT_PRICE_USD, appUrl } from "@/lib/config";
+import { PER_CONTENT_PRICE_USD, apiUrl } from "@/lib/config";
+import { describeTempoRail, tempoRail } from "@/lib/mpp";
 import { ExternalLink } from "./ExternalLink";
 
 /** The homepage's AGENT view: how agents discover and pay for content. */
 export function AgentGuide() {
-  const base = appUrl();
+  const base = apiUrl();
+  const tempo = tempoRail();
   return (
     <div className="content-panel">
       <article className="prose">
@@ -22,14 +24,15 @@ export function AgentGuide() {
         <h2>Discovery</h2>
         <ul>
           <li>
-            <a href="/llms.txt">/llms.txt</a> — overview and index for LLMs.
+            <a href={`${base}/llms.txt`}>/llms.txt</a> — overview and index for
+            LLMs.
           </li>
           <li>
-            <a href="/.well-known/mpp.json">/.well-known/mpp.json</a> —
+            <a href={`${base}/.well-known/mpp.json`}>/.well-known/mpp.json</a> —
             machine-readable payment configuration.
           </li>
           <li>
-            <Link href="/agents">/agents</Link> — markdown directory of all
+            <a href={`${base}/agents`}>/agents</a> — markdown directory of all
             content and endpoints.
           </li>
         </ul>
@@ -37,16 +40,19 @@ export function AgentGuide() {
         <h2>Paying for a single item</h2>
         <p>
           Each item costs <strong>${PER_CONTENT_PRICE_USD}</strong>, charged
-          over MPP using a Stripe Shared Payment Token (fiat: cards and Link).
-          Request the resource; if you haven&rsquo;t paid, you get an HTTP{" "}
-          <code>402 Payment Required</code> with a challenge:
+          over MPP using a Stripe Shared Payment Token (fiat: cards and Link)
+          {tempo ? (
+            <> or a stablecoin transfer on {describeTempoRail(tempo)}</>
+          ) : null}
+          . Request the resource; if you haven&rsquo;t paid, you get an HTTP{" "}
+          <code>402 Payment Required</code> with a challenge for each method:
         </p>
         <pre>
           <code>{`# 1. Request the resource
 GET ${base}/api/content/{id}
-# → 402 Payment Required + WWW-Authenticate challenge
+# → 402 Payment Required + WWW-Authenticate challenges
 
-# 2. Create a Shared Payment Token for the challenge amount, then retry
+# 2. Pay one challenge, then retry
 GET ${base}/api/content/{id}
 Authorization: <MPP credential>
 # → 200 OK, full markdown + Payment-Receipt header`}</code>
@@ -56,7 +62,13 @@ Authorization: <MPP credential>
           <ExternalLink href="https://www.npmjs.com/package/mppx">
             mppx
           </ExternalLink>{" "}
-          client library handles the challenge/credential flow for you.
+          client library handles the challenge/credential flow for you. If a
+          payment fails, the <code>402</code> body says why and whether you were
+          charged; see the{" "}
+          <a href={`${base}/.well-known/mpp.md#troubleshooting`}>
+            troubleshooting guide
+          </a>
+          .
         </p>
 
         <h2>Or subscribe</h2>

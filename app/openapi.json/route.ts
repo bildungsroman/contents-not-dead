@@ -6,6 +6,7 @@ import {
   PER_CONTENT_PRICE_USD,
   SITE,
 } from "@/lib/config";
+import { describeTempoRail, tempoRail } from "@/lib/mpp";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -13,9 +14,8 @@ export const dynamic = "force-dynamic";
 /** Version of the public agent-facing contract, not of the app itself. */
 const API_VERSION = "1.0.0";
 
-/** Currency and payment method must mirror what `lib/mpp.ts` charges. */
+/** Currency and payment methods must mirror what `lib/mpp.ts` charges. */
 const CURRENCY = "usd";
-const MPP_METHOD = "stripe";
 const MPP_INTENT = "charge";
 
 /**
@@ -32,6 +32,7 @@ function decimalPrice(): string {
  * authoritative — this only has to agree with it.
  */
 function paymentInfo() {
+  const tempo = tempoRail();
   return {
     price: {
       mode: "fixed",
@@ -39,21 +40,71 @@ function paymentInfo() {
       amount: decimalPrice(),
     },
     protocols: [
-      {
-        mpp: {
-          method: MPP_METHOD,
-          intent: MPP_INTENT,
-          currency: CURRENCY,
-        },
-      },
+      { mpp: { method: "stripe", intent: MPP_INTENT, currency: CURRENCY } },
+      ...(tempo
+        ? [
+            {
+              mpp: {
+                method: "tempo",
+                intent: MPP_INTENT,
+                currency: tempo.currency,
+                chainId: tempo.chainId,
+              },
+            },
+          ]
+        : []),
     ],
   };
+}
+
+function guidance(): string {
+  const tempo = tempoRail();
+  const pay = tempo
+    ? `pay it with a Stripe Shared Payment Token or a stablecoin transfer on ` +
+      `${describeTempoRail(tempo)}`
+    : `pay it with a Stripe Shared Payment Token`;
+  return (
+    `Paid content is delivered as markdown by GET /api/content/{id} for ` +
+    `$${PER_CONTENT_PRICE_USD} per item over MPP. Call it without credentials to ` +
+    `receive an HTTP 402 with a "Payment" WWW-Authenticate challenge, ${pay}, and ` +
+    `retry with the credential in the Authorization header. Failed payments ` +
+    `return application/problem+json with a hint and a "charged" field; see ` +
+    `${apiUrl()}/.well-known/mpp.md#troubleshooting. Browse ids for free at ` +
+    `GET /agents; each item's metadata and teaser are free at GET /agents/{id}. ` +
+    `Humans can subscribe instead at ${appUrl()}/subscribe.`
+  );
 }
 
 const MARKDOWN_BODY = {
   "text/markdown": {
     schema: { type: "string", description: "Markdown document." },
   },
+};
+
+/** RFC 9457 body for every failed payment; see `lib/payment-errors.ts`. */
+const PROBLEM_SCHEMA = {
+  type: "object",
+  properties: {
+    type: { type: "string" },
+    title: { type: "string" },
+    status: { type: "integer" },
+    detail: { type: "string" },
+    hint: { type: "string", description: "What to do next." },
+    charged: {
+      type: "string",
+      enum: ["no", "unlikely", "possible"],
+      description:
+        "Whether this attempt may have moved funds. Unless `no`, check your wallet or statement before paying again.",
+    },
+    acceptedMethods: { type: "array", items: { type: "string" } },
+    docs: { type: "string", description: "Troubleshooting guide." },
+    support: {
+      type: "string",
+      description: "Who to contact when funds may have moved.",
+    },
+    challengeId: { type: "string" },
+  },
+  required: ["type", "title", "status"],
 };
 
 /** Free operations still need an explicit auth mode, or discovery flags them. */
@@ -95,14 +146,7 @@ export async function GET() {
       title: SITE.name,
       version: API_VERSION,
       description: SITE.description,
-      "x-guidance":
-        `Paid content is delivered as markdown by GET /api/content/{id} for ` +
-        `$${PER_CONTENT_PRICE_USD} per item over MPP. Call it without credentials to ` +
-        `receive an HTTP 402 with a "Payment" WWW-Authenticate challenge, pay it with ` +
-        `a Stripe Shared Payment Token, and retry with the credential in the ` +
-        `Authorization header. Browse ids for free at GET /agents; each item's ` +
-        `metadata and teaser are free at GET /agents/{id}. Humans can subscribe ` +
-        `instead at ${appUrl()}/subscribe.`,
+      "x-guidance": guidance(),
       ...(email ? { contact: { email } } : {}),
       license: { name: "MIT", identifier: "MIT" },
     },
@@ -145,7 +189,8 @@ export async function GET() {
             },
             "402": {
               description:
-                "Payment required. Carries an MPP challenge in the WWW-Authenticate header.",
+                "Payment required, or the submitted payment was rejected. Carries a " +
+                "fresh MPP challenge per accepted method in the WWW-Authenticate header.",
               headers: {
                 "WWW-Authenticate": {
                   description: 'MPP challenge, using the "Payment" scheme.',
@@ -153,20 +198,22 @@ export async function GET() {
                 },
               },
               content: {
-                "application/problem+json": {
-                  schema: {
-                    type: "object",
-                    properties: {
-                      type: { type: "string" },
-                      title: { type: "string" },
-                      status: { type: "integer" },
-                      detail: { type: "string" },
-                      hint: { type: "string" },
-                      challengeId: { type: "string" },
-                    },
-                    required: ["type", "title", "status"],
-                  },
+                "application/problem+json": { schema: PROBLEM_SCHEMA },
+              },
+            },
+            "503": {
+              description:
+                "A payment provider is unreachable, machine payments aren't configured, " +
+                "or the payment service encountered an unexpected server error.",
+              headers: {
+                "Retry-After": {
+                  description:
+                    "Seconds to wait before retrying, when transient.",
+                  schema: { type: "integer" },
                 },
+              },
+              content: {
+                "application/problem+json": { schema: PROBLEM_SCHEMA },
               },
             },
             "404": {

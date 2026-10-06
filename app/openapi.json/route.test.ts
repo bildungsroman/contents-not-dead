@@ -63,6 +63,41 @@ describe("/openapi.json", () => {
         intent: "charge",
         currency: "usd",
       });
+      expect(info.protocols).toHaveLength(1);
+    });
+
+    it("adds a Tempo testnet protocol only when a deposit address is set", async () => {
+      process.env.STRIPE_SECRET_KEY = "sk_test_fake";
+      process.env.TEMPO_DEPOSIT_ADDRESS =
+        "0x1111111111111111111111111111111111111111";
+      try {
+        const doc = await fetchDoc();
+        const info = doc.paths["/api/content/{id}"].get["x-payment-info"];
+        expect(info.protocols[1].mpp).toMatchObject({
+          method: "tempo",
+          intent: "charge",
+          chainId: 42431,
+        });
+        expect(doc.info["x-guidance"]).toContain("Tempo testnet");
+      } finally {
+        delete process.env.TEMPO_DEPOSIT_ADDRESS;
+      }
+    });
+
+    it("documents problem bodies for failed payments", async () => {
+      const responses = (await fetchDoc()).paths["/api/content/{id}"].get
+        .responses;
+      for (const status of ["402", "503"]) {
+        const schema =
+          responses[status].content["application/problem+json"].schema;
+        expect(schema.properties.charged.enum, status).toEqual([
+          "no",
+          "unlikely",
+          "possible",
+        ]);
+      }
+      expect(responses["500"]).toBeUndefined();
+      expect(responses["503"].headers["Retry-After"]).toBeDefined();
     });
 
     it("declares an auth mode and both input and output schemas", async () => {

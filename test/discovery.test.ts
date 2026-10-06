@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { GET as agents } from "@/app/agents/route";
 import { GET as llms } from "@/app/llms.txt/route";
 import { GET as openapi } from "@/app/openapi.json/route";
@@ -83,5 +83,55 @@ describe("discovery documents", () => {
       const text = await (await handler()).text();
       expect(text, name).toContain(`${API}/openapi.json`);
     }
+  });
+
+  describe("payment methods", () => {
+    const DEPOSIT = "0x1111111111111111111111111111111111111111";
+
+    beforeEach(() => {
+      process.env.STRIPE_SECRET_KEY = "sk_test_fake";
+    });
+    afterEach(() => {
+      delete process.env.TEMPO_DEPOSIT_ADDRESS;
+    });
+
+    it("advertises only Stripe without a Tempo deposit address", async () => {
+      const doc = await (await mppJson()).json();
+      expect(doc.payment.methods).toEqual(["stripe"]);
+      expect(doc.payment.rail).toBeUndefined();
+      expect(doc.payment.currency).toBeUndefined();
+      expect(doc.payment.method_details.stripe).toEqual({
+        rail: "spt",
+        currency: "usd",
+        payment_method_types: ["card", "link"],
+      });
+      expect(doc.payment.method_details.tempo).toBeUndefined();
+      expect(doc.payment.resources[0].methods).toEqual(["stripe"]);
+      expect(await (await mppMd()).text()).not.toContain("Tempo testnet");
+    });
+
+    it("advertises Tempo testnet when a deposit address is set", async () => {
+      process.env.TEMPO_DEPOSIT_ADDRESS = DEPOSIT;
+      const doc = await (await mppJson()).json();
+      expect(doc.payment.methods).toEqual(["stripe", "tempo"]);
+      expect(doc.payment.method_details.tempo).toMatchObject({
+        rail: "tip-20",
+        network: "tempo-testnet",
+        chain_id: 42431,
+        recipient: DEPOSIT,
+      });
+      expect(doc.payment.resources[0].methods).toEqual(["stripe", "tempo"]);
+      for (const handler of [mppMd, agents]) {
+        expect(await (await handler()).text()).toContain(
+          "Tempo testnet (chainId 42431, pathUSD)",
+        );
+      }
+    });
+
+    it("publishes troubleshooting guidance for failed payments", async () => {
+      const md = await (await mppMd()).text();
+      expect(md).toContain("## Troubleshooting");
+      expect(md).toContain("`internal-payment-error`");
+    });
   });
 });

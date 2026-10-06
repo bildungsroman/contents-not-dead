@@ -6,6 +6,7 @@ import {
   SITE,
   SUBSCRIPTION,
 } from "@/lib/config";
+import { mppMethods, tempoRail } from "@/lib/mpp";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -17,6 +18,7 @@ export async function GET() {
   const base = apiUrl();
   const site = appUrl();
   const previews = getAllPreviews();
+  const tempo = tempoRail();
 
   const doc = {
     protocol: "https://mpp.dev",
@@ -24,15 +26,31 @@ export async function GET() {
     service: SITE.name,
     description: SITE.description,
     payment: {
-      methods: ["stripe"],
-      rail: "spt",
-      currency: "usd",
+      methods: mppMethods(),
+      method_details: {
+        stripe: {
+          rail: "spt",
+          currency: "usd",
+          payment_method_types: ["card", "link"],
+        },
+        ...(tempo && {
+          tempo: {
+            rail: "tip-20",
+            network: tempo.network,
+            chain_id: tempo.chainId,
+            currency: tempo.currency,
+            currency_symbol: tempo.currencySymbol,
+            recipient: tempo.recipient,
+          },
+        }),
+      },
       resources: [
         {
           name: "content-item",
           pattern: `${base}/api/content/{id}`,
           price: PER_CONTENT_PRICE_USD,
           currency: "usd",
+          methods: mppMethods(),
           description: "Full access to a single content item.",
         },
       ],

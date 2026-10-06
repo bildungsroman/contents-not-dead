@@ -76,6 +76,14 @@ git pull upstream main`}
             .
           </li>
           <li>
+            <strong>Tempo</strong> — optional.{" "}
+            <code>TEMPO_DEPOSIT_ADDRESS</code> is a Stripe crypto deposit
+            address that lets agents pay in stablecoins on Tempo (testnet with a
+            sandbox key). <code>scripts/setup-stripe.mjs</code> prints one if
+            the key has Crypto Deposit Addresses access; leave it unset to
+            accept cards and Link only.
+          </li>
+          <li>
             <strong>Webhook</strong> — run{" "}
             <code>
               stripe listen --forward-to localhost:3000/api/stripe/webhook
@@ -87,7 +95,9 @@ git pull upstream main`}
             <code>NEXT_PUBLIC_API_URL</code> is the public origin agents call;
             leave it unset to serve the agent surface from{" "}
             <code>NEXT_PUBLIC_APP_URL</code>, and set it only when agents use a
-            dedicated hostname. <code>MPP_CONTACT_EMAIL</code> is published in{" "}
+            dedicated hostname. Paid-resource links in agent teasers and guides
+            use this API origin, while subscription links stay on the app
+            origin. <code>MPP_CONTACT_EMAIL</code> is published in{" "}
             <code>/openapi.json</code> so you can verify ownership of the
             origin.
           </li>
@@ -405,6 +415,19 @@ export const extras: Extras = {};`}
           The values come from the same constants the payment code charges, so
           the document cannot quietly drift from what the endpoint actually
           does.
+        </p>
+        <p>
+          <code>/.well-known/mpp.json</code> also describes each method
+          independently under <code>payment.method_details</code>: Stripe uses
+          the SPT/USD rail, while Tempo uses TIP-20 with its network, chain,
+          token, and recipient. A single global rail would be ambiguous when
+          both methods are enabled.
+        </p>
+        <p>
+          Payment failures use <code>application/problem+json</code> and include
+          an actionable hint plus a <code>charged</code> assessment.
+          Payment-service failures return <code>503</code>; known transient
+          provider failures also include <code>Retry-After: 30</code>.
         </p>
         <p>
           The runtime <code>402</code> is the final source of truth, and the

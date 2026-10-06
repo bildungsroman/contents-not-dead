@@ -54,6 +54,11 @@ describe("public origin resolution", () => {
     process.env.VERCEL_URL = "proj-abc123-team.vercel.app";
     expect(apiRealm()).toBe("api.example.com");
   });
+
+  it("omits the port, since agents match the realm against the bare hostname", () => {
+    process.env.NEXT_PUBLIC_API_URL = "http://localhost:3000";
+    expect(apiRealm()).toBe("localhost");
+  });
 });
 
 /**
