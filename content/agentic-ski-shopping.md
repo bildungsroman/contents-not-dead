@@ -1,6 +1,6 @@
 ---
 title: Three Skis Worth Sending Your Agent After
-summary: 'Ask an agent to "buy me a good all-mountain ski" and you\'ll get a good all-mountain ski. Whether it's the right one depends on details that rarely make it into a product listing: how much rocker it has, what's inside the core, and whether it wants to carve or slash. Here are three of the most popular skis in the 98–102 mm class, and the context your agent needs to choose between them.'
+summary: 'Ask an agent to "buy me a good all-mountain ski" and you''ll get a good all-mountain ski. Whether it''s the right one depends on details that rarely make it into a product listing: how much rocker it has, what''s inside the core, and whether it wants to carve or slash. Here are three of the most popular skis in the 98–102 mm class, and the context your agent needs to choose between them.'
 authors: [The Editors]
 date: '2026-10-05'
 tags: [skis, gear, agentic-commerce]
