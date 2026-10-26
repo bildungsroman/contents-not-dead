@@ -1,4 +1,6 @@
 import { SITE } from "@/lib/config";
+import { buttonClass } from "./Button";
+import { ExternalLink } from "./ExternalLink";
 import { Logo } from "./Logo";
 import styles from "./Hero.module.css";
 
@@ -10,6 +12,9 @@ export function Hero() {
       <Logo className={styles.logo} />
       <h1 className={styles.title}>{SITE.name.replace("'", "\u2019")}</h1>
       <p className={styles.subtitle}>{SITE.description}</p>
+      <ExternalLink href={`${SITE.repo}/fork`} className={buttonClass({})}>
+        Fork repo
+      </ExternalLink>
     </section>
   );
 }

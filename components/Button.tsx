@@ -15,7 +15,7 @@ interface ButtonStyleProps {
   block?: boolean;
 }
 
-function buttonClass(
+export function buttonClass(
   { variant = "primary", block }: ButtonStyleProps,
   className?: string,
 ) {
