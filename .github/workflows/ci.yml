@@ -29,7 +29,7 @@ jobs:
     runs-on: ubuntu-latest
     # Only meaningful upstream. Forks and the private demo overlay legitimately
     # carry these names, and this file is inherited by both.
-    if: github.repository == 'bildungsroman/contents-not-dead'
+    if: github.repository == 'stripe-demos/contents-not-dead'
     steps:
       - uses: actions/checkout@v5
 

@@ -31,7 +31,7 @@ export const SITE = {
   tagline: "A content platform humans and agents can both pay for.",
   description:
     "An open-source, themeable content platform monetized with Stripe subscriptions and per-content Machine Payments Protocol (MPP) payments.",
-  repo: "https://github.com/bildungsroman/contents-not-dead",
+  repo: "https://github.com/stripe-demos/contents-not-dead",
 };
 
 export function appUrl(): string {

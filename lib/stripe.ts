@@ -14,7 +14,7 @@ export function getStripe(): Stripe {
   cached = new Stripe(key, {
     appInfo: {
       name: "contents-not-dead",
-      url: "https://github.com/stripe-samples/contents-not-dead",
+      url: "https://github.com/stripe-demos/contents-not-dead",
     },
   });
   return cached;
