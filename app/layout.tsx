@@ -4,7 +4,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Rubik_Glitch, Space_Mono, Pixelify_Sans } from "next/font/google";
-import { DEFAULT_THEME, SITE, THEMES, type Theme } from "@/lib/config";
+import { DEFAULT_THEME, SITE, THEMES, appUrl, type Theme } from "@/lib/config";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { THEME_COOKIE, SCHEME_COOKIE, type Scheme } from "@/lib/theme-shared";
@@ -30,11 +30,21 @@ const pixelifySans = Pixelify_Sans({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(appUrl()),
   title: {
     default: SITE.name,
     template: `%s · ${SITE.name}`,
   },
   description: SITE.description,
+  // Leave title, description, and images unset so each page's own title and
+  // description, and `opengraph-image.jpg`, fill them in.
+  openGraph: {
+    type: "website",
+    siteName: SITE.name,
+  },
+  twitter: {
+    card: "summary_large_image",
+  },
   other: {
     // Point agents at the machine-readable discovery documents.
     "mpp-discovery": "/.well-known/mpp.json",
