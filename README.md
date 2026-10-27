@@ -27,6 +27,8 @@ theme and you have a working paid content site.
 
 ## Quick start
 
+You need Node 24 or later (`.nvmrc` pins it).
+
 This project provisions its third-party services (auth, hosting) with
 [Stripe Projects](https://projects.dev) — the Stripe CLI is the source of truth
 for credentials and writes them straight into a git-ignored `.env`. No manual
@@ -82,7 +84,8 @@ and attaches them to the products that grant them:
 
 > `STRIPE_PRICE_FREE` is not optional. Without it nobody is ever granted an
 > entitlement, so every post falls back to requiring a paid subscription or an
-> MPP payment. The app logs a warning when it's missing.
+> MPP payment. The app logs a warning the first time it tries to provision a
+> free subscription without it.
 
 Then start the app:
 
@@ -107,12 +110,16 @@ stripe projects env --json      # env var names (never values)
 | `STRIPE_SECRET_KEY`, `STRIPE_PROFILE_ID`, `STRIPE_PRICE_MONTHLY`, `STRIPE_PRICE_ANNUAL`, `STRIPE_PRICE_FREE` | Stripe / project variables |
 | `STRIPE_WEBHOOK_SECRET` | project variable (see webhooks below) |
 | `CLERK_ENVIRONMENTS` | `stripe projects init` (Clerk keys as one JSON var; `lib/clerk-keys.ts` unpacks it) |
-| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY` | optional — set these instead if you configure Clerk by hand; they take precedence |
+| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY` | optional — set both instead if you configure Clerk by hand; together they take precedence |
 | `MPP_SECRET_KEY`, `CONTENT_ASSET_SECRET`, `NEXT_PUBLIC_APP_URL` | project variables |
 | `NEXT_PUBLIC_API_URL`, `MPP_CONTACT_EMAIL` | optional self-managed env vars (agent discovery; see below) |
 | `TEMPO_DEPOSIT_ADDRESS` | optional project variable (Tempo stablecoin payments; see below) |
 | `NEXT_PUBLIC_DEFAULT_THEME` | optional self-managed env var (starting theme) |
 | `LOCAL_FULL_ACCESS` | optional; set to `false` to test the paywall locally (see [Access tiers](#access-tiers)) |
+
+`NEXT_PUBLIC_APP_URL` is the public origin of the human site. Stripe Checkout
+and Billing Portal return URLs, links in the discovery documents, and the
+absolute URL of the social card all use it.
 
 `NEXT_PUBLIC_API_URL` is the public origin agents call. It sets `servers[0].url`
 in `/openapi.json`, every paid-resource link in agent teasers and guides, and
@@ -194,20 +201,47 @@ stripe projects variables set stripe-webhook-secret --env-key STRIPE_WEBHOOK_SEC
 > Sessions, Customers, Billing Portal, PaymentIntents, and Entitlements. For
 > Tempo payments it also needs Crypto Deposit Addresses read and write
 > (`crypto_deposit_address_read`/`_write`), or `setup-stripe.mjs` skips the
-> deposit address with a permission warning.
+> deposit address with a warning.
 
 ## How it works
 
 | Concern | Approach |
 | --- | --- |
 | Auth | Clerk. Subscription state and entitlement keys are written to the user's `publicMetadata` by Stripe webhooks and revalidated against Stripe when stale. |
-| Access control | Stripe Entitlements. Each post declares `access: free` or `access: paid`; every gate resolves to `hasFeature(TIER_FEATURE[post.access])`. Changing who can read what is a Stripe config change, not a deploy. |
-| Subscriptions | Stripe Checkout (`mode: subscription`) + Billing Portal. Every signed-in user holds a real subscription — the $0 one is created on first page load, and Checkout replaces it on upgrade. Stripe is the source of truth; no database required. |
-| Agent payments | `mppx` (`mppx/server`) via `stripe.create()`: the Stripe SPT method, plus Tempo stablecoins when `TEMPO_DEPOSIT_ADDRESS` is set. `GET /api/content/{id}` returns a `402` with one challenge per method, then the full markdown + a `Payment-Receipt` on success. Applies to every post regardless of tier. |
+| Access control | Stripe Entitlements. Each post declares `access: free` or `access: paid`; every gate resolves to `hasFeature(TIER_FEATURE[post.access])`. Changing which plans unlock which tier is a Stripe config change, not a deploy. |
+| Subscriptions | Stripe Checkout (`mode: subscription`) + Billing Portal. Every signed-in user holds a real subscription — the $0 one is created the first time the app checks their access, and the webhook cancels it once a paid Checkout completes. Stripe is the source of truth; no database required. |
+| Agent payments | `mppx` (`mppx/server`) via `stripe.create()`: the Stripe SPT method, plus Tempo stablecoins when `TEMPO_DEPOSIT_ADDRESS` is set. `GET /api/content/{id}` returns a `402` with one challenge per method, then the full markdown + a `Payment-Receipt` on success. Applies to every post regardless of tier; only a session that already holds the post's entitlement skips payment. |
 | Paid images | Full assets live in `content/assets/` (outside `public/`) and are served via `/api/content/{id}/asset` only to entitled sessions or with a short-lived HMAC-signed URL. Low-detail previews in `public/previews/` stay public. |
 | Themes | CSS variables keyed on `data-theme`; light/dark follows `prefers-color-scheme` unless the header toggle forces `data-scheme`. Both choices persist in cookies. See [Theming](#theming). |
 | Homepage view | `/?view=agent` swaps the post grid for the agent payment guide. The HUMAN/AGENT toggle in the header links between the two; every other page counts as HUMAN. |
 | Styles | `app/globals.css` for theme variables, base elements, layout/typography, and shared utilities. Component-specific styles are co-located CSS Modules. |
+| Extensions | `lib/extras.ts` is an add-on registry that ships empty. `useExtraCards` prepends cards to the post grid, `GridActions` renders below it, and `UnknownPost` renders post ids the content store doesn't know, so a deployment can add features without patching core components. |
+
+## Content
+
+Each Markdown file in `content/` is a post, and its filename is the post id
+(`content/my-post.md` is served at `/post/my-post`):
+
+```yaml
+---
+title: My Post
+summary: A one-line teaser shown on the home grid.
+authors: [Your Name]
+date: '2026-07-18'
+tags: [essays]
+type: article        # or: image
+access: paid         # or: free (see Access tiers)
+# image posts only:
+# image: my-art.png              # full asset in content/assets/
+# preview: /previews/my-art.png  # low-detail preview in public/
+---
+
+Your Markdown body here.
+```
+
+To place an image inside a post body, put the file in `content/assets/` and
+link it as `![alt](/content/assets/my-diagram.png)`. The path is rewritten to
+the same signed, access-checked URL when the post renders.
 
 ## Access tiers
 
@@ -245,22 +279,28 @@ it to everyone already subscribed, and each user's cached entitlements refresh
 on their next request.
 
 > During local development `LOCAL_FULL_ACCESS=true` (the default) unlocks the
-> website for localhost requests. It deliberately does **not** apply to
-> `/api/content/*` or `/agents/*`, so the dev shortcut can never hand an agent
-> content it should have paid for. Set it to `false` to exercise the real
-> paywall.
+> website for localhost requests, including post images from
+> `/api/content/{id}/asset`. It deliberately does **not** apply to
+> `/api/content/{id}` or `/agents/*`, so the dev shortcut can never hand an
+> agent content it should have paid for, and it never applies on Vercel. Set it
+> to `false` to exercise the real paywall.
 
 ## Testing
 
 ```bash
 npm test        # unit tests (Vitest)
 npm run lint    # tsc --noEmit
+npm run fix     # Prettier
 ```
 
 The suite covers tier defaulting, the tier-to-entitlement mapping, plan
-resolution from price IDs, the access matrix above, the agent discovery
-documents (`/openapi.json`, `/.well-known/mpp.json`), post markdown rendering,
-and homepage view parsing.
+resolution from price IDs, the access matrix above, MPP challenges for both
+rails, payment error responses from `/api/content/{id}`, the agent discovery
+documents and their agreement on one public origin, post markdown rendering,
+external link detection, and homepage view parsing.
+
+CI runs lint, the tests, and `npm run build` with no environment variables, so
+a fresh clone must build without credentials.
 
 There is also an opt-in integration test that creates and deletes real Clerk
 users and Stripe customers to verify the whole provisioning path — free tier on
@@ -325,6 +365,11 @@ to the `:root` defaults:
 }
 ```
 
+To use a web font, load it with `next/font` in `app/layout.tsx`, add its
+`variable` to the class list on `<html>`, and reference that variable from your
+theme's `--font-*` values. The maximalist theme does this for Rubik Glitch,
+Space Mono, and Pixelify Sans.
+
 Dark mode needs two blocks — one following the OS, one for an explicit toggle.
 Override only what changes:
 
@@ -376,6 +421,22 @@ prop, which is what `SiteHeader` does with `navButton`.
 Set the starting theme with `NEXT_PUBLIC_DEFAULT_THEME` (defaults to
 `minimalist`). The in-app switcher lets visitors override it, persisted in a
 cookie and honored on the next server render.
+
+## Branding
+
+Site identity lives in `SITE` in `lib/config.ts`. `name` and `description`
+feed page titles, the hero, the footer, and the discovery documents; `repo`
+drives the hero's **Fork repo** button, the footer's Source link, and the clone
+instructions in `/docs`. Replace the visual assets too:
+
+- `app/icon.svg` — the favicon
+- `components/Logo.tsx` — the skull logo in the header and hero
+- `app/opengraph-image.jpg` and `app/opengraph-image.alt.txt` — the social card
+  and its alt text, shown in link previews for every page
+
+A few strings still name the project directly (the About page, the agent view's
+description, and the Stripe product and portal names in
+`scripts/setup-stripe.mjs`); search for `Content's Not Dead` to find them.
 
 ## Routes
 
