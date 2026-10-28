@@ -8,6 +8,10 @@ This repository is initialized for the Stripe project "contents-not-dead".
 - [Stripe CLI](https://docs.stripe.com/stripe-cli) with the `projects` plugin to manage third-party services, credentials, and deployments for this project. Use the stripe-projects-cli to manage deploying and access to third party services.
 <!-- stripe-projects-cli managed:agents-md:end -->
 
+## Content previews
+
+An image post's `preview` in `public/previews/` is a downscaled, heavily blurred copy of its full asset in `content/assets/` (see `a-quiet-machine`). It is public, so any text in the full image must be unreadable in the preview.
+
 <!-- BEGIN:nextjs-agent-rules -->
 
 # This is NOT the Next.js you know
