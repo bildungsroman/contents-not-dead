@@ -7,7 +7,7 @@
   border-radius: var(--radius);
   padding: 26px;
   color: var(--card-text);
-  background: var(--card-bg, var(--overlay));
+  background: var(--card-bg);
   cursor: pointer;
   transition: transform 0.08s ease;
   font: inherit;
@@ -101,7 +101,6 @@
   line-height: normal;
 }
 [data-theme="maximalist"] .postCard p {
-  font-family: var(--font-body);
   font-size: 16px;
   line-height: 1.5;
   opacity: 1;
@@ -124,6 +123,11 @@
   line-height: normal;
   opacity: 1;
 }
+[data-theme="maximalist"] .accessTag {
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+}
 /* Centered on the 6px border, aligned with the narrower padding. */
 [data-theme="maximalist"] .featuredTag {
   top: -3px;
@@ -144,9 +148,4 @@
   [data-theme="maximalist"] .tag {
     font-size: 14px;
   }
-}
-[data-theme="maximalist"] .accessTag {
-  font-weight: 400;
-  letter-spacing: 0;
-  text-transform: none;
 }

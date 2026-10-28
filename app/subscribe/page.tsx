@@ -27,7 +27,7 @@ export default async function SubscribePage() {
 
       {subscribed ? (
         <Panel style={{ marginTop: 20 }}>
-          <h2 style={{ marginTop: 0 }}>You&rsquo;re subscribed</h2>
+          <h2>You&rsquo;re subscribed</h2>
           <p>
             Your {state.plan ?? ""} subscription is active. Manage it from your{" "}
             <Link href="/account">account</Link>.

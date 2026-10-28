@@ -60,7 +60,10 @@
   [data-theme="maximalist"] .menuButton:hover {
     background: color-mix(in srgb, var(--brand) 18%, var(--bg));
   }
+  /* The header's maximalist `.navLinks` gap has the same specificity, so the
+     panel sets its own rather than depending on stylesheet order. */
   [data-theme="maximalist"] .panel.panel {
+    gap: 30px;
     border: 2px solid var(--brand);
     border-radius: 0;
     box-shadow: 8px 10px 0 0 var(--accent);

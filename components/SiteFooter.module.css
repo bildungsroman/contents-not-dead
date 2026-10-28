@@ -9,8 +9,6 @@
 .footerLead {
   margin: 0 0 28px;
   font-size: 1rem;
-  line-height: 1.6;
-  text-align: left;
 }
 .footerGroups {
   display: flex;
@@ -24,7 +22,6 @@
   align-items: flex-start;
   gap: 8px;
   min-width: 140px;
-  text-align: left;
 }
 .footerGroupTitle {
   font-family: var(--font-accent);
@@ -58,7 +55,6 @@
   font-size: 20px;
 }
 [data-theme="maximalist"] .footerGroupTitle {
-  font-family: var(--font-accent);
   font-size: 16px;
   font-weight: 400;
   color: var(--brand);

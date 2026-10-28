@@ -10,9 +10,6 @@
   max-width: var(--maxw);
   margin: 0 auto;
   padding: 18px 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
 }
 .siteNav {
   display: flex;
@@ -69,9 +66,14 @@ button.navButton {
 }
 
 /* Narrow screens: one tight row; the page links collapse into NavMenu's
-   hamburger, which sits at the far right. */
+   hamburger, which sits at the far right. If the row still can't fit (the
+   signed-in "Account" link on a phone), the actions wrap onto a second,
+   right-aligned line rather than widening the page. */
 @media (max-width: 860px) {
-  .siteNav,
+  .siteNav {
+    justify-content: flex-end;
+    gap: 12px;
+  }
   .navStart,
   .navActions {
     flex-wrap: nowrap;

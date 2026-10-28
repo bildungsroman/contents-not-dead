@@ -27,7 +27,7 @@ export function Paywall({
     <Panel>
       {tier === "free" ? (
         <>
-          <h2 className={styles.title}>This content is free to read</h2>
+          <h2>This content is free to read</h2>
           <p>
             <strong>{postTitle}</strong> is free — you just need an account.
             Sign up and read it now, no card required.
@@ -48,7 +48,7 @@ export function Paywall({
         </>
       ) : (
         <>
-          <h2 className={styles.title}>This content is for subscribers</h2>
+          <h2>This content is for subscribers</h2>
           <p>
             <strong>{postTitle}</strong> is available with a Content&rsquo;s Not
             Dead subscription — $5/month or $50/year for unlimited access to

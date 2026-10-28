@@ -25,7 +25,6 @@ export function ThemeSwitcher() {
 
   return (
     <label className={styles.themeSwitcher}>
-      <span className="hidden">Theme</span>
       <PaletteIcon className={styles.icon} />
       <select
         aria-label="Theme"

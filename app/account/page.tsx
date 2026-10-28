@@ -25,7 +25,7 @@ export default async function AccountPage() {
     return (
       <main className="container">
         <Panel>
-          <h1 style={{ marginTop: 0 }}>Your account</h1>
+          <h1>Your account</h1>
           <p>Sign in to view your subscription and manage billing.</p>
           <SignInButton mode="modal" forceRedirectUrl="/account">
             <Button>Sign in</Button>
@@ -50,7 +50,7 @@ export default async function AccountPage() {
       <Panel style={{ marginTop: 12 }}>
         {paid ? (
           <>
-            <h2 style={{ marginTop: 0 }}>Unlimited — subscription active</h2>
+            <h2>Unlimited — subscription active</h2>
             <p>
               Plan: <strong>{state.plan ?? "subscription"}</strong>
               {state.status === "trialing" ? " (trial)" : ""}. You can read
@@ -68,7 +68,7 @@ export default async function AccountPage() {
           </>
         ) : (
           <>
-            <h2 style={{ marginTop: 0 }}>Free tier</h2>
+            <h2>Free tier</h2>
             <p>
               You can read everything marked <strong>Free</strong>. Subscribe
               for unlimited access to members-only content.

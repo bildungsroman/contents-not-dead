@@ -319,8 +319,8 @@ Styles are split in two layers:
 - **`app/globals.css`** — theme variables, base element styles, the page
   `.container`, and the `.prose` block that styles rendered Markdown (it has to
   be global, since `react-markdown` generates that HTML and can't carry hashed
-  class names). It also contains the shared `.meta`, `.center`, `.warn`, and
-  `.hidden` utilities.
+  class names). It also contains the shared `.meta`, `.center`, and `.warn`
+  utilities.
 - **`components/*.module.css`** — component-specific styles, co-located with
   the component that owns them. `PostCard.module.css` holds the card styles,
   `Button.module.css` the button styles, and so on.

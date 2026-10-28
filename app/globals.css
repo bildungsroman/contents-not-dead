@@ -19,7 +19,7 @@
   --radius: 10px;
   --gap: 20px;
 
-  /* Fallback (minimalist light) palette. */
+  /* The minimalist light palette, which doubles as the fallback. */
   --bg: #ffffff;
   --text: #16181d;
   --muted: #5b616e;
@@ -35,25 +35,7 @@
 }
 
 /* ------------------------------- MINIMALIST ------------------------------- */
-[data-theme="minimalist"] {
-  --font-body:
-    ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica,
-    Arial, sans-serif;
-  --font-header: var(--font-body);
-  --font-accent: var(--font-body);
-  --bg: #ffffff;
-  --text: #16181d;
-  --muted: #5b616e;
-  --border: #e4e7ec;
-  --bg-header: #ffffff;
-  --text-header: #16181d;
-  --accent: #3b5bdb;
-  --accent-contrast: #ffffff;
-  --overlay: #eef2ff;
-  --card-bg: #f6f7f9;
-  --card-text: #16181d;
-  --card-border: #e4e7ec;
-}
+/* Light is the :root palette above. */
 @media (prefers-color-scheme: dark) {
   [data-theme="minimalist"]:not([data-scheme="light"]) {
     --bg: #0d0f13;
@@ -90,8 +72,6 @@
   --font-body:
     "Iowan Old Style", "Palatino Linotype", Palatino, Georgia,
     "Times New Roman", serif;
-  --font-header: var(--font-body);
-  --font-accent: var(--font-body);
   --bg: #f5f1e8;
   --text: #33302a;
   --muted: #6f695d;
@@ -194,7 +174,6 @@
 }
 html {
   color-scheme: light dark;
-  min-height: 100%;
 }
 [data-scheme="light"] {
   color-scheme: light;
@@ -221,14 +200,19 @@ body > main {
   flex: 1 1 auto;
 }
 /* The Figma mesh, pre-composed so the 1440x1267 design frame sits at its
-   center; the same line art works over both schemes' backgrounds. */
-[data-theme="maximalist"] body {
-  background: var(--bg) url("/maximalist/mesh.svg") center / max(2300px, 100vw)
-    auto fixed;
+   center; the same line art works over both schemes' backgrounds. It lives on
+   a viewport-sized fixed layer rather than `background-attachment: fixed`,
+   which iOS ignores and other browsers repaint on every scroll. */
+[data-theme="maximalist"] body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: url("/maximalist/mesh.svg") center / max(2106px, 100%) auto;
 }
 @media (max-width: 720px) {
-  [data-theme="maximalist"] body {
-    background-size: 1400px auto;
+  [data-theme="maximalist"] body::before {
+    background-size: 1282px auto;
   }
 }
 /* Content pages (anything without the homepage hero) and the homepage's
@@ -298,6 +282,15 @@ main.container {
   font-family: var(--font-accent);
   font-weight: 600;
   background: var(--overlay);
+}
+/* Markdown wraps each table so a wide one scrolls on its own instead of
+   widening the page on phones. */
+.prose .table-scroll {
+  margin: 20px 0;
+  overflow-x: auto;
+}
+.prose .table-scroll > table {
+  margin: 0;
 }
 /* Terminal-style code blocks: a dark "window" with a title bar + traffic
    lights, consistent across themes and light/dark schemes. */
@@ -386,7 +379,4 @@ main.container {
 .warn {
   color: var(--accent);
   font-size: 0.9rem;
-}
-.hidden {
-  display: none;
 }

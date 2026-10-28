@@ -234,10 +234,10 @@ Your Markdown body here.`}
           Styles live in two places. <code>app/globals.css</code> holds the
           theme variables, base element styles, the page <code>.container</code>
           , and the <code>.prose</code> block that styles rendered Markdown,
-          plus the shared <code>.meta</code>, <code>.center</code>,{" "}
-          <code>.warn</code>, and <code>.hidden</code> utilities.
-          Component-specific rules live in CSS Modules next to the components
-          that own them, like <code>components/PostCard.module.css</code>.
+          plus the shared <code>.meta</code>, <code>.center</code>, and{" "}
+          <code>.warn</code> utilities. Component-specific rules live in CSS
+          Modules next to the components that own them, like{" "}
+          <code>components/PostCard.module.css</code>.
         </p>
 
         <h3>Register the name</h3>

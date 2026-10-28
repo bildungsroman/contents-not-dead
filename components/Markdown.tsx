@@ -11,6 +11,11 @@ const components: Components = {
     ) : (
       <a href={href} {...rest} />
     ),
+  table: ({ node: _node, ...rest }) => (
+    <div className="table-scroll">
+      <table {...rest} />
+    </div>
+  ),
 };
 
 export function Markdown({ children }: { children: string }) {

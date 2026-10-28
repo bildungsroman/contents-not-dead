@@ -4,8 +4,8 @@ import { ExternalLink } from "./ExternalLink";
 import { Logo } from "./Logo";
 import styles from "./Hero.module.css";
 
-/** Homepage masthead. `data-hero` lets the header drop its own branding
- * (title, or the maximalist home icon) while the hero is on the page. */
+/** Homepage masthead. `data-hero` lets the header hide its home icon, and the
+ * maximalist theme skip its content panel, while the hero is on the page. */
 export function Hero() {
   return (
     <section className={styles.hero} data-hero>
