@@ -29,10 +29,17 @@ export function SiteHeader() {
             <Link href="/about">About</Link>
             <Link href="/docs">Docs</Link>
             <Link href="/subscribe">Subscribe</Link>
+            <Show when="signed-in">
+              <Link href="/account" className={styles.menuAccount}>
+                Account
+              </Link>
+            </Show>
           </NavMenu>
           <div className={styles.navActions}>
             <Show when="signed-in">
-              <Link href="/account">Account</Link>
+              <Link href="/account" className={styles.rowAccount}>
+                Account
+              </Link>
               <UserButton />
             </Show>
             <Show when="signed-out">

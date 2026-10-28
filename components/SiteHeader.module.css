@@ -64,11 +64,16 @@ button.navButton {
 .signInIcon {
   display: none;
 }
+/* "Account" sits beside the avatar on wide screens and joins the page links
+   in the hamburger on narrow ones. */
+.menuAccount {
+  display: none;
+}
 
 /* Narrow screens: one tight row; the page links collapse into NavMenu's
    hamburger, which sits at the far right. If the row still can't fit (the
-   signed-in "Account" link on a phone), the actions wrap onto a second,
-   right-aligned line rather than widening the page. */
+   narrowest phones), the actions wrap onto a second, right-aligned line
+   rather than widening the page. */
 @media (max-width: 860px) {
   .siteNav {
     justify-content: flex-end;
@@ -78,6 +83,12 @@ button.navButton {
   .navActions {
     flex-wrap: nowrap;
     gap: 12px;
+  }
+  .menuAccount {
+    display: inline;
+  }
+  .rowAccount {
+    display: none;
   }
 }
 
@@ -177,11 +188,9 @@ button.navButton {
 @media (max-width: 520px) {
   .siteNav,
   .navStart,
-  [data-theme="maximalist"] .siteNav,
-  [data-theme="maximalist"] .navStart {
-    gap: 8px;
-  }
   .navActions,
+  [data-theme="maximalist"] .siteNav,
+  [data-theme="maximalist"] .navStart,
   [data-theme="maximalist"] .navActions {
     gap: 6px;
   }
