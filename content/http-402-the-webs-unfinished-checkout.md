@@ -2,10 +2,10 @@
 title: HTTP 402 and the Web's Unfinished Checkout
 summary: Payment Required has occupied a place in HTTP for three decades without defining how a payment should work. Its empty history explains both the early web's ambitions and its limits.
 authors: [The Editors]
-date: '2026-10-25'
+date: '2026-11-28'
 tags: [http, web-history, payments]
 type: article
-access: paid
+access: free
 ---
 
 Between `401 Unauthorized` and `403 Forbidden`, HTTP leaves a space for a

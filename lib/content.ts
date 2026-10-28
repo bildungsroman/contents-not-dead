@@ -3,6 +3,7 @@ import "server-only";
 import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
+import { FEATURED_TAG } from "./featured";
 import { type ContentTier, parseContentTier } from "./tiers";
 
 export type PostType = "article" | "image";
@@ -73,7 +74,9 @@ export function getAllPosts(): Post[] {
   const posts = files.map((f) =>
     parseFile(path.join(CONTENT_DIR, f), f.replace(/\.md$/, "")),
   );
-  return posts.sort((a, b) => (a.date < b.date ? 1 : -1));
+  return posts.sort(
+    (a, b) => b.date.localeCompare(a.date) || a.id.localeCompare(b.id),
+  );
 }
 
 export function getPost(id: string): Post | null {
@@ -90,4 +93,15 @@ export function toPreview(post: Post): PostPreview {
 
 export function getAllPreviews(): PostPreview[] {
   return getAllPosts().map(toPreview);
+}
+
+/**
+ * Pulls the newest post tagged `featured` out of a newest-first list. Older
+ * featured posts stay in `rest`.
+ */
+export function splitFeatured<T extends { tags: string[] }>(
+  posts: T[],
+): { featured: T | null; rest: T[] } {
+  const featured = posts.find((p) => p.tags.includes(FEATURED_TAG)) ?? null;
+  return { featured, rest: posts.filter((p) => p !== featured) };
 }

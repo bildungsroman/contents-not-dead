@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { FEATURED_TAG } from "@/lib/featured";
 import type { ContentTier } from "@/lib/tiers";
 import styles from "./PostCard.module.css";
 
@@ -23,9 +24,16 @@ const TIER_BADGE: Record<ContentTier, string> = {
   paid: "Members",
 };
 
-export function PostCard({ post }: { post: CardData }) {
+export function PostCard({
+  post,
+  featured = false,
+}: {
+  post: CardData;
+  featured?: boolean;
+}) {
   const router = useRouter();
   const href = `/post/${encodeURIComponent(post.id)}`;
+  const topics = post.tags.filter((t) => t !== FEATURED_TAG);
 
   function open() {
     router.push(href);
@@ -33,10 +41,15 @@ export function PostCard({ post }: { post: CardData }) {
 
   return (
     <button
-      className={styles.postCard}
+      className={
+        featured ? `${styles.postCard} ${styles.featured}` : styles.postCard
+      }
       onClick={open}
       aria-label={`Open ${post.title}`}
     >
+      {featured ? (
+        <span className={`${styles.tag} ${styles.featuredTag}`}>Featured</span>
+      ) : null}
       {post.type === "image" ? (
         <>
           <span className={styles.postImageFrame}>
@@ -55,7 +68,7 @@ export function PostCard({ post }: { post: CardData }) {
           <p>{post.summary}</p>
         </>
       )}
-      {post.tags.length > 0 || post.access || post.session ? (
+      {topics.length > 0 || post.access || post.session ? (
         <span className={styles.tagRow}>
           {post.session ? (
             <span className={`${styles.tag} ${styles.accessTag}`}>
@@ -66,7 +79,7 @@ export function PostCard({ post }: { post: CardData }) {
               {TIER_BADGE[post.access]}
             </span>
           ) : null}
-          {post.tags.slice(0, 4).map((t) => (
+          {topics.slice(0, 4).map((t) => (
             <span className={styles.tag} key={t}>
               #{t}
             </span>

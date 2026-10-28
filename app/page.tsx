@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { getAllPreviews } from "@/lib/content";
+import { getAllPreviews, splitFeatured } from "@/lib/content";
 import { VIEW_PARAM, parseView, type View } from "@/lib/view";
 import { PostGrid } from "@/components/PostGrid";
 import { AgentGuide } from "@/components/AgentGuide";
 import { Hero } from "@/components/Hero";
-import type { CardData } from "@/components/PostCard";
+import { PostCard, type CardData } from "@/components/PostCard";
 
 type HomeProps = {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -48,8 +48,19 @@ export default async function HomePage({ searchParams }: HomeProps) {
 
 function HomeView({ view }: { view: View }) {
   switch (view) {
-    case "human":
-      return <PostGrid initial={humanCards()} />;
+    case "human": {
+      const { featured, rest } = splitFeatured(humanCards());
+      return (
+        <>
+          {featured ? (
+            <section aria-label="Featured">
+              <PostCard post={featured} featured />
+            </section>
+          ) : null}
+          <PostGrid initial={rest} />
+        </>
+      );
+    }
     case "agent":
       return <AgentGuide />;
     default: {

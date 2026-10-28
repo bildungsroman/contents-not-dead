@@ -2,7 +2,7 @@
 title: Everything Leaves a Log
 summary: On the night the archive fills, a junior engineer discovers that the world's agents have been recording more than work.
 authors: [N. R. Calder]
-date: '2028-10-24'
+date: '2026-10-10'
 tags: [fiction, agents, infrastructure]
 type: article
 access: paid

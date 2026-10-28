@@ -2,7 +2,7 @@
 title: The Road is a Clue
 summary: A yellow brick road points somewhere beyond the frame. The message above it may be more literal than it first appears.
 authors: [Studio CND]
-date: '2026-10-28'
+date: '2026-11-25'
 tags: [art, puzzle, Oz]
 type: image
 access: paid

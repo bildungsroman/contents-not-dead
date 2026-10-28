@@ -6,6 +6,7 @@ import { extras, useExtraCards } from "@/lib/extras";
 import styles from "./PostGrid.module.css";
 
 const BATCH = 6;
+const LANES = [0, 1];
 
 export function PostGrid({ initial }: { initial: CardData[] }) {
   const [visible, setVisible] = useState(BATCH);
@@ -32,9 +33,19 @@ export function PostGrid({ initial }: { initial: CardData[] }) {
 
   return (
     <>
+      {/* Cards are dealt across the lanes in turn, so the newest sit side by
+          side at the top and each lane stacks without gaps. */}
       <div className={styles.postGrid}>
-        {shown.map((post) => (
-          <PostCard key={post.id} post={post} />
+        {LANES.map((lane) => (
+          <div key={lane} className={styles.lane}>
+            {shown.map((post, i) =>
+              i % LANES.length === lane ? (
+                <div key={post.id} style={{ order: i }}>
+                  <PostCard post={post} />
+                </div>
+              ) : null,
+            )}
+          </div>
         ))}
       </div>
 

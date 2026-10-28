@@ -2,7 +2,7 @@
 title: Recursive Overflow
 summary: A call stack climbs through the screen until the machine runs out of room - and then keeps going.
 authors: [Studio CND]
-date: '2026-10-23'
+date: '2026-10-08'
 tags: [art, software, recursion]
 type: image
 access: paid

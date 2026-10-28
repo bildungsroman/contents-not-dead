@@ -1,12 +1,19 @@
 .postGrid {
-  columns: 2;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   column-gap: var(--gap);
 }
 [data-theme="maximalist"] .postGrid {
   column-gap: clamp(32px, 6vw, 80px);
 }
+/* One column: the lanes dissolve and each card's inline `order` puts them back
+   in date order. */
 @media (max-width: 720px) {
   .postGrid {
-    columns: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  .lane {
+    display: contents;
   }
 }

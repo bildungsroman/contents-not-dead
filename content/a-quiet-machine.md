@@ -2,7 +2,7 @@
 title: A Quiet Machine
 summary: A generative art still — concentric type-forms rendered as if a printing press dreamed in neon.
 authors: [Studio CND]
-date: '2026-07-05'
+date: '2026-08-15'
 tags: [art, generative, neon]
 type: image
 image: a-quiet-machine.svg

@@ -2,7 +2,7 @@
 title: How The Wizard of Oz Built a World
 summary: MGM's 1939 fantasy did not invent color, movie music, or special effects. It became groundbreaking by combining them into a world audiences could feel themselves enter.
 authors: [The Editors]
-date: '2026-10-27'
+date: '1939-11-30'
 tags: [film, history, wizard-of-oz, Oz]
 type: article
 access: paid

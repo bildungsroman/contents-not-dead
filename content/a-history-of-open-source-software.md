@@ -2,10 +2,10 @@
 title: A History of Open Source Software
 summary: Long before the phrase existed, programmers shared source code. The modern movement grew from that habit, a fight over user freedom, and a practical method for building software in public.
 authors: [The Editors]
-date: '2026-10-26'
+date: '2026-11-20'
 tags: [software, open-source, history]
 type: article
-access: paid
+access: free
 ---
 
 Open source did not begin when someone uploaded a repository to the internet.
