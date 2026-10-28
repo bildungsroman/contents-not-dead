@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { Challenge, Credential } from "mppx";
-import { getAllPreviews } from "@/lib/content";
+import { getAllPreviews, getPost } from "@/lib/content";
 import { resetMppxForTests } from "@/lib/mpp";
 import { getStripe } from "@/lib/stripe";
 import { GET } from "./route";
@@ -45,6 +45,7 @@ describe("GET /api/content/{id} payment errors", () => {
     expect(Challenge.fromResponseList(response).length).toBeGreaterThan(0);
     expect(body.type).toBe("https://paymentauth.org/problems/payment-required");
     expect(body.charged).toBe("no");
+    expect(body.readingTimeMinutes).toBe(getPost(postA)!.readingTimeMinutes);
   });
 
   it("rejects a credential for a different item with a fresh challenge", async () => {

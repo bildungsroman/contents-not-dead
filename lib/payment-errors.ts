@@ -7,6 +7,7 @@ import {
   PER_CONTENT_PRICE_USD,
   SITE,
 } from "./config";
+import type { Post } from "./content";
 import {
   describeAcceptedMethods,
   describeTempoRail,
@@ -169,11 +170,15 @@ function problemResponse(
 
 /**
  * Adds site-specific guidance to an mppx 402: a hint, whether the caller was
- * charged, the accepted methods, and a troubleshooting link. mppx's status,
+ * charged, the accepted methods, a troubleshooting link, and the post's
+ * reading time so an agent can judge the item before paying. mppx's status,
  * `WWW-Authenticate` challenges, and `detail` are kept as-is; responses it
  * can't interpret are returned untouched.
  */
-export async function enrichChallenge(response: Response): Promise<Response> {
+export async function enrichChallenge(
+  response: Response,
+  post: Pick<Post, "readingTimeMinutes">,
+): Promise<Response> {
   const text = await response.clone().text();
   let problem: Record<string, unknown>;
   if (!text) {
@@ -205,6 +210,7 @@ export async function enrichChallenge(response: Response): Promise<Response> {
       charged: guidance.charged,
       acceptedMethods: mppMethods(),
       docs: troubleshootingUrl(),
+      readingTimeMinutes: post.readingTimeMinutes,
       ...(guidance.charged !== "no" && {
         support: supportLine(problem.challengeId),
       }),

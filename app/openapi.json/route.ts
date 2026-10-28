@@ -107,6 +107,18 @@ const PROBLEM_SCHEMA = {
   required: ["type", "title", "status"],
 };
 
+/** A 402 also describes the item on offer, so an agent can judge it before paying. */
+const CHALLENGE_SCHEMA = {
+  ...PROBLEM_SCHEMA,
+  properties: {
+    ...PROBLEM_SCHEMA.properties,
+    readingTimeMinutes: {
+      type: "integer",
+      description: "Estimated minutes to read the item, from its word count.",
+    },
+  },
+};
+
 /** Free operations still need an explicit auth mode, or discovery flags them. */
 const FREE = { security: [] as unknown[] };
 
@@ -198,7 +210,7 @@ export async function GET() {
                 },
               },
               content: {
-                "application/problem+json": { schema: PROBLEM_SCHEMA },
+                "application/problem+json": { schema: CHALLENGE_SCHEMA },
               },
             },
             "503": {

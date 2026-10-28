@@ -32,6 +32,8 @@ export interface Post extends PostFrontmatter {
   id: string;
   /** Markdown body (the paid content). */
   contents: string;
+  /** Rough minutes to read the body, estimated from its word count. */
+  readingTimeMinutes: number;
 }
 
 export type PostPreview = Omit<Post, "contents"> & {
@@ -48,10 +50,22 @@ function normalizeStringArray(value: unknown): string[] {
   return [];
 }
 
+const WORDS_PER_MINUTE = 230;
+
+/** Minutes to read a markdown body at a typical pace, rounded up, at least one. */
+export function estimateReadingTimeMinutes(markdown: string): number {
+  // Tokens without a letter or digit are markdown syntax (`-`, `>`, `|`, `---`).
+  const words = markdown
+    .split(/\s+/)
+    .filter((token) => /[\p{L}\p{N}]/u.test(token)).length;
+  return Math.max(1, Math.ceil(words / WORDS_PER_MINUTE));
+}
+
 function parseFile(filePath: string, id: string): Post {
   const raw = fs.readFileSync(filePath, "utf8");
   const { data, content } = matter(raw);
   const type: PostType = data.type === "image" ? "image" : "article";
+  const contents = content.trim();
   return {
     id,
     title: String(data.title ?? id),
@@ -63,7 +77,8 @@ function parseFile(filePath: string, id: string): Post {
     access: parseContentTier(data.access),
     image: data.image ? String(data.image) : undefined,
     preview: data.preview ? String(data.preview) : undefined,
-    contents: content.trim(),
+    contents,
+    readingTimeMinutes: estimateReadingTimeMinutes(contents),
   };
 }
 

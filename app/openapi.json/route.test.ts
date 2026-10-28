@@ -100,6 +100,15 @@ describe("/openapi.json", () => {
       expect(responses["503"].headers["Retry-After"]).toBeDefined();
     });
 
+    it("documents the reading time on the 402 only", async () => {
+      const responses = (await fetchDoc()).paths["/api/content/{id}"].get
+        .responses;
+      const schema = (status: string) =>
+        responses[status].content["application/problem+json"].schema;
+      expect(schema("402").properties.readingTimeMinutes.type).toBe("integer");
+      expect(schema("503").properties.readingTimeMinutes).toBeUndefined();
+    });
+
     it("declares an auth mode and both input and output schemas", async () => {
       const op = (await fetchDoc()).paths["/api/content/{id}"].get;
       expect(op.security).toEqual([{ mpp: [] }]);

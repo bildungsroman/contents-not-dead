@@ -38,10 +38,12 @@ export function SiteFooter() {
           </div>
         </div>
         <p className={styles.copyright}>
-          ©{new Date().getFullYear()} Stripe | Site design by{" "}
+          © {new Date().getFullYear()} Stripe | Site design by{" "}
           <ExternalLink href="https://larissawaterman.com">
             Larissa Waterman
-          </ExternalLink>
+          </ExternalLink>{" "}
+          | All content excluding "Can MPP Save Content Creators?" is
+          AI-generated.
         </p>
       </div>
     </footer>

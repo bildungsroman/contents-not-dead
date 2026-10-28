@@ -134,6 +134,12 @@ access: paid         # or: free — defaults to paid when omitted
 Your Markdown body here.`}
         />
         <p>
+          Don&rsquo;t set a reading time: it&rsquo;s estimated from the
+          body&rsquo;s word count, shown above the post, and returned to agents
+          as <code>readingTimeMinutes</code> in the free teaser, the{" "}
+          <code>402</code> body, and the paid markdown.
+        </p>
+        <p>
           Full-resolution images live in <code>content/assets/</code> (outside{" "}
           <code>public/</code>) and are served only after payment or a
           subscription via a short-lived signed URL. Put a low-detail preview in{" "}

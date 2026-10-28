@@ -14,6 +14,7 @@ function frontmatter(post: Post | PostPreview): string {
     `authors: [${post.authors.join(", ")}]`,
     `tags: [${post.tags.join(", ")}]`,
     `summary: ${post.summary}`,
+    `readingTimeMinutes: ${post.readingTimeMinutes}`,
     "---",
   ];
   return fm.join("\n");

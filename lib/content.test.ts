@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { getAllPosts, getPost, splitFeatured } from "./content";
+import {
+  estimateReadingTimeMinutes,
+  getAllPosts,
+  getPost,
+  splitFeatured,
+} from "./content";
 
 describe("post frontmatter access tier", () => {
   it("reads an explicit access tier", () => {
@@ -25,6 +30,42 @@ describe("post ordering", () => {
   it("returns posts on disk newest first", () => {
     const dates = getAllPosts().map((p) => p.date);
     expect(dates).toEqual([...dates].sort().reverse());
+  });
+});
+
+describe("reading time", () => {
+  const words = (n: number) => Array(n).fill("word").join(" ");
+
+  it("rounds the word count up to whole minutes at 230 words a minute", () => {
+    expect(estimateReadingTimeMinutes(words(230))).toBe(1);
+    expect(estimateReadingTimeMinutes(words(231))).toBe(2);
+    expect(estimateReadingTimeMinutes(words(2300))).toBe(10);
+  });
+
+  it("never estimates less than a minute", () => {
+    expect(estimateReadingTimeMinutes("")).toBe(1);
+  });
+
+  it("doesn't count markdown syntax as words", () => {
+    const syntax = "\n- > | --- ** ```\n".repeat(100);
+    expect(estimateReadingTimeMinutes(words(230) + syntax)).toBe(1);
+  });
+
+  it("counts non-Latin words", () => {
+    expect(estimateReadingTimeMinutes(Array(231).fill("слово").join(" "))).toBe(
+      2,
+    );
+  });
+
+  it("estimates every post on disk from its body", () => {
+    for (const post of getAllPosts()) {
+      expect(post.readingTimeMinutes, post.id).toBe(
+        estimateReadingTimeMinutes(post.contents),
+      );
+    }
+    expect(
+      getPost("a-history-of-open-source-software")!.readingTimeMinutes,
+    ).toBeGreaterThan(getPost("a-quiet-machine")!.readingTimeMinutes);
   });
 });
 

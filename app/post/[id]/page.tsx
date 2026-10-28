@@ -56,6 +56,7 @@ export default async function PostPage({
         <p className="meta">
           <Link href="/">← Home</Link> · {post.date}
           {post.authors.length ? ` · ${post.authors.join(", ")}` : ""}
+          {` · ${post.readingTimeMinutes} min read`}
         </p>
         <h1>{post.title}</h1>
         {post.type === "image" ? (

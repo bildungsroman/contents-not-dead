@@ -57,7 +57,7 @@ export async function GET(
     });
   }
   if (result.status === 402) {
-    return enrichChallenge(result.challenge);
+    return enrichChallenge(result.challenge, post);
   }
 
   return result.withReceipt(

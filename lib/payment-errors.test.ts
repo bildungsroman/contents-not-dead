@@ -10,6 +10,7 @@ import {
 const CHALLENGE =
   'Payment id="abc", realm="api.example.com", method="stripe", intent="charge", request="e30"';
 const DEPOSIT = "0x1111111111111111111111111111111111111111";
+const POST = { readingTimeMinutes: 7 };
 
 /** A 402 shaped exactly as mppx's HTTP transport writes it. */
 function mppx402(error?: Errors.PaymentError): Response {
@@ -23,7 +24,7 @@ function mppx402(error?: Errors.PaymentError): Response {
 }
 
 async function enriched(error?: Errors.PaymentError) {
-  const response = await enrichChallenge(mppx402(error));
+  const response = await enrichChallenge(mppx402(error), POST);
   return { response, body: await response.json() };
 }
 
@@ -103,6 +104,14 @@ describe("enrichChallenge", () => {
     expect(body.hint).not.toMatch(/Tempo/);
   });
 
+  it("tells the caller how long the item takes to read", async () => {
+    expect((await enriched()).body.readingTimeMinutes).toBe(7);
+    expect(
+      (await enriched(new Errors.PaymentExpiredError())).body
+        .readingTimeMinutes,
+    ).toBe(7);
+  });
+
   it("names the Tempo testnet network when Tempo is offered", async () => {
     process.env.TEMPO_DEPOSIT_ADDRESS = DEPOSIT;
     const { body } = await enriched();
@@ -113,7 +122,7 @@ describe("enrichChallenge", () => {
 
   it("passes through problems it has no guidance for", async () => {
     const original = mppx402(new Errors.BadRequestError({ reason: "nope" }));
-    const response = await enrichChallenge(original);
+    const response = await enrichChallenge(original, POST);
     expect(response).toBe(original);
   });
 });

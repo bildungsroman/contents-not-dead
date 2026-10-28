@@ -28,7 +28,8 @@ ${methods}
    GET ${base}/api/content/{id}
 
 2. If payment is required, you receive HTTP 402 with one \`WWW-Authenticate\`
-   challenge per accepted method, describing the amount and how to pay.
+   challenge per accepted method, describing the amount and how to pay. The
+   body's \`readingTimeMinutes\` estimates how long the item takes to read.
 
 3. Pay one challenge, then retry the request with the MPP credential in the
    \`Authorization\` header.

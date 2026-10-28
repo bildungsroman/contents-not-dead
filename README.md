@@ -239,6 +239,10 @@ access: paid         # or: free (see Access tiers)
 Your Markdown body here.
 ```
 
+Don't set a reading time: it's estimated from the body's word count, shown
+above the post, and returned to agents as `readingTimeMinutes` in the free
+teaser, the `402` body, and the paid markdown.
+
 To place an image inside a post body, put the file in `content/assets/` and
 link it as `![alt](/content/assets/my-diagram.png)`. The path is rewritten to
 the same signed, access-checked URL when the post renders.
