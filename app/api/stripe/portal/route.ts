@@ -19,11 +19,21 @@ export async function POST() {
     return NextResponse.json({ error: "Sign in required" }, { status: 401 });
   }
 
-  const stripe = getStripe();
-  const customerId = await getOrCreateStripeCustomer(userId);
-  const session = await stripe.billingPortal.sessions.create({
-    customer: customerId,
-    return_url: `${appUrl()}/account`,
-  });
-  return NextResponse.json({ url: session.url });
+  try {
+    const customerId = await getOrCreateStripeCustomer(userId);
+    const session = await getStripe().billingPortal.sessions.create({
+      customer: customerId,
+      return_url: `${appUrl()}/account`,
+    });
+    return NextResponse.json({ url: session.url });
+  } catch (error) {
+    console.error(
+      `[portal] could not open billing portal for ${userId}`,
+      error,
+    );
+    return NextResponse.json(
+      { error: "Could not open the billing portal. Please try again." },
+      { status: 502 },
+    );
+  }
 }
