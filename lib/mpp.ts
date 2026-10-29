@@ -1,6 +1,6 @@
 import "server-only";
 
-import { Mppx, stripe as mppxStripe } from "mppx/server";
+import { Mppx, Store, stripe as mppxStripe } from "mppx/server";
 import { getStripe } from "./stripe";
 import { apiRealm, PER_CONTENT_PRICE_USD } from "./config";
 
@@ -116,9 +116,9 @@ export function describeAcceptedMethods(): string[] {
  * challenge with the internal per-deployment hostname instead of the origin
  * agents actually call.
  *
- * Tempo replay protection uses mppx's default in-memory store, which is
- * per-instance: on a multi-instance deployment a used transaction hash is only
- * rejected by the instance that consumed it.
+ * Tempo replay protection uses an in-memory store, which is per-instance: on a
+ * multi-instance deployment a used transaction hash is only rejected by the
+ * instance that consumed it.
  */
 let cached: ReturnType<typeof buildMppx> | null = null;
 
@@ -135,6 +135,7 @@ function buildMppx() {
     client: getStripe(),
     networkId: stripeNetworkId(),
     livemode: isLivemode(),
+    store: Store.memory(),
     ...(tempo && { depositAddresses: { tempo: tempo.recipient } }),
   });
 

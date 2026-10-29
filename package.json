@@ -17,25 +17,25 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@clerk/nextjs": "^7.9.2",
-    "@modelcontextprotocol/sdk": "^1.30.0",
+    "@clerk/nextjs": "^7.9.20",
+    "@modelcontextprotocol/sdk": "^1.32.2",
     "@vercel/analytics": "^1.4.1",
     "@vercel/speed-insights": "^1.1.0",
     "gray-matter": "^4.0.3",
-    "mppx": "^0.9.3",
-    "next": "^16.3.5",
-    "react": "^19.3.0",
-    "react-dom": "^19.3.0",
+    "mppx": "^0.15.0",
+    "next": "^16.4.3",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
     "react-markdown": "^10.1.0",
     "remark-gfm": "^4.0.0",
     "stripe": "^22.6.2",
     "zod": "^4.6.2"
   },
   "devDependencies": {
-    "@types/node": "^24.10.1",
+    "@types/node": "^24.19.2",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "typescript": "^6.0.3",
-    "vitest": "^5.0.0"
+    "vitest": "^5.0.5"
   }
 }
