@@ -9,7 +9,9 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { THEME_COOKIE, SCHEME_COOKIE, type Scheme } from "@/lib/theme-shared";
 import { getClerkKeys } from "@/lib/clerk-keys";
+import { clerkAppearance } from "@/lib/clerk-appearance";
 import "./globals.css";
+import "./clerk.css";
 
 const rubikGlitch = Rubik_Glitch({
   weight: "400",
@@ -76,6 +78,7 @@ export default async function RootLayout({
   return (
     <ClerkProvider
       publishableKey={clerkKeys.publishableKey}
+      appearance={clerkAppearance}
       afterSignOutUrl="/"
     >
       <html
