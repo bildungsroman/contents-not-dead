@@ -16,6 +16,8 @@ wireframe.png
 # Projects CLI leaves alone. Adding rules for it here does not stick.
 .vercel
 
+next-env.d.ts
+
 .projects/cache
 .projects/vault
 .projects/state.test.json
@@ -23,4 +25,3 @@ wireframe.png
 .env
 .env.*
 !.env.example
-next-env.d.ts
